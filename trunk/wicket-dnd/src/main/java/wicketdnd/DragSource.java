@@ -32,11 +32,11 @@ public class DragSource extends AbstractBehavior
 
 	private String dragSelector;
 
-	private int actions;
+	private int operations;
 
-	public DragSource(int actions, String dragSelector)
+	public DragSource(int operations, String dragSelector)
 	{
-		this.actions = actions;
+		this.operations = operations;
 		this.dragSelector = dragSelector;
 	}
 
@@ -62,11 +62,11 @@ public class DragSource extends AbstractBehavior
 		response.renderJavascriptReference(DND.JS);
 
 		final String id = component.getMarkupId();
-		String initJS = String.format("new DragSource('%s',%d,'%s');", id, actions, dragSelector);
+		String initJS = String.format("new DragSource('%s',%d,'%s');", id, operations, dragSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
-	protected void onDragFinished(Component drag, int action)
+	protected void onDragFinished(Component drag, int operation)
 	{
 	}
 }
