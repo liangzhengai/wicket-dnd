@@ -1,0 +1,80 @@
+<!--
+  Copyright 2009 Sven Meier
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+    http://www.apache.org/licenses/LICENSE-2.0
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd" >
+    <head>  
+<style>
+table {
+	border-spacing: 0px;
+}
+</style>
+    </head>
+    <body>
+    	Visit our project on <a href="http://code.google.com/p/wicket-dnd/">http://code.google.com/p/wicket-dnd/</a>!
+    	
+		<h2>Tree</h2>
+		<ul wicket:id="tree">
+			<li id="tree1">
+				<div>
+					<span id="tree2">drag &amp; drop</span>
+				</div>
+				<ul>
+					<li id="tree3">
+						<div>
+							<span id="tree4">drag &amp; drop</span>
+						</div>
+						<ul>
+						</ul>
+					</li>
+					<li id="tree5">
+						<div>
+							<span id="tree6">drag &amp; drop</span>
+						</div>
+						<ul>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ul>
+		
+		<h2>Table</h2>
+		<table wicket:id="table">
+			<tr id="table1">
+				<td>drag &amp; drop</td>
+			</tr>
+			<tr id="table2">
+				<td>drag &amp; drop</td>
+			</tr>
+			<tr id="table3">
+				<td>drag &amp; drop</td>
+			</tr>
+		</table>
+		
+		<h2>TableTree</h2>
+		<table wicket:id="tabletree">
+			<tr id="treetable1">
+				<td>drag &amp; drop</td>
+			</tr>
+			<tr id="treetable2">
+				<td>&nbsp;&nbsp;drag &amp; drop</td>
+			</tr>
+			<tr id="treetable3">
+				<td>&nbsp;&nbsp;drag &amp; drop</td>
+			</tr>
+		</table>
+
+    </body>
+</html>
+
