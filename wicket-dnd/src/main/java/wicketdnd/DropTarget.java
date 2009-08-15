@@ -35,12 +35,12 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	private String dropBeforeSelector;
 	private String dropAfterSelector;
 
-	private int actions;
+	private int operations;
 
-	public DropTarget(int actions, String dropSelector, String dropBeforeSelector,
+	public DropTarget(int operations, String dropSelector, String dropBeforeSelector,
 			String dropAfterSelector)
 	{
-		this.actions = actions;
+		this.operations = operations;
 
 		this.dropSelector = dropSelector;
 		this.dropBeforeSelector = dropBeforeSelector;
@@ -63,7 +63,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format("new DropTarget('%s','%s',%d,'%s','%s','%s');", id,
-				getCallbackUrl(), actions, dropSelector, dropBeforeSelector, dropAfterSelector);
+				getCallbackUrl(), operations, dropSelector, dropBeforeSelector, dropAfterSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
@@ -75,20 +75,20 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		Component drag = getComponent(dragSource, "drag");
 		Component drop = getComponent((WebMarkupContainer)getComponent(), "drop");
 		String type = getComponent().getRequest().getParameter("type");
-		int action = Integer.parseInt(getComponent().getRequest().getParameter("action"));
+		int operation = Integer.parseInt(getComponent().getRequest().getParameter("operation"));
 
 		boolean accepted;
 		if ("drop".equals(type))
 		{
-			accepted = onDrop(drag, drop, action);
+			accepted = onDrop(drag, drop, operation);
 		}
 		else if ("drop-before".equals(type))
 		{
-			accepted = onDropBefore(drag, drop, action);
+			accepted = onDropBefore(drag, drop, operation);
 		}
 		else if ("drop-after".equals(type))
 		{
-			accepted = onDropAfter(drag, drop, action);
+			accepted = onDropAfter(drag, drop, operation);
 		}
 		else
 		{
@@ -101,7 +101,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 			{
 				if (behavior instanceof DragSource)
 				{
-					((DragSource)behavior).onDragFinished(drag, action);
+					((DragSource)behavior).onDragFinished(drag, operation);
 					break;
 				}
 			}
@@ -115,17 +115,17 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		return (Component)root.visitChildren(new MarkupIdVisitor(id));
 	}
 
-	protected boolean onDrop(Component drag, Component drop, int action)
+	protected boolean onDrop(Component drag, Component drop, int operation)
 	{
 		return false;
 	}
 
-	protected boolean onDropBefore(Component drag, Component drop, int action)
+	protected boolean onDropBefore(Component drag, Component drop, int operation)
 	{
 		return false;
 	}
 
-	protected boolean onDropAfter(Component drag, Component drop, int action)
+	protected boolean onDropAfter(Component drag, Component drop, int operation)
 	{
 		return false;
 	}

@@ -13,31 +13,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package wicketdnd;
+package wicketdnd.examples;
 
-import org.apache.wicket.ResourceReference;
-import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Sven Meier
  */
-public class DND
+public class Foo implements Serializable
 {
-	public static final ResourceReference JS = new JavascriptResourceReference(DropTarget.class,
-			"wicket-dnd.js");
 
-	/**
-	 * Action indicating a move.
-	 */
-	public static final int MOVE = 1;
-
-	/**
-	 * Action indicating a copy.
-	 */
-	public static final int COPY = 2;
+	private String name;
 	
-	/**
-	 * Action indicating a link.
-	 */
-	public static final int LINK = 4;
+	private List<Foo> children = new ArrayList<Foo>();
+	
+	public Foo(String name) {
+		this.name = name;
+	}
+
+	public Foo(Foo parent, String name) {
+		this.name = name;
+		
+		parent.children.add(this);
+	}
+
+	public String getName()
+	{
+		return name;
+	}
+	
+	public boolean hasChildren()
+	{
+		return !children.isEmpty();
+	}
+
+	public List<Foo> getChildren()
+	{
+		return children;
+	}
 }

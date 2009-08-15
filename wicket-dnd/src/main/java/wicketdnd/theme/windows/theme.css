@@ -1,10 +1,14 @@
-.dnd-action-move  {
+.dnd-hoover-move {
 	position: absolute;
-	cursor: url(action-move.gif), move;
+	cursor: url(move.gif), auto;
 }
-.dnd-action-copy  {
+.dnd-hoover-copy {
 	position: absolute;
-	cursor: url(action-copy.gif), move;
+	cursor: url(copy.gif), auto;
+}
+.dnd-hoover-link {
+	position: absolute;
+	cursor: url(link.gif), auto;
 }
 .dnd-drag  {
 	background-color: #0000ee;

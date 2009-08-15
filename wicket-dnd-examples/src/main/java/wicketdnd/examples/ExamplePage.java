@@ -15,14 +15,24 @@
  */
 package wicketdnd.examples;
 
+import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.CSSPackageResource;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 
 import wicketdnd.DND;
 import wicketdnd.DragSource;
 import wicketdnd.DropTarget;
 import wicketdnd.theme.WindowsTheme;
+import wickettree.DefaultNestedTree;
+import wickettree.DefaultTableTree;
+import wickettree.NestedTree;
+import wickettree.TableTree;
+import wickettree.table.TreeColumn;
 
 /**
  * @author Sven Meier
@@ -36,22 +46,43 @@ public class ExamplePage extends WebPage
 	{
 		add(CSSPackageResource.getHeaderContribution(new WindowsTheme()));
 
-		WebMarkupContainer tree = new WebMarkupContainer("tree");
-		tree.add(new DragSource(DND.ACTION_COPY | DND.ACTION_MOVE, "span"));
-		tree.add(new DropTarget(DND.ACTION_COPY | DND.ACTION_MOVE, "span", "li",
-				"li"));
+		NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", new FooTreeProvider());
+		tree.add(new DragSource(DND.COPY | DND.MOVE, "span.tree-content"));
+		tree.add(new DropTarget(DND.COPY | DND.MOVE, "span.tree-content", "li", "li"));
 		add(tree);
 
-		WebMarkupContainer table = new WebMarkupContainer("table");
-		table.add(new DragSource(DND.ACTION_COPY | DND.ACTION_MOVE, "tr"));
-		table.add(new DropTarget(DND.ACTION_COPY | DND.ACTION_MOVE, null, "tr",
-				"tr"));
+		DataTable<Foo> table = new DataTable<Foo>("table", dataColumns(), new FooDataProvider(),
+				Integer.MAX_VALUE)
+		{
+			@Override
+			protected Item<Foo> newRowItem(String id, int index, IModel<Foo> model)
+			{
+				Item<Foo> item = super.newRowItem(id, index, model);
+				item.setOutputMarkupId(true);
+				return item;
+			}
+		};
+		table.add(new DragSource(DND.COPY | DND.MOVE, "tr"));
+		table.add(new DropTarget(DND.COPY | DND.MOVE, null, "tr", "tr"));
 		add(table);
 
-		WebMarkupContainer tabletree = new WebMarkupContainer("tabletree");
-		tabletree.add(new DragSource(DND.ACTION_COPY | DND.ACTION_MOVE, "tr"));
-		tabletree.add(new DropTarget(DND.ACTION_COPY | DND.ACTION_MOVE, "tr", "tr",
-				"tr"));
+		TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", treeColumns(),
+				new FooTreeProvider(), Integer.MAX_VALUE);
+		tabletree.add(new DragSource(DND.COPY | DND.MOVE, "tr"));
+		tabletree.add(new DropTarget(DND.COPY | DND.MOVE, "tr", null, null));
 		add(tabletree);
+	}
+
+	@SuppressWarnings("unchecked")
+	private IColumn<Foo>[] dataColumns()
+	{
+		return new IColumn[] { new PropertyColumn<Foo>(Model.of("Name"), "name") };
+	}
+
+	@SuppressWarnings("unchecked")
+	private IColumn<Foo>[] treeColumns()
+	{
+		return new IColumn[] { new TreeColumn<Foo>(Model.of("Name")),
+				new PropertyColumn<Foo>(Model.of("Name"), "name") };
 	}
 }

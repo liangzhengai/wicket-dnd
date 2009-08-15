@@ -20,6 +20,11 @@
 			<artifactId>wicket-dnd</artifactId>
 			<version>0.4-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>wicket-tree</groupId>
+			<artifactId>wicket-tree</artifactId>
+			<version>0.4-SNAPSHOT</version>
+		</dependency>
 
 		<!--  WICKET DEPENDENCIES -->
 		<dependency>
