@@ -1,0 +1,26 @@
+.dnd-action-move  {
+	position: absolute;
+	cursor: url(action-move.gif), move;
+}
+.dnd-action-copy  {
+	position: absolute;
+	cursor: url(action-copy.gif), move;
+}
+.dnd-drag  {
+	background-color: #0000ee;
+	color: #FFFFFF;
+}
+.dnd-drop  {
+	background-color: #0000ee;
+	color: #FFFFFF;
+}
+.dnd-drop-before  {
+	position: absolute;
+	background: #000000;
+	height: 2px;
+}
+.dnd-drop-after  {
+	position: absolute;
+	background: #000000;
+	height: 2px;
+}
