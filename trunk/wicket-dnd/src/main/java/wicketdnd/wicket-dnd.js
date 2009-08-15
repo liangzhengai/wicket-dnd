@@ -141,7 +141,7 @@ var DND = {
 				}
 						
 				var drop = this.findDrop(child, target, x, y);
-				if (target != null && DND.hasId(child)) {
+				if (target != null) {
 					if (drop == null) {
 						if (target.match(child)) {
 							return new Drop(target, child);
@@ -215,10 +215,6 @@ var DND = {
 			style.height = height + "px";
 		}
 	},
-	
-	hasId: function(element) {
-		return element.readAttribute('id');
-	}
 };
 
 var Drop = Class.create({
@@ -341,7 +337,7 @@ var DragSource = Class.create({
 				return;
 			}
 
-			while (src != this.element && (!src.match(this.dragSelector) || !DND.hasId(src))) {
+			while (src != this.element && !src.match(this.dragSelector)) {
 				src = src.up();
 			}
 			
