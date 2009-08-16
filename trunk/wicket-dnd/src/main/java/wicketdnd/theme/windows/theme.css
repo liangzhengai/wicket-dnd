@@ -10,6 +10,10 @@
 	position: absolute;
 	cursor: url(link.gif), auto;
 }
+.dnd-hoover-none {
+	position: absolute;
+	cursor: url(none.gif), auto;
+}
 .dnd-drag  {
 	background-color: #0000ee;
 	color: #FFFFFF;
