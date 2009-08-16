@@ -49,7 +49,7 @@ var DND = {
 		this.after.hide();
 
 		this.eventMouseMove = this.updateDrag.bindAsEventListener(this);
-		this.eventKeyPress  = this.updateEscape.bindAsEventListener(this);      
+		this.eventKeyPress  = this.updateKeys.bindAsEventListener(this);      
 		this.eventMouseUp   = this.endDrag.bindAsEventListener(this);
 		Event.observe(document, "mousemove", this.eventMouseMove);
 		Event.observe(document, "keypress", this.eventKeyPress);
@@ -95,7 +95,7 @@ var DND = {
 		}
 	},
 		
-	updateEscape: function(event) {
+	updateKeys: function(event) {
 		if (event.keyCode == Event.KEY_ESC) {
 			this.endDrag(event);
 		}
