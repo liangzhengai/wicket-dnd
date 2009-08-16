@@ -1,5 +1,7 @@
 var DND = {
 
+	NONE: 0,
+
 	MOVE: 1,
 	
 	COPY: 2,
@@ -70,17 +72,38 @@ var DND = {
 			this.setDrop(this.findDrop(document.body, null, this.pointer[0], this.pointer[1]));
 		}
 
-		if (event.shiftKey) {
-			this.setOperation(this.LINK);
-		} else if (event.ctrlKey) {
-			this.setOperation(this.COPY);
-		} else {
-			this.setOperation(this.MOVE);
-		}
+		this.setOperation(this.findOperation(event.shiftKey, event.ctrlKey));
 
 		Event.stop(event);
 	},
 
+	findOperation: function(shift, ctrl) {
+		var operations = this.drag.source.operations;
+		if (this.drop != null) {
+			operations = operations & this.drop.target.operations;
+		}
+		
+		if (shift) {
+			if ((operations & this.LINK) != 0) {
+				return this.LINK;
+			}
+		} else if (ctrl) {
+			if ((operations & this.COPY) != 0) {
+				return this.COPY;
+			}
+		} else {
+			if ((operations & this.MOVE) != 0) {
+				return this.MOVE;
+			} else if ((operations & this.COPY) != 0) {
+				return this.COPY;
+			} else if ((operations & this.LINK) != 0) {
+				return this.LINK;
+			}
+		}		
+		
+		return this.NONE;
+	},
+	
 	setOperation: function(operation) {
 		if (this.operation != operation) {
 			this.operation = operation;
@@ -91,6 +114,8 @@ var DND = {
 				this.hoover.className = "dnd-hoover-copy";
 			} else if (this.operation == this.LINK) {
 				this.hoover.className = "dnd-hoover-link";
+			} else {
+				this.hoover.className = "dnd-hoover-none";
 			}
 		}
 	},
@@ -102,7 +127,7 @@ var DND = {
 	},
 
 	endDrag: function(event) {
-		if (this.drop != null) {
+		if (this.drop != null && this.operation != this.NONE) {
 			this.drop.perform(this.drag, this.operation);
 			
 			this.setDrop(null);
