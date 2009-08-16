@@ -19,10 +19,15 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.CSSPackageResource;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 
 import wicketdnd.DND;
 import wicketdnd.DragSource;
@@ -46,10 +51,19 @@ public class ExamplePage extends WebPage
 	{
 		add(CSSPackageResource.getHeaderContribution(new WindowsTheme()));
 
-		NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", new FooTreeProvider());
-		tree.add(new DragSource(DND.COPY | DND.MOVE, "span.tree-content"));
-		tree.add(new DropTarget(DND.COPY | DND.MOVE, "span.tree-content", "li", "li"));
-		add(tree);
+		WebMarkupContainer list = new WebMarkupContainer("list");
+		ListView<Foo> items = new ListView<Foo>("items", new FooList())
+		{
+			@Override
+			protected void populateItem(ListItem<Foo> item)
+			{
+				item.add(new Label("name", new PropertyModel<String>(item.getModel(), "name")));
+			}
+		};
+		list.add(items);
+		list.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "div"));
+		list.add(new DropTarget(DND.LINK, null, "div", "div"));
+		add(list);
 
 		DataTable<Foo> table = new DataTable<Foo>("table", dataColumns(), new FooDataProvider(),
 				Integer.MAX_VALUE)
@@ -62,14 +76,19 @@ public class ExamplePage extends WebPage
 				return item;
 			}
 		};
-		table.add(new DragSource(DND.COPY | DND.MOVE, "tr"));
-		table.add(new DropTarget(DND.COPY | DND.MOVE, null, "tr", "tr"));
+		table.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "tr"));
+		table.add(new DropTarget(DND.COPY, null, "tr", "tr"));
 		add(table);
+
+		NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", new FooTreeProvider());
+		tree.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
+		tree.add(new DropTarget(DND.MOVE, "span.tree-content", "li", "li"));
+		add(tree);
 
 		TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", treeColumns(),
 				new FooTreeProvider(), Integer.MAX_VALUE);
-		tabletree.add(new DragSource(DND.COPY | DND.MOVE, "tr"));
-		tabletree.add(new DropTarget(DND.COPY | DND.MOVE, "tr", null, null));
+		tabletree.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "tr"));
+		tabletree.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null));
 		add(tabletree);
 	}
 

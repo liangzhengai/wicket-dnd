@@ -24,13 +24,20 @@ table {
     <body>
     	Visit our project on <a href="http://code.google.com/p/wicket-dnd/">http://code.google.com/p/wicket-dnd/</a>!
     	
-		<h2>Tree</h2>
-		<div wicket:id="tree" />
+		<h2>ListView (link)</h2>
+		<div wicket:id="list">
+			<div wicket:id="items">
+				<span wicket:id="name">[name]</span>
+			</div>
+		</div>
 		
-		<h2>Table</h2>
+		<h2>Table (copy)</h2>
 		<table wicket:id="table">[table]</table>
 		
-		<h2>TableTree</h2>
+		<h2>Tree (move)</h2>
+		<div wicket:id="tree" />
+		
+		<h2>TableTree (move/copy/link)</h2>
 		<table wicket:id="tabletree" class="tree">[tabletree]</table>
 
     </body>
