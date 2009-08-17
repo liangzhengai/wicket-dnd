@@ -1,18 +1,37 @@
+.dnd-hoover {
+	position: absolute;
+}
 .dnd-hoover-move {
 	position: absolute;
-	cursor: url(move.gif), auto;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	cursor: url(move.gif), default;
 }
 .dnd-hoover-copy {
 	position: absolute;
-	cursor: url(copy.gif), auto;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	cursor: url(copy.gif), default;
 }
 .dnd-hoover-link {
 	position: absolute;
-	cursor: url(link.gif), auto;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	cursor: url(link.gif), default;
 }
 .dnd-hoover-none {
 	position: absolute;
-	cursor: url(none.gif), auto;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	cursor: url(none.gif), default;
 }
 .dnd-drag  {
 	background-color: #0000ee;
