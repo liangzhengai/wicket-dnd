@@ -22,24 +22,25 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.protocol.http.PageExpiredException;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
 /**
  * @author Sven Meier
  */
-public class DropTarget extends AbstractDefaultAjaxBehavior
-{
+public class DropTarget extends AbstractDefaultAjaxBehavior {
 	private static final long serialVersionUID = 1L;
 
 	private String dropSelector;
+
 	private String dropBeforeSelector;
+
 	private String dropAfterSelector;
 
 	private int operations;
 
-	public DropTarget(int operations, String dropSelector, String dropBeforeSelector,
-			String dropAfterSelector)
-	{
+	public DropTarget(int operations, String dropSelector,
+			String dropBeforeSelector, String dropAfterSelector) {
 		this.operations = operations;
 
 		this.dropSelector = dropSelector;
@@ -48,8 +49,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	@Override
-	public void renderHead(IHeaderResponse response)
-	{
+	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 
 		response.renderJavascriptReference(PrototypeResourceReference.INSTANCE);
@@ -57,76 +57,79 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		renderDragHead(response);
 	}
 
-	private void renderDragHead(IHeaderResponse response)
-	{
+	private void renderDragHead(IHeaderResponse response) {
 		response.renderJavascriptReference(DND.JS);
 
 		final String id = getComponent().getMarkupId();
-		String initJS = String.format("new DropTarget('%s','%s',%d,'%s','%s','%s');", id,
-				getCallbackUrl(), operations, dropSelector, dropBeforeSelector, dropAfterSelector);
+		String initJS = String.format(
+				"new DropTarget('%s','%s',%d,'%s','%s','%s');", id,
+				getCallbackUrl(), operations, dropSelector, dropBeforeSelector,
+				dropAfterSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
 	@Override
-	protected void respond(AjaxRequestTarget target)
-	{
-		WebMarkupContainer dragSource = (WebMarkupContainer)getComponent(getComponent().getPage(),
-				"dragSource");
-		Component drag = getComponent(dragSource, "drag");
-		Component drop = getComponent((WebMarkupContainer)getComponent(), "drop");
+	protected void respond(AjaxRequestTarget target) {
+		Component drop = findDescendent((WebMarkupContainer) getComponent(),
+				"drop");
 		String type = getComponent().getRequest().getParameter("type");
-		int operation = Integer.parseInt(getComponent().getRequest().getParameter("operation"));
+		if (type == null) {
+			onHoover(drop);
+		} else {
+			int operation = Integer.parseInt(getComponent().getRequest()
+					.getParameter("operation"));
 
-		boolean accepted;
-		if ("drop".equals(type))
-		{
-			accepted = onDrop(drag, drop, operation);
-		}
-		else if ("drop-before".equals(type))
-		{
-			accepted = onDropBefore(drag, drop, operation);
-		}
-		else if ("drop-after".equals(type))
-		{
-			accepted = onDropAfter(drag, drop, operation);
-		}
-		else
-		{
-			throw new IllegalArgumentException("unkown drop type");
-		}
+			WebMarkupContainer dragSource = (WebMarkupContainer) findDescendent(
+					getComponent().getPage(), "dragSource");
+			Component drag = findDescendent(dragSource, "drag");
 
-		if (accepted)
-		{
-			for (IBehavior behavior : dragSource.getBehaviors())
-			{
-				if (behavior instanceof DragSource)
-				{
-					((DragSource)behavior).onDragFinished(drag, operation);
-					break;
+			boolean accepted;
+			if ("drop".equals(type)) {
+				accepted = onDrop(drag, drop, operation);
+			} else if ("drop-before".equals(type)) {
+				accepted = onDropBefore(drag, drop, operation);
+			} else if ("drop-after".equals(type)) {
+				accepted = onDropAfter(drag, drop, operation);
+			} else {
+				throw new IllegalArgumentException("unkown drop type");
+			}
+
+			if (accepted) {
+				for (IBehavior behavior : dragSource.getBehaviors()) {
+					if (behavior instanceof DragSource) {
+						((DragSource) behavior).onDragFinished(drag, operation);
+						break;
+					}
 				}
 			}
 		}
 	}
 
-	private Component getComponent(MarkupContainer root, String parameter)
-	{
+	private Component findDescendent(MarkupContainer root, String parameter) {
 		String id = getComponent().getRequest().getParameter(parameter);
 
-		return (Component)root.visitChildren(new MarkupIdVisitor(id));
+		Component descendent = (Component) root
+				.visitChildren(new MarkupIdVisitor(id));
+		if (descendent == null) {
+			throw new PageExpiredException("No descendent found with id " + id
+					+ "; Component: " + root.toString());
+		}
+		return descendent;
 	}
 
-	protected boolean onDrop(Component drag, Component drop, int operation)
-	{
+	protected void onHoover(Component drop) {
+
+	}
+
+	protected boolean onDrop(Component drag, Component drop, int operation) {
 		return false;
 	}
 
-	protected boolean onDropBefore(Component drag, Component drop, int operation)
-	{
+	protected boolean onDropBefore(Component drag, Component drop, int operation) {
 		return false;
 	}
 
-	protected boolean onDropAfter(Component drag, Component drop, int operation)
-	{
+	protected boolean onDropAfter(Component drag, Component drop, int operation) {
 		return false;
 	}
 }

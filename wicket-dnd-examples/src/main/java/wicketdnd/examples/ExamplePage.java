@@ -15,6 +15,7 @@
  */
 package wicketdnd.examples;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -55,6 +56,14 @@ public class ExamplePage extends WebPage
 		ListView<Foo> items = new ListView<Foo>("items", new FooList())
 		{
 			@Override
+			protected ListItem<Foo> newItem(int index)
+			{
+				ListItem<Foo> item = super.newItem(index);
+				item.setOutputMarkupId(true);
+				return item;
+			}
+			
+			@Override
 			protected void populateItem(ListItem<Foo> item)
 			{
 				item.add(new Label("name", new PropertyModel<String>(item.getModel(), "name")));
@@ -80,7 +89,15 @@ public class ExamplePage extends WebPage
 		table.add(new DropTarget(DND.COPY, null, "tr", "tr"));
 		add(table);
 
-		NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", new FooTreeProvider());
+		NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", new FooTreeProvider()) {
+			@Override
+			protected Component newContentComponent(String arg0, IModel<Foo> arg1)
+			{
+				Component component = super.newContentComponent(arg0, arg1);
+				component.setOutputMarkupId(true);
+				return component;
+			}
+		};
 		tree.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
 		tree.add(new DropTarget(DND.MOVE, "span.tree-content", "li", "li"));
 		add(tree);
