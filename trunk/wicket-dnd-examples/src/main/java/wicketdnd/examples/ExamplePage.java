@@ -62,7 +62,7 @@ public class ExamplePage extends WebPage
 				item.setOutputMarkupId(true);
 				return item;
 			}
-			
+
 			@Override
 			protected void populateItem(ListItem<Foo> item)
 			{
@@ -89,7 +89,8 @@ public class ExamplePage extends WebPage
 		table.add(new DropTarget(DND.COPY, null, "tr", "tr"));
 		add(table);
 
-		NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", new FooTreeProvider()) {
+		final NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", new FooTreeProvider())
+		{
 			@Override
 			protected Component newContentComponent(String arg0, IModel<Foo> arg1)
 			{
@@ -99,13 +100,28 @@ public class ExamplePage extends WebPage
 			}
 		};
 		tree.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
-		tree.add(new DropTarget(DND.MOVE, "span.tree-content", "li", "li"));
+		tree.add(new DropTarget(DND.MOVE, "span.tree-content", "li", "li")
+		{
+			@Override
+			protected void onHoover(Component drop)
+			{
+				tree.expand((Foo)drop.getDefaultModelObject());
+			}
+		});
 		add(tree);
 
-		TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", treeColumns(),
+		final TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", treeColumns(),
 				new FooTreeProvider(), Integer.MAX_VALUE);
 		tabletree.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "tr"));
-		tabletree.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null));
+		tabletree.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
+		{
+			@Override
+			protected void onHoover(Component drop)
+			{
+				tree.expand((Foo)drop.getDefaultModelObject());
+			}
+		});
+
 		add(tabletree);
 	}
 
