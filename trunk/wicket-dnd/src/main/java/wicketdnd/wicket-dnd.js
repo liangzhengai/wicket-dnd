@@ -250,6 +250,8 @@ var Hoover = Class.create({
 		var style = this.element.style;
 		style.width = DND.getDimension(this.clone).width + "px";
 		style.height = DND.getDimension(this.clone).height + "px";
+		
+		this.element.focus();
 	},
 
 	setOperation: function(operation) {
