@@ -66,7 +66,7 @@ public class DragSource extends AbstractBehavior
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
-	protected void onDragFinished(Component drag, int operation)
+	public void onDragFinished(Component drag, int operation)
 	{
 	}
 }

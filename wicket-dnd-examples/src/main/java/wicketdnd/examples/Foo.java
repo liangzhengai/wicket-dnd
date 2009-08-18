@@ -53,4 +53,10 @@ public class Foo implements Serializable
 	{
 		return children;
 	}
+	
+	@Override
+	public String toString()
+	{
+		return name;
+	}
 }
