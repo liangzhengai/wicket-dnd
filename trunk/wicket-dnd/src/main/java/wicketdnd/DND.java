@@ -23,7 +23,7 @@ import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
  */
 public class DND
 {
-	public static final ResourceReference JS = new JavascriptResourceReference(DropTarget.class,
+	public static final ResourceReference JS = new JavascriptResourceReference(DND.class,
 			"wicket-dnd.js");
 
 	/**

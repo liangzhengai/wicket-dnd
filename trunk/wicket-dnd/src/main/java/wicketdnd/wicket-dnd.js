@@ -10,27 +10,21 @@ var DND = {
 	
 	OPACITY: 0.7,
 	
+	DELAY: 2,
+	
 	positions: {},
 	
 	dimensions: {},
+	
+	executor: null,
+	
+	elements: {},
 	
 	startDrag: function(pointer, drag, offset) {
 		this.drag = drag;
 
 		this.drop = null;
 		
-		this.before = new Element("div");
-		this.before.addClassName("dnd-drop-before");
-		this.before.setOpacity(this.OPACITY);
-		this.before.hide();
-		Element.insert(document.body, {"bottom" : this.before});
-
-		this.after = new Element("div");
-		this.after.addClassName("dnd-drop-after");
-		this.after.setOpacity(this.OPACITY);
-		this.after.hide();
-		Element.insert(document.body, {"bottom" : this.after});
-
 		this.hoover = new Hoover(drag, offset);
 
 		this.eventMousemove = this.updateDrag.bindAsEventListener(this);
@@ -66,7 +60,7 @@ var DND = {
 
 		Event.stop(event);
 	},
-
+	
 	findOperation: function() {
 		var operations = this.drag.source.operations;
 		if (this.drop != null) {
@@ -125,7 +119,7 @@ var DND = {
 
 	endDrag: function(event) {
 		if (this.drop != null && this.hoover.operation != this.NONE) {
-			this.drop.perform(this.drag, this.hoover.operation);
+			this.drop.onDrop(this.drag, this.hoover.operation);
 			
 			this.setDrop(null);
 		}
@@ -136,14 +130,17 @@ var DND = {
 		this.hoover.clear();
 		this.hoover = null;
 		
-		this.before.remove();
-		this.before = null;
+		for (var className in this.elements) {
+			this.elements[className].remove();
+		}
+		this.elements = {};
 
-		this.after.remove();
-		this.after = null;
-
-		this.positions = {};
-		this.dimensions = {};
+		this.clearCache();
+		
+		if (this.excutor != null) {
+			this.executor.stop();
+			this.executor = null;
+		}
 
 		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
 		Event.stopObserving(document, "mousemove", this.eventMousemove);
@@ -166,7 +163,7 @@ var DND = {
 				}
 						
 				var drop = this.findDrop(child, target, x, y);
-				if (target != null) {
+				if (child.id != this.drag.id && target != null) {
 					if (drop == null) {
 						if (target.match(child)) {
 							return new Drop(target, child);
@@ -199,14 +196,33 @@ var DND = {
 				this.drop.clear();
 			}
 			
+			if (this.executor != null) {
+				this.executor.stop();
+				this.executor = null;
+			}
+			
 			this.drop = drop;
 			
 			if (this.drop != null) {
 				this.drop.draw();
+				
+				this.executor = new PeriodicalExecuter(this.onDragOver.bindAsEventListener(this), this.DELAY);
 			}
 		}
 	},
 	
+	onDragOver: function() {
+		if (this.executor != null) {
+			this.executor.stop();
+			this.executor = null;
+		}
+
+		if (this.drop != null) {
+			this.drop.target.onDragOver(this.drop,
+							this.clearCache.bindAsEventListener(this));
+		}		
+	},
+
 	getDimension: function(element) {
 		var id = element.identify();
 		
@@ -227,6 +243,26 @@ var DND = {
 			this.positions[id] = position;
 		}
 		return position;
+	},
+	
+	clearCache: function() {	
+		this.dimensions = {};
+		this.positions = {};
+	},
+
+	newElement: function(className) {
+		var element = this.elements[className];
+		if (element == null) {
+			element = new Element("div");
+			element.addClassName(className);
+			element.setOpacity(this.OPACITY);
+			element.hide();
+			Element.insert(document.body, {"bottom" : element});
+			
+			this.elements[className] = element;
+		}
+		
+		return element;
 	}
 };
 
@@ -240,7 +276,7 @@ var Hoover = Class.create({
 		this.element.setOpacity(DND.OPACITY);
 		Element.insert(document.body, {"bottom" : this.element});
 		
-		this.clone = drag.element.cloneNode(true);
+		this.clone = $(drag.id).cloneNode(true);
 		Element.insert(this.element, {"bottom" : this.clone});
 		
 		this.cover = new Element("div");
@@ -285,19 +321,19 @@ var Drop = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
-		this.element = element;
+		this.id = element.identify();
 	},
 
 	clear: function() {
-		this.element.removeClassName("dnd-drop");
+		$(this.id).removeClassName("dnd-drop");
 	},
 
 	draw: function() {
-		this.element.addClassName("dnd-drop");
+		$(this.id).addClassName("dnd-drop");
 	},
 
-	perform: function(drag, operation) {
-		this.target.perform(drag, this, "drop", operation);
+	onDrop: function(drag, operation) {
+		this.target.onDrop(drag, this, "drop", operation);
 	}
 });
 
@@ -305,26 +341,31 @@ var DropBefore = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
-		this.element = element;
+		this.id = element.identify();
+		
+		this.element = DND.newElement("dnd-drop-before");
+		
+		this.height = DND.getDimension(this.element).height;
 	},
 
 	clear: function() {
-		DND.before.hide();
+		this.element.hide();
 	},
 
 	draw: function() {
-		DND.before.show();
+		this.element.show();
 
-		var position = DND.getPosition(this.element);
+		var position = DND.getPosition($(this.id));
+		var dimension = DND.getDimension($(this.id));
 		
-		var style = DND.before.style;
+		var style = this.element.style;
 		style.left = position.left + "px";
-		style.top = position.top - (DND.getDimension(DND.before).height/2) + "px";
-		style.width = DND.getDimension(this.element).width + "px";
+		style.top = position.top - (this.height/2) + "px";
+		style.width = dimension.width + "px";
 	},	
 
-	perform: function(drag, operation) {
-		this.target.perform(drag, this, "drop-before", operation);
+	onDrop: function(drag, operation) {
+		this.target.onDrop(drag, this, "drop-before", operation);
 	}
 });
 
@@ -332,26 +373,31 @@ var DropAfter = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
-		this.element = element;
+		this.id = element.identify();
+		
+		this.element = DND.newElement("dnd-drop-after");
+		
+		this.height = DND.getDimension(this.element).height;
 	},
 
 	clear: function() {
-		DND.after.hide();
+		this.element.hide();
 	},
 
 	draw: function() {
-		DND.after.show();
+		this.element.show();
 		
-		var position = DND.getPosition(this.element);
-
-		var style = DND.after.style;
+		var position = DND.getPosition($(this.id));
+		var dimension = DND.getDimension($(this.id));
+		
+		var style = this.element.style;
 		style.left = position.left + "px";
-		style.top = position.top + DND.getDimension(this.element).height - (DND.getDimension(DND.after).height/2) + "px";
-		style.width = DND.getDimension(this.element).width + "px";
+		style.top = position.top + dimension.height - (this.height/2) + "px";
+		style.width = dimension.width + "px";
 	},
 	
-	perform: function(drag, operation) {
-		this.target.perform(drag, this, "drop-after", operation);
+	onDrop: function(drag, operation) {
+		this.target.onDrop(drag, this, "drop-after", operation);
 	}
 });
 
@@ -359,17 +405,17 @@ var Drag = Class.create({
 
 	initialize: function(source, element, pointer) {
 		this.source = source;
-		this.element = element;
+		this.id = element.identify();
 		
 		DND.startDrag(pointer, this,
-					[pointer[0] - DND.getPosition(this.element).left,
-		             pointer[1] - DND.getPosition(this.element).top]);
+					[pointer[0] - DND.getPosition(element).left,
+		             pointer[1] - DND.getPosition(element).top]);
 		
-		this.element.addClassName("dnd-drag");
+		element.addClassName("dnd-drag");
 	},
-	
+
 	clear: function() {
-		this.element.removeClassName("dnd-drag");
+		$(this.id).removeClassName("dnd-drag");
 	}
 });
 
@@ -388,7 +434,7 @@ var DragSource = Class.create({
 	
 	initDrag: function(event) {
 
-		if (Event.isLeftClick(event)) {    
+		if (event.isLeftClick()) {
 			var src = event.element();
 			
 			// abort on form elements, fixes a Firefox issue
@@ -444,11 +490,11 @@ var DropTarget = Class.create({
 		return element.match(this.dropBeforeSelector);
 	},
 	
-	hoover: function(drop) {
-		wicketAjaxGet(this.url + "&drop=" + drop.element.id);
+	onDragOver: function(drop, successHandler) {
+		wicketAjaxGet(this.url + "&drop=" + drop.id, successHandler);
 	},
 
-	perform: function(drag, drop, type, operation) {
-		wicketAjaxGet(this.url + "&drop=" + drop.element.id + "&type=" + type + "&operation=" + operation+ "&dragSource=" + drag.source.element.id  + "&drag=" + drag.element.id);
+	onDrop: function(drag, drop, type, operation) {
+		wicketAjaxGet(this.url + "&drop=" + drop.id + "&type=" + type + "&operation=" + operation+ "&dragSource=" + drag.source.element.id  + "&drag=" + drag.id);
 	}
 });

@@ -26,6 +26,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.ReuseIfModelsEqualStrategy;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
@@ -103,7 +104,7 @@ public class ExamplePage extends WebPage
 		tree.add(new DropTarget(DND.MOVE, "span.tree-content", "li", "li")
 		{
 			@Override
-			protected void onHoover(Component drop)
+			public void onDragOver(Component drop)
 			{
 				tree.expand((Foo)drop.getDefaultModelObject());
 			}
@@ -111,14 +112,25 @@ public class ExamplePage extends WebPage
 		add(tree);
 
 		final TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", treeColumns(),
-				new FooTreeProvider(), Integer.MAX_VALUE);
-		tabletree.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "tr"));
+				new FooTreeProvider(), Integer.MAX_VALUE) {
+			@Override
+			protected Component newContentComponent(String arg0, IModel<Foo> arg1)
+			{
+				Component component = super.newContentComponent(arg0, arg1);
+				component.setOutputMarkupId(true);
+				return component;
+			}
+		};
+		// reuse items or drop following expansion will fail due to new
+		// markup ids
+		tabletree.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
+		tabletree.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
 		tabletree.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
 		{
 			@Override
-			protected void onHoover(Component drop)
+			public void onDragOver(Component drop)
 			{
-				tree.expand((Foo)drop.getDefaultModelObject());
+				tabletree.expand((Foo)drop.getDefaultModelObject());
 			}
 		});
 

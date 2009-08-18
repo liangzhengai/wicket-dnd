@@ -69,12 +69,12 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	}
 
 	@Override
-	protected void respond(AjaxRequestTarget target) {
+	protected final void respond(AjaxRequestTarget target) {
 		Component drop = findDescendent((WebMarkupContainer) getComponent(),
 				"drop");
 		String type = getComponent().getRequest().getParameter("type");
 		if (type == null) {
-			onHoover(drop);
+			onDragOver(drop);
 		} else {
 			int operation = Integer.parseInt(getComponent().getRequest()
 					.getParameter("operation"));
@@ -108,6 +108,10 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	private Component findDescendent(MarkupContainer root, String parameter) {
 		String id = getComponent().getRequest().getParameter(parameter);
 
+		if (id.equals(root.getMarkupId(false))) {
+			return root;
+		}
+		
 		Component descendent = (Component) root
 				.visitChildren(new MarkupIdVisitor(id));
 		if (descendent == null) {
@@ -117,19 +121,19 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 		return descendent;
 	}
 
-	protected void onHoover(Component drop) {
+	public void onDragOver(Component drop) {
 
 	}
 
-	protected boolean onDrop(Component drag, Component drop, int operation) {
+	public boolean onDrop(Component drag, Component drop, int operation) {
 		return false;
 	}
 
-	protected boolean onDropBefore(Component drag, Component drop, int operation) {
+	public boolean onDropBefore(Component drag, Component drop, int operation) {
 		return false;
 	}
 
-	protected boolean onDropAfter(Component drag, Component drop, int operation) {
+	public boolean onDropAfter(Component drag, Component drop, int operation) {
 		return false;
 	}
 }
