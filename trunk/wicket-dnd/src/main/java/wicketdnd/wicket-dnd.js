@@ -50,8 +50,13 @@ var DND = {
 
 			this.hoover.draw(pointer);
 
-			this.setDrop(this.findDrop(document.body, null, this.pointer[0], this.pointer[1]));
-
+			var target = this.findTarget(document.body, this.pointer[0], this.pointer[1]);
+			if (target == null) {
+				this.setDrop(null);
+			} else {
+				this.setDrop(target.findDrop(this.pointer[0], this.pointer[1]));
+			}
+			
 			this.shift = event.shiftKey;
 			this.ctrl = event.ctrlKey;
 			
@@ -150,46 +155,25 @@ var DND = {
 		Event.stop(event);
 	},
 
-	findDrop: function(parent, target, x, y) {
-		var children = parent.childElements();
+	findTarget: function(element, x, y) {
+		if (element.dropTarget != undefined) {
+			return element.dropTarget;
+		}
+
+		var children = element.childElements();
 		for (var index = 0; index < children.length; index++) {
 			var child = children[index];
 			var position = this.getPosition(child);
 			var dimension = this.getDimension(child);
 
 			if (x >= position.left && x < position.left + dimension.width && y >= position.top && y < position.top + dimension.height) {
-				if (target == null && child.dropTarget != undefined) {
-					target = child.dropTarget;
-				}
-						
-				var drop = this.findDrop(child, target, x, y);
-				if (child.id != this.drag.id && target != null) {
-					if (drop == null) {
-						if (target.match(child)) {
-							return new Drop(target, child);
-						}
-						if (target.matchBefore(child) && y <= position.top + dimension.height/2) {
-							return new DropBefore(target, child);
-						}
-						if (target.matchAfter(child) && y >= position.top + dimension.height/2) {
-							return new DropAfter(target, child);
-						}
-					} else if (drop instanceof Drop) {
-						if (target.matchBefore(child) && y < position.top + 6) {
-							return new DropBefore(target, child);
-						}
-						if (target.matchAfter(child) && y > position.top + dimension.height - 6) {
-							return new DropAfter(target, child);
-						}
-					}
-				}
-				
-				return drop;
+				return this.findTarget(child, x, y);
 			}
 		};
+		
 		return null;
 	},
-	
+
 	setDrop: function(drop) {
 		if (drop != this.drop) {
 			if (this.drop != null) {
@@ -218,7 +202,7 @@ var DND = {
 		}
 
 		if (this.drop != null) {
-			this.drop.target.onDragOver(this.drop,
+			this.drop.target.notify("drag-over", this.hoover.operation, this.drag, this.drop,
 							this.clearCache.bindAsEventListener(this));
 		}		
 	},
@@ -319,21 +303,40 @@ var Hoover = Class.create({
 
 var Drop = Class.create({
 
+	initialize: function(target) {
+		this.target = target;
+	},
+
+	clear: function() {
+		this.target.element.removeClassName("dnd-drop");
+	},
+
+	draw: function() {
+		this.target.element.addClassName("dnd-drop");
+	},
+
+	onDrop: function(drag, operation) {
+		this.target.notify("drop", operation, drag, null);
+	}
+});
+
+var DropOver = Class.create({
+
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
 	},
 
 	clear: function() {
-		$(this.id).removeClassName("dnd-drop");
+		$(this.id).removeClassName("dnd-drop-over");
 	},
 
 	draw: function() {
-		$(this.id).addClassName("dnd-drop");
+		$(this.id).addClassName("dnd-drop-over");
 	},
 
 	onDrop: function(drag, operation) {
-		this.target.onDrop(drag, this, "drop", operation);
+		this.target.notify("drop-over", operation, drag, this);
 	}
 });
 
@@ -365,7 +368,7 @@ var DropBefore = Class.create({
 	},	
 
 	onDrop: function(drag, operation) {
-		this.target.onDrop(drag, this, "drop-before", operation);
+		this.target.notify("drop-before", operation, drag, this);
 	}
 });
 
@@ -397,7 +400,7 @@ var DropAfter = Class.create({
 	},
 	
 	onDrop: function(drag, operation) {
-		this.target.onDrop(drag, this, "drop-after", operation);
+		this.target.notify("drop-after", operation, drag, this);
 	}
 });
 
@@ -421,12 +424,12 @@ var Drag = Class.create({
 
 var DragSource = Class.create({
 
-	initialize: function(element, operations, dragSelector) {
+	initialize: function(element, operations, selector) {
 		this.element = $(element);
 		
 		this.operations = operations;
 				
-		this.dragSelector = dragSelector;
+		this.selector = selector;
 		
 		this.eventMouseDown = this.initDrag.bindAsEventListener(this);
 		Event.observe(this.element, "mousedown", this.eventMouseDown);
@@ -447,7 +450,7 @@ var DragSource = Class.create({
 				return;
 			}
 
-			while (src != this.element && !src.match(this.dragSelector)) {
+			while (src != this.element && !src.match(this.selector)) {
 				src = src.up();
 			}
 			
@@ -464,7 +467,7 @@ var DragSource = Class.create({
 
 var DropTarget = Class.create({
 
-	initialize: function(element, url, operations, dropSelector, dropBeforeSelector, dropAfterSelector) {
+	initialize: function(element, url, operations, selector, beforeSelector, afterSelector) {
 		this.element = $(element);
 
 		this.element.dropTarget = this;
@@ -473,28 +476,72 @@ var DropTarget = Class.create({
 		
 		this.operations = operations;
 				
-		this.dropSelector       = dropSelector;
-		this.dropBeforeSelector = dropBeforeSelector;
-		this.dropAfterSelector  = dropAfterSelector;
-	},
-	
-	match: function(element) {
-		return element.match(this.dropSelector);
-	},
-	
-	matchBefore: function(element) {
-		return element.match(this.dropBeforeSelector);
-	},
-	
-	matchAfter: function(element) {
-		return element.match(this.dropBeforeSelector);
-	},
-	
-	onDragOver: function(drop, successHandler) {
-		wicketAjaxGet(this.url + "&drop=" + drop.id, successHandler);
+		this.selector       = selector;
+		this.beforeSelector = beforeSelector;
+		this.afterSelector  = afterSelector;
 	},
 
-	onDrop: function(drag, drop, type, operation) {
-		wicketAjaxGet(this.url + "&drop=" + drop.id + "&type=" + type + "&operation=" + operation+ "&dragSource=" + drag.source.element.id  + "&drag=" + drag.id);
+	findDrop: function(x, y) {
+		var drop = this.findDropFor(this.element, x, y);
+		if (drop == null) {
+			drop = new Drop(this);
+		}
+		return drop;
+	},
+	
+	findDropFor: function(element, x, y) {
+		var drop = null;
+		
+		var children = element.childElements();
+		for (var index = 0; index < children.length; index++) {
+			var child = children[index];
+
+			if (child.match('colgroup')) {
+				continue;
+			}
+			
+			var position = DND.getPosition(child);
+			var dimension = DND.getDimension(child);
+			if (x >= position.left && x < position.left + dimension.width && y >= position.top && y < position.top + dimension.height) {
+				drop = this.findDropFor(child, x, y);
+				break;
+			}
+		};
+
+		if (drop == null) {
+			if (element.match(this.selector)) {
+				drop = new DropOver(this, element);
+			}
+		}
+		
+		var position = DND.getPosition(element);
+		var dimension = DND.getDimension(element);
+		if (drop == null) {
+			if (element.match(this.beforeSelector) && y <= position.top + dimension.height/2) {
+				drop = new DropBefore(this, element);
+			} else if (element.match(this.afterSelector) && y >= position.top + dimension.height/2) {
+				drop = new DropAfter(this, element);
+			}
+		} else if (drop instanceof DropOver) {
+			if (element.match(this.beforeSelector) && y < position.top + 6) {
+				drop = new DropBefore(this, element);
+			} else if (element.match(this.afterSelector) && y > position.top + dimension.height - 6) {
+				drop = new DropAfter(this, element);
+			}
+		}
+		
+		return drop;
+	},	
+	
+	notify: function(type, operation, drag, drop, successHandler) {
+		var params = "&type=" + type
+					+ "&operation=" + operation
+					+ "&source=" + drag.source.element.id
+					+ "&drag=" + drag.id;
+		if (drop != null) {
+			params = params + "&drop=" + drop.id;
+		}
+		
+		wicketAjaxGet(this.url + params, successHandler);
 	}
 });

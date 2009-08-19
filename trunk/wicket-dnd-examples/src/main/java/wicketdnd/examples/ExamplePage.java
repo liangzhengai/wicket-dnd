@@ -32,8 +32,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
 import wicketdnd.DND;
-import wicketdnd.DragSource;
-import wicketdnd.DropTarget;
+import wicketdnd.ModelDragSource;
+import wicketdnd.ModelDropTarget;
 import wicketdnd.theme.WindowsTheme;
 import wickettree.DefaultNestedTree;
 import wickettree.DefaultTableTree;
@@ -71,8 +71,8 @@ public class ExamplePage extends WebPage
 			}
 		};
 		list.add(items);
-		list.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "div"));
-		list.add(new DropTarget(DND.LINK, null, "div", "div"));
+		list.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "div"));
+		list.add(new ModelDropTarget<Foo>(DND.LINK, null, "div", "div"));
 		add(list);
 
 		DataTable<Foo> table = new DataTable<Foo>("table", dataColumns(), new FooDataProvider(),
@@ -86,8 +86,8 @@ public class ExamplePage extends WebPage
 				return item;
 			}
 		};
-		table.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "tr"));
-		table.add(new DropTarget(DND.COPY, null, "tr", "tr"));
+		table.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr"));
+		table.add(new ModelDropTarget<Foo>(DND.COPY, null, "tr", "tr"));
 		add(table);
 
 		final NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", new FooTreeProvider())
@@ -100,19 +100,20 @@ public class ExamplePage extends WebPage
 				return component;
 			}
 		};
-		tree.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
-		tree.add(new DropTarget(DND.MOVE, "span.tree-content", "li", "li")
+		tree.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
+		tree.add(new ModelDropTarget<Foo>(DND.MOVE, "span.tree-content", "li", "li")
 		{
 			@Override
-			public void onDragOver(Component drop)
+			public void onDragOver(Foo drag, Foo drop, int operation)
 			{
-				tree.expand((Foo)drop.getDefaultModelObject());
+				tree.expand(drop);
 			}
 		});
 		add(tree);
 
 		final TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", treeColumns(),
-				new FooTreeProvider(), Integer.MAX_VALUE) {
+				new FooTreeProvider(), Integer.MAX_VALUE)
+		{
 			@Override
 			protected Component newContentComponent(String arg0, IModel<Foo> arg1)
 			{
@@ -124,13 +125,14 @@ public class ExamplePage extends WebPage
 		// reuse items or drop following expansion will fail due to new
 		// markup ids
 		tabletree.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
-		tabletree.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
-		tabletree.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
+		tabletree
+				.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
+		tabletree.add(new ModelDropTarget<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
 		{
 			@Override
-			public void onDragOver(Component drop)
+			public void onDragOver(Foo drag, Foo drop, int operation)
 			{
-				tabletree.expand((Foo)drop.getDefaultModelObject());
+				tabletree.expand(drop);
 			}
 		});
 
