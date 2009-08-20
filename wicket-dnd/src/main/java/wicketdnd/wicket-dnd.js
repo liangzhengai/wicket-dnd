@@ -12,9 +12,7 @@ var DND = {
 	
 	DELAY: 2,
 	
-	positions: {},
-	
-	dimensions: {},
+	bounds: [],
 	
 	executor: null,
 	
@@ -25,7 +23,7 @@ var DND = {
 
 		this.drop = null;
 		
-		this.hoover = new Hoover(drag, offset);
+		this.hover = new Hover(drag, offset);
 
 		this.eventMousemove = this.updateDrag.bindAsEventListener(this);
 		this.eventMouseup   = this.endDrag.bindAsEventListener(this);
@@ -39,7 +37,7 @@ var DND = {
 		Event.observe(document, "keyup", this.eventKeyup);
 		
 		this.pointer = pointer;
-		this.hoover.draw(pointer);
+		this.hover.draw(pointer);
 	},
 	
 	updateDrag: function(event) {
@@ -48,7 +46,7 @@ var DND = {
 		if (this.pointer.inspect() != pointer.inspect()) {
 			this.pointer = pointer;
 
-			this.hoover.draw(pointer);
+			this.hover.draw(pointer);
 
 			var target = this.findTarget(document.body, this.pointer[0], this.pointer[1]);
 			if (target == null) {
@@ -60,7 +58,7 @@ var DND = {
 			this.shift = event.shiftKey;
 			this.ctrl = event.ctrlKey;
 			
-			this.hoover.setOperation(this.findOperation());
+			this.hover.setOperation(this.findOperation());
 		}
 
 		Event.stop(event);
@@ -108,7 +106,7 @@ var DND = {
 			this.ctrl = true;
 		}
 
-		this.hoover.setOperation(this.findOperation());
+		this.hover.setOperation(this.findOperation());
 	},
 
 	handleKeyup: function(event) {
@@ -119,12 +117,12 @@ var DND = {
 			this.ctrl = false;
 		}
 
-		this.hoover.setOperation(this.findOperation());
+		this.hover.setOperation(this.findOperation());
 	},
 
 	endDrag: function(event) {
-		if (this.drop != null && this.hoover.operation != this.NONE) {
-			this.drop.onDrop(this.drag, this.hoover.operation);
+		if (this.drop != null && this.hover.operation != this.NONE) {
+			this.drop.onDrop(this.drag, this.hover.operation);
 			
 			this.setDrop(null);
 		}
@@ -132,15 +130,15 @@ var DND = {
 		this.drag.clear();
 		this.drag = null;
 
-		this.hoover.clear();
-		this.hoover = null;
+		this.hover.clear();
+		this.hover = null;
 		
 		for (var className in this.elements) {
 			this.elements[className].remove();
 		}
 		this.elements = {};
 
-		this.clearCache();
+		this.clearBounds();
 		
 		if (this.excutor != null) {
 			this.executor.stop();
@@ -163,10 +161,9 @@ var DND = {
 		var children = element.childElements();
 		for (var index = 0; index < children.length; index++) {
 			var child = children[index];
-			var position = this.getPosition(child);
-			var dimension = this.getDimension(child);
-
-			if (x >= position.left && x < position.left + dimension.width && y >= position.top && y < position.top + dimension.height) {
+			
+			var bounds = this.getBounds(child);
+			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
 				return this.findTarget(child, x, y);
 			}
 		};
@@ -202,36 +199,36 @@ var DND = {
 		}
 
 		if (this.drop != null) {
-			this.drop.target.notify("drag-over", this.hoover.operation, this.drag, this.drop,
-							this.clearCache.bindAsEventListener(this));
+			this.drop.target.notify("drag-over", this.hover.operation, this.drag, this.drop,
+							this.clearBounds.bindAsEventListener(this));
 		}		
 	},
 
-	getDimension: function(element) {
-		var id = element.identify();
+	getBounds: function(element) {
+		for (var index = 0; index < this.bounds.length; index++) {
+			var bounds = this.bounds[index];
+			if (bounds.element == element) {
+				return bounds;
+			}
+		}
 		
-		var dimension = this.dimensions[id];
-		if (dimension == undefined) {
-			dimension = element.getDimensions();
-			this.dimensions[id] = dimension;
-		}
-		return dimension;
-	},
-	
-	getPosition: function(element) {
-		var id = element.identify();
+		var position = element.cumulativeOffset();
+		var dimension = element.getDimensions();
 
-		var position = this.positions[id];
-		if (position == null) {
-			position = element.cumulativeOffset();
-			this.positions[id] = position;
-		}
-		return position;
+		var bounds = {};
+		bounds.element = element;
+		bounds.top  = position.top;
+		bounds.left = position.left;
+		bounds.width = dimension.width;
+		bounds.height = dimension.height;
+
+		this.bounds.push(bounds);
+		
+		return bounds;
 	},
 	
-	clearCache: function() {	
-		this.dimensions = {};
-		this.positions = {};
+	clearBounds: function() {	
+		this.bounds = [];
 	},
 
 	newElement: function(className) {
@@ -250,13 +247,13 @@ var DND = {
 	}
 };
 
-var Hoover = Class.create({
+var Hover = Class.create({
 
 	initialize: function(drag, offset) {
 		this.offset = offset;
 	
 		this.element = new Element("div");
-		this.element.className = "dnd-hoover";
+		this.element.className = "dnd-hover";
 		this.element.setOpacity(DND.OPACITY);
 		Element.insert(document.body, {"bottom" : this.element});
 		
@@ -264,12 +261,12 @@ var Hoover = Class.create({
 		Element.insert(this.element, {"bottom" : this.clone});
 		
 		this.cover = new Element("div");
-		this.cover.className = "dnd-hoover-move";
+		this.cover.className = "dnd-hover-move";
 		Element.insert(this.element, {"bottom" : this.cover});
 		
 		var style = this.element.style;
-		style.width = DND.getDimension(this.clone).width + "px";
-		style.height = DND.getDimension(this.clone).height + "px";
+		style.width = DND.getBounds(this.clone).width + "px";
+		style.height = DND.getBounds(this.clone).height + "px";
 		
 		this.element.focus();
 	},
@@ -279,13 +276,13 @@ var Hoover = Class.create({
 			this.operation = operation;
 			
 			if (operation == DND.MOVE) {
-				this.cover.className = "dnd-hoover-move";
+				this.cover.className = "dnd-hover-move";
 			} else if (operation == DND.COPY) {
-				this.cover.className = "dnd-hoover-copy";
+				this.cover.className = "dnd-hover-copy";
 			} else if (operation == DND.LINK) {
-				this.cover.className = "dnd-hoover-link";
+				this.cover.className = "dnd-hover-link";
 			} else {
-				this.cover.className = "dnd-hoover-none";
+				this.cover.className = "dnd-hover-none";
 			}
 		}
 	},
@@ -348,7 +345,7 @@ var DropBefore = Class.create({
 		
 		this.element = DND.newElement("dnd-drop-before");
 		
-		this.height = DND.getDimension(this.element).height;
+		this.height = DND.getBounds(this.element).height;
 	},
 
 	clear: function() {
@@ -358,13 +355,12 @@ var DropBefore = Class.create({
 	draw: function() {
 		this.element.show();
 
-		var position = DND.getPosition($(this.id));
-		var dimension = DND.getDimension($(this.id));
+		var bounds = DND.getBounds($(this.id));
 		
 		var style = this.element.style;
-		style.left = position.left + "px";
-		style.top = position.top - (this.height/2) + "px";
-		style.width = dimension.width + "px";
+		style.left  = bounds.left + "px";
+		style.top   = bounds.top - (this.height/2) + "px";
+		style.width = bounds.width + "px";
 	},	
 
 	onDrop: function(drag, operation) {
@@ -380,7 +376,7 @@ var DropAfter = Class.create({
 		
 		this.element = DND.newElement("dnd-drop-after");
 		
-		this.height = DND.getDimension(this.element).height;
+		this.height = DND.getBounds(this.element).height;
 	},
 
 	clear: function() {
@@ -390,13 +386,12 @@ var DropAfter = Class.create({
 	draw: function() {
 		this.element.show();
 		
-		var position = DND.getPosition($(this.id));
-		var dimension = DND.getDimension($(this.id));
+		var bounds = DND.getBounds($(this.id));
 		
 		var style = this.element.style;
-		style.left = position.left + "px";
-		style.top = position.top + dimension.height - (this.height/2) + "px";
-		style.width = dimension.width + "px";
+		style.left = bounds.left + "px";
+		style.top = bounds.top + bounds.height - (this.height/2) + "px";
+		style.width = bounds.width + "px";
 	},
 	
 	onDrop: function(drag, operation) {
@@ -410,9 +405,10 @@ var Drag = Class.create({
 		this.source = source;
 		this.id = element.identify();
 		
+		var bounds = DND.getBounds(element);
 		DND.startDrag(pointer, this,
-					[pointer[0] - DND.getPosition(element).left,
-		             pointer[1] - DND.getPosition(element).top]);
+					[pointer[0] - bounds.left,
+		             pointer[1] - bounds.top]);
 		
 		element.addClassName("dnd-drag");
 	},
@@ -500,9 +496,8 @@ var DropTarget = Class.create({
 				continue;
 			}
 			
-			var position = DND.getPosition(child);
-			var dimension = DND.getDimension(child);
-			if (x >= position.left && x < position.left + dimension.width && y >= position.top && y < position.top + dimension.height) {
+			var bounds = DND.getBounds(child);
+			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
 				drop = this.findDropFor(child, x, y);
 				break;
 			}
@@ -514,18 +509,17 @@ var DropTarget = Class.create({
 			}
 		}
 		
-		var position = DND.getPosition(element);
-		var dimension = DND.getDimension(element);
+		var bounds = DND.getBounds(element);
 		if (drop == null) {
-			if (element.match(this.beforeSelector) && y <= position.top + dimension.height/2) {
+			if (element.match(this.beforeSelector) && y <= bounds.top + bounds.height/2) {
 				drop = new DropBefore(this, element);
-			} else if (element.match(this.afterSelector) && y >= position.top + dimension.height/2) {
+			} else if (element.match(this.afterSelector) && y >= bounds.top + bounds.height/2) {
 				drop = new DropAfter(this, element);
 			}
 		} else if (drop instanceof DropOver) {
-			if (element.match(this.beforeSelector) && y < position.top + 6) {
+			if (element.match(this.beforeSelector) && y < bounds.top + 6) {
 				drop = new DropBefore(this, element);
-			} else if (element.match(this.afterSelector) && y > position.top + dimension.height - 6) {
+			} else if (element.match(this.afterSelector) && y > bounds.top + bounds.height - 6) {
 				drop = new DropAfter(this, element);
 			}
 		}
