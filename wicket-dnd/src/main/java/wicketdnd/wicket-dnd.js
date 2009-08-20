@@ -497,7 +497,13 @@ var DropTarget = Class.create({
 			}
 			
 			var bounds = DND.getBounds(child);
-			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
+			if (bounds.width == 0 && bounds.height == 0) {
+				// non-visible elements might hide a drop
+				drop = this.findDropFor(child, x, y);
+				if (drop != null) {
+					break;
+				}
+			} else if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
 				drop = this.findDropFor(child, x, y);
 				break;
 			}
