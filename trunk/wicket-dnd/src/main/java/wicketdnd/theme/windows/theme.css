@@ -1,7 +1,7 @@
-.dnd-hoover {
+.dnd-hover {
 	position: absolute;
 }
-.dnd-hoover-move {
+.dnd-hover-move {
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -9,7 +9,7 @@
 	height: 100%;
 	cursor: url(move.gif), default;
 }
-.dnd-hoover-copy {
+.dnd-hover-copy {
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -17,7 +17,7 @@
 	height: 100%;
 	cursor: url(copy.gif), default;
 }
-.dnd-hoover-link {
+.dnd-hover-link {
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -25,7 +25,7 @@
 	height: 100%;
 	cursor: url(link.gif), default;
 }
-.dnd-hoover-none {
+.dnd-hover-none {
 	position: absolute;
 	top: 0px;
 	left: 0px;
@@ -47,9 +47,11 @@
 	position: absolute;
 	background: #000000;
 	height: 2px;
+	overflow: hidden;
 }
 .dnd-drop-after  {
 	position: absolute;
 	background: #000000;
 	height: 2px;
+	overflow: hidden;
 }
