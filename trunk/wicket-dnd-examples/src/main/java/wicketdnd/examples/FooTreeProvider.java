@@ -76,4 +76,34 @@ public class FooTreeProvider implements ITreeProvider<Foo>
 	public void detach()
 	{
 	}
+
+	public void remove(Foo foo)
+	{
+		foos.remove(foo);
+	}
+
+	public void add(Foo drag, Foo drop)
+	{
+		drop.add(drag);
+	}
+
+	public void addBefore(Foo drag, Foo drop)
+	{
+		Foo parent = drop.getParent();
+		if (parent == null) {
+			foos.add(foos.indexOf(drop), drag);
+		} else {
+			parent.add(drag, parent.indexOf(drop));
+		}
+	}
+
+	public void addAfter(Foo drag, Foo drop)
+	{
+		Foo parent = drop.getParent();
+		if (parent == null) {
+			foos.add(foos.indexOf(drop) + 1, drag);
+		} else {
+			parent.add(drag, parent.indexOf(drop) + 1);
+		}
+	}
 }

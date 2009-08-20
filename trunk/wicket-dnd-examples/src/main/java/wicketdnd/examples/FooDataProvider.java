@@ -56,4 +56,20 @@ public class FooDataProvider implements IDataProvider<Foo>
 	{
 	}
 
+	public void remove(Foo foo)
+	{
+		foos.remove(foo);
+	}
+
+	public void addBefore(Foo drag, Foo drop)
+	{
+		drag.remove();
+		foos.add(foos.indexOf(drop), drag);
+	}
+	
+	public void addAfter(Foo drag, Foo drop)
+	{
+		drag.remove();
+		foos.add(foos.indexOf(drop) + 1, drag);
+	}
 }
