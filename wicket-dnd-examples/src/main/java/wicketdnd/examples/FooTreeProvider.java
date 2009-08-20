@@ -91,6 +91,7 @@ public class FooTreeProvider implements ITreeProvider<Foo>
 	{
 		Foo parent = drop.getParent();
 		if (parent == null) {
+			drag.remove();
 			foos.add(foos.indexOf(drop), drag);
 		} else {
 			parent.add(drag, parent.indexOf(drop));
@@ -101,6 +102,7 @@ public class FooTreeProvider implements ITreeProvider<Foo>
 	{
 		Foo parent = drop.getParent();
 		if (parent == null) {
+			drag.remove();
 			foos.add(foos.indexOf(drop) + 1, drag);
 		} else {
 			parent.add(drag, parent.indexOf(drop) + 1);
