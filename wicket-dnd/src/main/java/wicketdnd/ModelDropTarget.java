@@ -16,6 +16,7 @@
 package wicketdnd;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 
 /**
  * @author Sven Meier
@@ -43,46 +44,59 @@ public class ModelDropTarget<T> extends DropTarget {
 	}
 
 	@Override
-	public final void onDragOver(Component drag, Component drop, int operation) {
-		onDragOver(getModelObject(drag), getModelObject(drop), operation);
+	public final void onDragOver(AjaxRequestTarget target, Component drag,
+			Component drop, int operation) {
+		onDragOver(target, getModelObject(drag), getModelObject(drop),
+				operation);
 	}
 
 	@Override
-	public final void onDrop(Component drag, int operation) {
-		onDrop(getModelObject(drag), operation);
+	public final void onDrop(AjaxRequestTarget target, Component drag,
+			int operation) {
+		onDrop(target, getModelObject(drag), operation);
 	}
 
 	@Override
-	public final void onDropOver(Component drag, Component drop, int operation) {
-		onDropOver(getModelObject(drag), getModelObject(drop), operation);
+	public final void onDropOver(AjaxRequestTarget target, Component drag,
+			Component drop, int operation) {
+		onDropOver(target, getModelObject(drag), getModelObject(drop),
+				operation);
 	}
 
 	@Override
-	public final void onDropBefore(Component drag, Component drop, int operation) {
-		onDropBefore(getModelObject(drag), getModelObject(drop), operation);
+	public final void onDropBefore(AjaxRequestTarget target, Component drag,
+			Component drop, int operation) {
+		onDropBefore(target, getModelObject(drag), getModelObject(drop),
+				operation);
 	}
 
 	@Override
-	public final void onDropAfter(Component drag, Component drop, int operation) {
-		onDropAfter(getModelObject(drag), getModelObject(drop), operation);
+	public final void onDropAfter(AjaxRequestTarget target, Component drag,
+			Component drop, int operation) {
+		onDropAfter(target, getModelObject(drag), getModelObject(drop),
+				operation);
 	}
 
-	public void onDragOver(T drag, T drop, int operation) {
+	public void onDragOver(AjaxRequestTarget target, T drag, T drop,
+			int operation) {
 	}
 
-	public void onDrop(T drag, int operation) {
+	public void onDrop(AjaxRequestTarget target, T drag, int operation) {
 		throw new DNDFailure();
 	}
 
-	public void onDropOver(T drag, T drop, int operation) {
+	public void onDropOver(AjaxRequestTarget target, T drag, T drop,
+			int operation) {
 		throw new DNDFailure();
 	}
 
-	public void onDropBefore(T drag, T drop, int operation) {
+	public void onDropBefore(AjaxRequestTarget target, T drag, T drop,
+			int operation) {
 		throw new DNDFailure();
 	}
 
-	public void onDropAfter(T drag, T drop, int operation) {
+	public void onDropAfter(AjaxRequestTarget target, T drag, T drop,
+			int operation) {
 		throw new DNDFailure();
 	}
 }

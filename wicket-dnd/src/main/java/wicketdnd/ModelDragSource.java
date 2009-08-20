@@ -16,6 +16,7 @@
 package wicketdnd;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 
 /**
  * @author Sven Meier
@@ -34,12 +35,13 @@ public class ModelDragSource<T> extends DragSource {
 	}
 
 	@Override
-	public final void onDragFinished(Component drag, int operation) {
+	public final void onDragFinished(AjaxRequestTarget target, Component drag,
+			int operation) {
 		T t = getModelObject(drag);
 
-		onDragFinished(t, operation);
+		onDragFinished(target, t, operation);
 	}
 
-	public void onDragFinished(T t, int operation) {
+	public void onDragFinished(AjaxRequestTarget target, T t, int operation) {
 	}
 }
