@@ -114,20 +114,20 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 
 		try {
 			if ("drop".equals(type)) {
-				onDrop(drag, operation);
+				onDrop(target, drag, operation);
 			} else {
 				Component drop = findDescendent(
 						(WebMarkupContainer) getComponent(), "drop");
 
 				if ("drag-over".equals(type)) {
-					onDragOver(drag, drop, operation);
+					onDragOver(target, drag, drop, operation);
 					return;
 				} else if ("drop-over".equals(type)) {
-					onDropOver(drag, drop, operation);
+					onDropOver(target, drag, drop, operation);
 				} else if ("drop-before".equals(type)) {
-					onDropBefore(drag, drop, operation);
+					onDropBefore(target, drag, drop, operation);
 				} else if ("drop-after".equals(type)) {
-					onDropAfter(drag, drop, operation);
+					onDropAfter(target, drag, drop, operation);
 				} else {
 					throw new IllegalArgumentException("unkown drop type");
 				}
@@ -135,7 +135,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 
 			for (IBehavior behavior : dragSource.getBehaviors()) {
 				if (behavior instanceof DragSource) {
-					((DragSource) behavior).onDragFinished(drag, operation);
+					((DragSource) behavior).onDragFinished(target, drag,
+							operation);
 					break;
 				}
 			}
@@ -156,22 +157,26 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 		return descendent;
 	}
 
-	public void onDragOver(Component drag, Component drop, int operation) {
+	public void onDragOver(AjaxRequestTarget target, Component drag,
+			Component drop, int operation) {
 	}
 
-	public void onDrop(Component drag, int operation) {
+	public void onDrop(AjaxRequestTarget target, Component drag, int operation) {
 		throw new DNDFailure();
 	}
 
-	public void onDropOver(Component drag, Component drop, int operation) {
+	public void onDropOver(AjaxRequestTarget target, Component drag,
+			Component drop, int operation) {
 		throw new DNDFailure();
 	}
 
-	public void onDropBefore(Component drag, Component drop, int operation) {
+	public void onDropBefore(AjaxRequestTarget target, Component drag,
+			Component drop, int operation) {
 		throw new DNDFailure();
 	}
 
-	public void onDropAfter(Component drag, Component drop, int operation) {
+	public void onDropAfter(AjaxRequestTarget target, Component drag,
+			Component drop, int operation) {
 		throw new DNDFailure();
 	}
 }

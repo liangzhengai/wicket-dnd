@@ -16,6 +16,7 @@
 package wicketdnd;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.wicketstuff.prototype.PrototypeResourceReference;
@@ -66,7 +67,7 @@ public class DragSource extends AbstractBehavior
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
-	public void onDragFinished(Component drag, int operation)
+	public void onDragFinished(AjaxRequestTarget target, Component drag, int operation)
 	{
 	}
 }
