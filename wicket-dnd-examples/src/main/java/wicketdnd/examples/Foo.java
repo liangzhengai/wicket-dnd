@@ -26,22 +26,31 @@ public class Foo implements Serializable
 {
 
 	private String name;
-	
+
+	private Foo parent;
+
 	private List<Foo> children = new ArrayList<Foo>();
-	
-	public Foo(String name) {
+
+	public Foo(String name)
+	{
 		this.name = name;
 	}
 
-	public Foo(Foo parent, String name) {
+	public Foo(Foo parent, String name)
+	{
 		this.name = name;
 		
-		parent.children.add(this);
+		parent.add(this);
 	}
 
 	public String getName()
 	{
 		return name;
+	}
+
+	public Foo getParent()
+	{
+		return parent;
 	}
 	
 	public boolean hasChildren()
@@ -53,10 +62,51 @@ public class Foo implements Serializable
 	{
 		return children;
 	}
-	
+
 	@Override
 	public String toString()
 	{
 		return name;
+	}
+
+	public void remove()
+	{
+		if (parent != null) {
+			parent.children.remove(this);
+			parent = null;
+		}
+	}
+
+	public void add(Foo foo) {
+		add(foo, children.size());
+	}
+	
+	public void add(Foo foo, int index)
+	{
+		foo.remove();
+		
+		foo.parent = this;
+		children.add(index, foo);
+	}
+
+	public Foo copy()
+	{
+		Foo copy = new Foo(this.name);
+		
+		for (Foo child : children) {
+			copy.add(child.copy());
+		}
+		
+		return copy;
+	}
+
+	public Foo link()
+	{
+		return new Foo(this.name + "\u2197");
+	}
+
+	public int indexOf(Foo child)
+	{
+		return children.indexOf(child);
 	}
 }

@@ -28,4 +28,16 @@ public class FooList extends ArrayList<Foo>
 		add(new Foo("B"));
 		add(new Foo("C"));
 	}
+	
+	public void addBefore(Foo drag, Foo drop)
+	{
+		drag.remove();
+		add(indexOf(drop), drag);
+	}
+	
+	public void addAfter(Foo drag, Foo drop)
+	{
+		drag.remove();
+		add(indexOf(drop) + 1, drag);
+	}
 }

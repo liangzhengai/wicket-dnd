@@ -16,6 +16,7 @@
 package wicketdnd.examples;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
@@ -53,8 +54,22 @@ public class ExamplePage extends WebPage
 	{
 		add(CSSPackageResource.getHeaderContribution(new WindowsTheme()));
 
-		WebMarkupContainer list = new WebMarkupContainer("list");
-		ListView<Foo> items = new ListView<Foo>("items", new FooList())
+		add(newList());
+
+		add(newTable());
+
+		add(newTree());
+
+		add(newTableTree());
+	}
+
+	private WebMarkupContainer newList()
+	{
+		final FooList list = new FooList();
+
+		final WebMarkupContainer container = new WebMarkupContainer("list");
+		container.setOutputMarkupId(true);
+		final ListView<Foo> items = new ListView<Foo>("items", list)
 		{
 			@Override
 			protected ListItem<Foo> newItem(int index)
@@ -70,12 +85,62 @@ public class ExamplePage extends WebPage
 				item.add(new Label("name", new PropertyModel<String>(item.getModel(), "name")));
 			}
 		};
-		list.add(items);
-		list.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "div"));
-		list.add(new ModelDropTarget<Foo>(DND.LINK, null, "div", "div"));
-		add(list);
+		container.add(items);
+		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "div")
+		{
+			@Override
+			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
+			{
+				if (operation == DND.MOVE)
+				{
+					list.remove(foo);
 
-		DataTable<Foo> table = new DataTable<Foo>("table", dataColumns(), new FooDataProvider(),
+					target.addComponent(container);
+				}
+			}
+		});
+		container.add(new ModelDropTarget<Foo>(DND.LINK, null, "div", "div")
+		{
+			@Override
+			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				list.addBefore(operate(drag, operation), drop);
+
+				target.addComponent(container);
+			}
+
+			@Override
+			public void onDropAfter(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				list.addAfter(operate(drag, operation), drop);
+
+				target.addComponent(container);
+			}
+		});
+
+		return container;
+	}
+
+	protected Foo operate(Foo foo, int operation)
+	{
+		switch (operation)
+		{
+			case DND.MOVE :
+				return foo;
+			case DND.COPY :
+				return foo.copy();
+			case DND.LINK :
+				return foo.link();
+			default :
+				throw new IllegalArgumentException();
+		}
+	}
+
+	private WebMarkupContainer newTable()
+	{
+		final FooDataProvider provider = new FooDataProvider();
+
+		final DataTable<Foo> container = new DataTable<Foo>("table", dataColumns(), provider,
 				Integer.MAX_VALUE)
 		{
 			@Override
@@ -86,33 +151,46 @@ public class ExamplePage extends WebPage
 				return item;
 			}
 		};
-		table.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr"));
-		table.add(new ModelDropTarget<Foo>(DND.COPY, null, "tr", "tr"));
-		add(table);
+		container.setOutputMarkupId(true);
+		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr")
+		{
+			@Override
+			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
+			{
+				if (operation == DND.MOVE)
+				{
+					provider.remove(foo);
 
-		final NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", new FooTreeProvider())
-		{
-			@Override
-			protected Component newContentComponent(String arg0, IModel<Foo> arg1)
-			{
-				Component component = super.newContentComponent(arg0, arg1);
-				component.setOutputMarkupId(true);
-				return component;
-			}
-		};
-		tree.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
-		tree.add(new ModelDropTarget<Foo>(DND.MOVE, "span.tree-content", "li", "li")
-		{
-			@Override
-			public void onDragOver(Foo drag, Foo drop, int operation)
-			{
-				tree.expand(drop);
+					target.addComponent(container);
+				}
 			}
 		});
-		add(tree);
+		container.add(new ModelDropTarget<Foo>(DND.COPY, null, "tr", "tr")
+		{
+			@Override
+			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				provider.addBefore(operate(drag, operation), drop);
 
-		final TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", treeColumns(),
-				new FooTreeProvider(), Integer.MAX_VALUE)
+				target.addComponent(container);
+			}
+
+			@Override
+			public void onDropAfter(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				provider.addAfter(operate(drag, operation), drop);
+
+				target.addComponent(container);
+			}
+		});
+
+		return container;
+	}
+
+	private WebMarkupContainer newTree()
+	{
+		final FooTreeProvider provider = new FooTreeProvider();
+		final NestedTree<Foo> container = new DefaultNestedTree<Foo>("tree", provider)
 		{
 			@Override
 			protected Component newContentComponent(String arg0, IModel<Foo> arg1)
@@ -122,21 +200,121 @@ public class ExamplePage extends WebPage
 				return component;
 			}
 		};
+		container.setOutputMarkupId(true);
+		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
+		{
+			@Override
+			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
+			{
+				if (operation == DND.MOVE)
+				{
+					provider.remove(foo);
+
+					target.addComponent(container);
+				}
+			}
+		});
+		container.add(new ModelDropTarget<Foo>(DND.MOVE, "span.tree-content", "li", "li")
+		{
+			@Override
+			public void onDragOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				container.expand(drop);
+			}
+
+			@Override
+			public void onDropOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				provider.add(operate(drag, operation), drop);
+
+				target.addComponent(container);
+			}
+
+			@Override
+			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				provider.addBefore(operate(drag, operation), drop);
+
+				target.addComponent(container);
+			}
+
+			@Override
+			public void onDropAfter(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				provider.addAfter(operate(drag, operation), drop);
+
+				target.addComponent(container);
+			}
+		});
+
+		return container;
+	}
+
+	private WebMarkupContainer newTableTree()
+	{
+		final FooTreeProvider provider = new FooTreeProvider();
+		final TableTree<Foo> container = new DefaultTableTree<Foo>("tabletree", treeColumns(),
+				provider, Integer.MAX_VALUE)
+		{
+			@Override
+			protected Component newContentComponent(String arg0, IModel<Foo> arg1)
+			{
+				Component component = super.newContentComponent(arg0, arg1);
+				component.setOutputMarkupId(true);
+				return component;
+			}
+		};
+		container.setOutputMarkupId(true);
 		// reuse items or drop following expansion will fail due to new
 		// markup ids
-		tabletree.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
-		tabletree
-				.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content"));
-		tabletree.add(new ModelDropTarget<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
+		container.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
+		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
 		{
 			@Override
-			public void onDragOver(Foo drag, Foo drop, int operation)
+			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
 			{
-				tabletree.expand(drop);
+				if (operation == DND.MOVE)
+				{
+					provider.remove(foo);
+
+					target.addComponent(container);
+				}
+			}
+		});
+		container.add(new ModelDropTarget<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
+		{
+			@Override
+			public void onDragOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				container.expand(drop);
+			}
+
+			@Override
+			public void onDropOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				provider.add(operate(drag, operation), drop);
+
+				target.addComponent(container);
+			}
+
+			@Override
+			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				provider.addBefore(operate(drag, operation), drop);
+
+				target.addComponent(container);
+			}
+
+			@Override
+			public void onDropAfter(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			{
+				provider.addAfter(operate(drag, operation), drop);
+
+				target.addComponent(container);
 			}
 		});
 
-		add(tabletree);
+		return container;
 	}
 
 	@SuppressWarnings("unchecked")
