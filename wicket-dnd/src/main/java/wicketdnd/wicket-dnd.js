@@ -10,7 +10,7 @@ var DND = {
 	
 	OPACITY: 0.7,
 	
-	DELAY: 2,
+	DELAY: 1,
 	
 	bounds: [],
 	
@@ -238,7 +238,7 @@ var DND = {
 			element.addClassName(className);
 			element.setOpacity(this.OPACITY);
 			element.hide();
-			Element.insert(document.body, {"bottom" : element});
+			$(document.body).insert(element);
 			
 			this.elements[className] = element;
 		}
@@ -253,22 +253,31 @@ var Hover = Class.create({
 		this.offset = offset;
 	
 		this.element = new Element("div");
-		this.element.className = "dnd-hover";
 		this.element.setOpacity(DND.OPACITY);
-		Element.insert(document.body, {"bottom" : this.element});
+		this.element.className = "dnd-hover";
+		$(document.body).insert(this.element);
 		
 		this.clone = $(drag.id).cloneNode(true);
-		Element.insert(this.element, {"bottom" : this.clone});
+		if (this.clone.match("tr")) {
+			var table = new Element("table");
+			table.className = "dnd-hover-table";
+			this.element.insert(table);
+
+			var tbody = new Element("tbody");
+			table.insert(tbody);
+			
+			tbody.insert(this.clone);
+		} else {
+			this.element.insert(this.clone);
+		}
 		
 		this.cover = new Element("div");
 		this.cover.className = "dnd-hover-move";
-		Element.insert(this.element, {"bottom" : this.cover});
+		this.element.insert(this.cover);
 		
 		var style = this.element.style;
-		style.width = DND.getBounds(this.clone).width + "px";
-		style.height = DND.getBounds(this.clone).height + "px";
-		
-		this.element.focus();
+		style.width = DND.getBounds($(drag.id)).width + "px";
+		style.height = DND.getBounds($(drag.id)).height + "px";
 	},
 
 	setOperation: function(operation) {
@@ -496,37 +505,32 @@ var DropTarget = Class.create({
 				continue;
 			}
 			
-			var bounds = DND.getBounds(child);
-			if (bounds.width == 0 && bounds.height == 0) {
-				// non-visible elements might hide a drop
-				drop = this.findDropFor(child, x, y);
-				if (drop != null) {
-					break;
-				}
-			} else if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
-				drop = this.findDropFor(child, x, y);
+			drop = this.findDropFor(child, x, y);
+			if (drop != null) {
 				break;
 			}
 		};
 
-		if (drop == null) {
-			if (element.match(this.selector)) {
-				drop = new DropOver(this, element);
-			}
-		}
-		
 		var bounds = DND.getBounds(element);
-		if (drop == null) {
-			if (element.match(this.beforeSelector) && y <= bounds.top + bounds.height/2) {
-				drop = new DropBefore(this, element);
-			} else if (element.match(this.afterSelector) && y >= bounds.top + bounds.height/2) {
-				drop = new DropAfter(this, element);
+		if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
+			if (drop == null) {
+				if (element.match(this.selector)) {
+					drop = new DropOver(this, element);
+				}
 			}
-		} else if (drop instanceof DropOver) {
-			if (element.match(this.beforeSelector) && y < bounds.top + 6) {
-				drop = new DropBefore(this, element);
-			} else if (element.match(this.afterSelector) && y > bounds.top + bounds.height - 6) {
-				drop = new DropAfter(this, element);
+			
+			if (drop == null) {
+				if (element.match(this.beforeSelector) && y <= bounds.top + bounds.height/2) {
+					drop = new DropBefore(this, element);
+				} else if (element.match(this.afterSelector) && y >= bounds.top + bounds.height/2) {
+					drop = new DropAfter(this, element);
+				}
+			} else if (drop instanceof DropOver) {
+				if (element.match(this.beforeSelector) && y < bounds.top + 6) {
+					drop = new DropBefore(this, element);
+				} else if (element.match(this.afterSelector) && y > bounds.top + bounds.height - 6) {
+					drop = new DropAfter(this, element);
+				}
 			}
 		}
 		
