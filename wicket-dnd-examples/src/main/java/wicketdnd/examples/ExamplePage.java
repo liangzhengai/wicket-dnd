@@ -214,7 +214,7 @@ public class ExamplePage extends WebPage
 				}
 			}
 		});
-		container.add(new ModelDropTarget<Foo>(DND.MOVE, "span.tree-content", "li", "li")
+		container.add(new ModelDropTarget<Foo>(DND.MOVE, "span.tree-content", "div.tree-branch", "div.tree-branch")
 		{
 			@Override
 			public void onDragOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
