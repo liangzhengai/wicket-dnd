@@ -25,8 +25,8 @@ var DND = {
 		
 		this.hover = new Hover(drag, offset);
 
-		this.eventMousemove = this.updateDrag.bindAsEventListener(this);
-		this.eventMouseup   = this.endDrag.bindAsEventListener(this);
+		this.eventMousemove = this.handleMousemove.bindAsEventListener(this);
+		this.eventMouseup   = this.handleMouseup.bindAsEventListener(this);
 		this.eventKeypress  = this.handleKeypress.bindAsEventListener(this);
 		this.eventKeydown   = this.handleKeydown.bindAsEventListener(this);
 		this.eventKeyup     = this.handleKeyup.bindAsEventListener(this);
@@ -40,30 +40,100 @@ var DND = {
 		this.hover.draw(pointer);
 	},
 	
-	updateDrag: function(event) {
+	endDrag: function() {
+		if (this.drop != null && this.hover.operation != this.NONE) {
+			this.drop.onDrop(this.drag, this.hover.operation);
+			
+			this.setDrop(null);
+		}
+
+		this.drag.clear();
+		this.drag = null;
+
+		this.hover.clear();
+		this.hover = null;
+		
+		for (var className in this.elements) {
+			this.elements[className].remove();
+		}
+		this.elements = {};
+
+		this.bounds = [];
+		
+		if (this.excutor != null) {
+			this.executor.stop();
+			this.executor = null;
+		}
+
+		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
+		Event.stopObserving(document, "mousemove", this.eventMousemove);
+		Event.stopObserving(document, "keydown"  , this.eventKeydown);
+		Event.stopObserving(document, "keyup"    , this.eventKeyup);
+	},
+	
+	handleMousemove: function(event) {
 		var pointer = [event.pointerX(), event.pointerY()];
 
 		if (this.pointer.inspect() != pointer.inspect()) {
 			this.pointer = pointer;
-
+			this.shift = event.shiftKey;
+			this.ctrl = event.ctrlKey;			
+	
 			this.hover.draw(pointer);
 
-			var target = this.findTarget(document.body, this.pointer[0], this.pointer[1]);
-			if (target == null) {
-				this.setDrop(null);
-			} else {
-				this.setDrop(target.findDrop(this.pointer[0], this.pointer[1]));
-			}
-			
-			this.shift = event.shiftKey;
-			this.ctrl = event.ctrlKey;
-			
-			this.hover.setOperation(this.findOperation());
+			this.updateDropAndOperation();
 		}
 
 		Event.stop(event);
 	},
-	
+
+	handleKeypress: function(event) {
+		if (event.keyCode == Event.KEY_ESC) {
+			this.endDrag();
+
+			Event.stop(event);
+		}
+	},
+
+	handleKeydown: function(event) {
+		if (event.keyCode == 16) {
+			this.shift = true;
+		}
+		if (event.keyCode == 17) {
+			this.ctrl = true;
+		}
+
+		this.hover.setOperation(this.findOperation());
+	},
+
+	handleKeyup: function(event) {
+		if (event.keyCode == 16) {
+			this.shift = false;
+		}
+		if (event.keyCode == 17) {
+			this.ctrl = false;
+		}
+
+		this.hover.setOperation(this.findOperation());
+	},
+
+	handleMouseup: function(event) {
+		this.endDrag();
+		
+		Event.stop(event);
+	},
+
+	updateDropAndOperation: function() {
+		var target = this.findTarget(document.body, this.pointer[0], this.pointer[1]);
+		if (target == null) {
+			this.setDrop(null);
+		} else {
+			this.setDrop(target.findDrop(this.pointer[0], this.pointer[1]));
+		}
+		
+		this.hover.setOperation(this.findOperation());
+	},
+		
 	findOperation: function() {
 		var operations = this.drag.source.operations;
 		if (this.drop != null) {
@@ -91,68 +161,6 @@ var DND = {
 		return this.NONE;
 	},
 	
-	handleKeypress: function(event) {
-		if (event.keyCode == Event.KEY_ESC) {
-			this.endDrag(event);
-			return;
-		}
-	},
-
-	handleKeydown: function(event) {
-		if (event.keyCode == 16) {
-			this.shift = true;
-		}
-		if (event.keyCode == 17) {
-			this.ctrl = true;
-		}
-
-		this.hover.setOperation(this.findOperation());
-	},
-
-	handleKeyup: function(event) {
-		if (event.keyCode == 16) {
-			this.shift = false;
-		}
-		if (event.keyCode == 17) {
-			this.ctrl = false;
-		}
-
-		this.hover.setOperation(this.findOperation());
-	},
-
-	endDrag: function(event) {
-		if (this.drop != null && this.hover.operation != this.NONE) {
-			this.drop.onDrop(this.drag, this.hover.operation);
-			
-			this.setDrop(null);
-		}
-
-		this.drag.clear();
-		this.drag = null;
-
-		this.hover.clear();
-		this.hover = null;
-		
-		for (var className in this.elements) {
-			this.elements[className].remove();
-		}
-		this.elements = {};
-
-		this.clearBounds();
-		
-		if (this.excutor != null) {
-			this.executor.stop();
-			this.executor = null;
-		}
-
-		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
-		Event.stopObserving(document, "mousemove", this.eventMousemove);
-		Event.stopObserving(document, "keydown"  , this.eventKeydown);
-		Event.stopObserving(document, "keyup"    , this.eventKeyup);
-		
-		Event.stop(event);
-	},
-
 	findTarget: function(element, x, y) {
 		if (element.dropTarget != undefined) {
 			return element.dropTarget;
@@ -200,7 +208,7 @@ var DND = {
 
 		if (this.drop != null) {
 			this.drop.target.notify("drag-over", this.hover.operation, this.drag, this.drop,
-							this.clearBounds.bindAsEventListener(this));
+							this.afterDragOver.bindAsEventListener(this));
 		}		
 	},
 
@@ -227,8 +235,10 @@ var DND = {
 		return bounds;
 	},
 	
-	clearBounds: function() {	
+	afterDragOver: function() {
 		this.bounds = [];
+		
+		this.updateDropAndOperation();
 	},
 
 	newElement: function(className) {
