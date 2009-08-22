@@ -14,6 +14,7 @@
 	left: 0px;
 	width: 100%;
 	height: 100%;
+	background: url(cover.gif) repeat;
 	cursor: url(move.cur), url(move.gif), move;
 }
 .dnd-hover-copy {
@@ -22,6 +23,7 @@
 	left: 0px;
 	width: 100%;
 	height: 100%;
+	background: url(cover.gif) repeat;
 	cursor: url(copy.cur), url(copy.gif), move;
 }
 .dnd-hover-link {
@@ -30,6 +32,7 @@
 	left: 0px;
 	width: 100%;
 	height: 100%;
+	background: url(cover.gif) repeat;
 	cursor: url(link.cur), url(link.gif), move;
 }
 .dnd-hover-none {
@@ -38,6 +41,7 @@
 	left: 0px;
 	width: 100%;
 	height: 100%;
+	background: url(cover.gif) repeat;
 	cursor: url(none.cur), url(none.gif), move;
 }
 .dnd-drag  {
