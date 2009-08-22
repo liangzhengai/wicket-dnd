@@ -102,7 +102,7 @@ public class Foo implements Serializable
 
 	public Foo link()
 	{
-		return new Foo(this.name + "\u2197");
+		return new Foo("^" + this.name);
 	}
 
 	public int indexOf(Foo child)
