@@ -36,45 +36,61 @@ public class ModelDropTarget<T> extends DropTarget {
 
 	@SuppressWarnings("unchecked")
 	protected T getModelObject(Component drop) {
-		try {
-			return (T) drop.getDefaultModelObject();
-		} catch (ClassCastException ex) {
-			throw new DNDFailure(ex);
-		}
+		return (T) drop.getDefaultModelObject();
 	}
 
 	@Override
 	public final void onDragOver(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		onDragOver(target, getModelObject(drag), getModelObject(drop),
-				operation);
+		try {
+			onDragOver(target, getModelObject(drag), getModelObject(drop),
+					operation);
+		} catch (ClassCastException ex) {
+			throw new Reject(ex);
+		}
 	}
 
 	@Override
 	public final void onDrop(AjaxRequestTarget target, Component drag,
 			int operation) {
-		onDrop(target, getModelObject(drag), operation);
+		try {
+			onDrop(target, getModelObject(drag), operation);
+		} catch (ClassCastException ex) {
+			throw new Reject(ex);
+		}
 	}
 
 	@Override
 	public final void onDropOver(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		onDropOver(target, getModelObject(drag), getModelObject(drop),
-				operation);
+		try {
+			onDropOver(target, getModelObject(drag), getModelObject(drop),
+					operation);
+		} catch (ClassCastException ex) {
+			throw new Reject(ex);
+		}
 	}
 
 	@Override
 	public final void onDropBefore(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		onDropBefore(target, getModelObject(drag), getModelObject(drop),
-				operation);
+		try {
+			onDropBefore(target, getModelObject(drag), getModelObject(drop),
+					operation);
+		} catch (ClassCastException ex) {
+			throw new Reject(ex);
+		}
 	}
 
 	@Override
 	public final void onDropAfter(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		onDropAfter(target, getModelObject(drag), getModelObject(drop),
-				operation);
+		try {
+			onDropAfter(target, getModelObject(drag), getModelObject(drop),
+					operation);
+		} catch (ClassCastException ex) {
+			throw new Reject(ex);
+		}
 	}
 
 	public void onDragOver(AjaxRequestTarget target, T drag, T drop,
@@ -82,21 +98,21 @@ public class ModelDropTarget<T> extends DropTarget {
 	}
 
 	public void onDrop(AjaxRequestTarget target, T drag, int operation) {
-		throw new DNDFailure();
+		throw new Reject();
 	}
 
 	public void onDropOver(AjaxRequestTarget target, T drag, T drop,
 			int operation) {
-		throw new DNDFailure();
+		throw new Reject();
 	}
 
 	public void onDropBefore(AjaxRequestTarget target, T drag, T drop,
 			int operation) {
-		throw new DNDFailure();
+		throw new Reject();
 	}
 
 	public void onDropAfter(AjaxRequestTarget target, T drag, T drop,
 			int operation) {
-		throw new DNDFailure();
+		throw new Reject();
 	}
 }
