@@ -132,16 +132,17 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 					throw new IllegalArgumentException("unkown drop type");
 				}
 			}
-
-			for (IBehavior behavior : dragSource.getBehaviors()) {
-				if (behavior instanceof DragSource) {
-					((DragSource) behavior).onDragFinished(target, drag,
-							operation);
-					break;
-				}
+		} catch (Reject reject) {
+			// TODO how to indicate rejection
+			return;
+		}
+		
+		for (IBehavior behavior : dragSource.getBehaviors()) {
+			if (behavior instanceof DragSource) {
+				((DragSource) behavior).onDragFinished(target, drag,
+						operation);
+				break;
 			}
-		} catch (DNDFailure failure) {
-			// TODO how to indicate failure
 		}
 	}
 
@@ -162,21 +163,21 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	}
 
 	public void onDrop(AjaxRequestTarget target, Component drag, int operation) {
-		throw new DNDFailure();
+		throw new Reject();
 	}
 
 	public void onDropOver(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		throw new DNDFailure();
+		throw new Reject();
 	}
 
 	public void onDropBefore(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		throw new DNDFailure();
+		throw new Reject();
 	}
 
 	public void onDropAfter(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		throw new DNDFailure();
+		throw new Reject();
 	}
 }

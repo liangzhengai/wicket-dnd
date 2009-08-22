@@ -37,9 +37,7 @@ public class ModelDragSource<T> extends DragSource {
 	@Override
 	public final void onDragFinished(AjaxRequestTarget target, Component drag,
 			int operation) {
-		T t = getModelObject(drag);
-
-		onDragFinished(target, t, operation);
+		onDragFinished(target, getModelObject(drag), operation);
 	}
 
 	public void onDragFinished(AjaxRequestTarget target, T t, int operation) {
