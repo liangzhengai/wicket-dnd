@@ -1,6 +1,5 @@
 .dnd-hover {
 	position: absolute;
-	cursor: url(move.cur), url(move.gif), move;
 }
 .dnd-hover-table {
 	position: absolute;
