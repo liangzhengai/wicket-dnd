@@ -33,8 +33,8 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
 import wicketdnd.DND;
-import wicketdnd.ModelDragSource;
-import wicketdnd.ModelDropTarget;
+import wicketdnd.DragSource;
+import wicketdnd.DropTarget;
 import wicketdnd.theme.WindowsTheme;
 import wickettree.DefaultNestedTree;
 import wickettree.DefaultTableTree;
@@ -86,45 +86,38 @@ public class ExamplePage extends WebPage
 			}
 		};
 		container.add(items);
-		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "div")
+		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "div")
 		{
-			@Override
-			protected Foo getModelObject(Component component)
-			{
-				return getDefaultModelObject(component);
-			}
 
 			@Override
-			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
+			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
 			{
 				if (operation == DND.MOVE)
 				{
-					list.remove(foo);
+					list.remove(transfer);
 
 					target.addComponent(container);
 				}
 			}
 		});
-		container.add(new ModelDropTarget<Foo>(DND.LINK, null, "div", "div")
+		container.add(new DropTarget(DND.LINK, null, "div", "div")
 		{
 			@Override
-			protected Foo getModelObject(Component component)
+			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				return getDefaultModelObject(component);
-			}
-
-			@Override
-			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
-			{
-				list.addBefore(operate(drag, operation), drop);
+				list.addBefore(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}
 
 			@Override
-			public void onDropAfter(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			public void onDropAfter(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				list.addAfter(operate(drag, operation), drop);
+				list.addAfter(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}
@@ -164,45 +157,37 @@ public class ExamplePage extends WebPage
 			}
 		};
 		container.setOutputMarkupId(true);
-		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr")
+		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "tr")
 		{
 			@Override
-			protected Foo getModelObject(Component component)
-			{
-				return getDefaultModelObject(component);
-			}
-
-			@Override
-			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
+			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
 			{
 				if (operation == DND.MOVE)
 				{
-					provider.remove(foo);
+					provider.remove((Foo)transfer);
 
 					target.addComponent(container);
 				}
 			}
 		});
-		container.add(new ModelDropTarget<Foo>(DND.COPY, null, "tr", "tr")
+		container.add(new DropTarget(DND.COPY, null, "tr", "tr")
 		{
 			@Override
-			protected Foo getModelObject(Component component)
+			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				return getDefaultModelObject(component);
-			}
-
-			@Override
-			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
-			{
-				provider.addBefore(operate(drag, operation), drop);
+				provider.addBefore(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}
 
 			@Override
-			public void onDropAfter(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			public void onDropAfter(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				provider.addAfter(operate(drag, operation), drop);
+				provider.addAfter(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}
@@ -225,60 +210,56 @@ public class ExamplePage extends WebPage
 			}
 		};
 		container.setOutputMarkupId(true);
-		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
+		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
 		{
-			@Override
-			protected Foo getModelObject(Component component)
-			{
-				return getDefaultModelObject(component);
-			}
 
 			@Override
-			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
+			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
 			{
 				if (operation == DND.MOVE)
 				{
-					provider.remove(foo);
+					provider.remove((Foo)transfer);
 
 					target.addComponent(container);
 				}
 			}
 		});
-		container.add(new ModelDropTarget<Foo>(DND.MOVE, "span.tree-content", "div.tree-branch",
+		container.add(new DropTarget(DND.MOVE, "span.tree-content", "div.tree-branch",
 				"div.tree-branch")
 		{
+
 			@Override
-			protected Foo getModelObject(Component component)
+			public void onDragOver(AjaxRequestTarget target, Component component)
 			{
-				return getDefaultModelObject(component);
+				container.expand((Foo)component.getDefaultModelObject());
 			}
 
 			@Override
-			public void onDragOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			public void onDropOver(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				container.expand(drop);
-			}
-
-			@Override
-			public void onDropOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
-			{
-				provider.add(operate(drag, operation), drop);
+				provider.add(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}
 
 			@Override
-			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				provider.addBefore(operate(drag, operation), drop);
+				provider.addBefore(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}
 
 			@Override
-			public void onDropAfter(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			public void onDropAfter(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				provider.addAfter(operate(drag, operation), drop);
+				provider.addAfter(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}
@@ -305,59 +286,53 @@ public class ExamplePage extends WebPage
 		// reuse items or drop following expansion will fail due to new
 		// markup ids
 		container.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
-		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
+		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
 		{
 			@Override
-			protected Foo getModelObject(Component component)
-			{
-				return getDefaultModelObject(component);
-			}
-
-			@Override
-			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
+			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
 			{
 				if (operation == DND.MOVE)
 				{
-					provider.remove(foo);
+					provider.remove((Foo)transfer);
 
 					target.addComponent(container);
 				}
 			}
 		});
-		container.add(new ModelDropTarget<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
+		container.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
 		{
 			@Override
-			protected Foo getModelObject(Component component)
+			public void onDragOver(AjaxRequestTarget target, Component component)
 			{
-				return getDefaultModelObject(component);
+				container.expand((Foo)component.getDefaultModelObject());
 			}
 
 			@Override
-			public void onDragOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			public void onDropOver(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				container.expand(drop);
-			}
-
-			@Override
-			public void onDropOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
-			{
-				provider.add(operate(drag, operation), drop);
+				provider.add(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}
 
 			@Override
-			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				provider.addBefore(operate(drag, operation), drop);
+				provider.addBefore(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}
 
 			@Override
-			public void onDropAfter(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
+			public void onDropAfter(AjaxRequestTarget target, Object transfer, int operation,
+					Component component)
 			{
-				provider.addAfter(operate(drag, operation), drop);
+				provider.addAfter(operate((Foo)transfer, operation), (Foo)component
+						.getDefaultModelObject());
 
 				target.addComponent(container);
 			}

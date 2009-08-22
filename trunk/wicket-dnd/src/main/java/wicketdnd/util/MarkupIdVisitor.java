@@ -16,7 +16,9 @@
 package wicketdnd.util;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Component.IVisitor;
+import org.apache.wicket.protocol.http.PageExpiredException;
 
 /**
  * Find a child component by it's markup id.
@@ -25,26 +27,32 @@ import org.apache.wicket.Component.IVisitor;
  * 
  * @author Sven Meier
  */
-public class MarkupIdVisitor implements IVisitor<Component>
-{
+public class MarkupIdVisitor implements IVisitor<Component> {
 
 	private final String id;
 
-	public MarkupIdVisitor(String id)
-	{
-		if (id == null)
-		{
+	public MarkupIdVisitor(String id) {
+		if (id == null) {
 			throw new IllegalArgumentException("id must not be null");
 		}
 		this.id = id;
 	}
 
-	public Object component(Component component)
-	{
-		if (id.equals(component.getMarkupId(false)))
-		{
+	public Object component(Component component) {
+		if (id.equals(component.getMarkupId(false))) {
 			return component;
 		}
 		return IVisitor.CONTINUE_TRAVERSAL;
+	}
+
+	public static Component getComponent(MarkupContainer container, String id) {
+		Component component = (Component) container
+				.visitChildren(new MarkupIdVisitor(id));
+
+		if (component == null) {
+			throw new PageExpiredException("No component with markup id " + id);
+		}
+
+		return component;
 	}
 }

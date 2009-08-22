@@ -21,7 +21,6 @@ import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
@@ -108,26 +107,25 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 		int operation = Integer.parseInt(getComponent().getRequest()
 				.getParameter("operation"));
 
-		WebMarkupContainer dragSource = (WebMarkupContainer) findDescendent(
-				getComponent().getPage(), "source");
-		Component drag = findDescendent(dragSource, "drag");
+		DragSource source = findDragSource();
+
+		Object transferData = source.getTransferData(target);
 
 		try {
 			if ("drop".equals(type)) {
-				onDrop(target, drag, operation);
+				onDrop(target, transferData, operation);
 			} else {
-				Component drop = findDescendent(
-						(WebMarkupContainer) getComponent(), "drop");
+				Component component = findDrop();
 
 				if ("drag-over".equals(type)) {
-					onDragOver(target, drag, drop, operation);
+					onDragOver(target, component);
 					return;
 				} else if ("drop-over".equals(type)) {
-					onDropOver(target, drag, drop, operation);
+					onDropOver(target, transferData, operation, component);
 				} else if ("drop-before".equals(type)) {
-					onDropBefore(target, drag, drop, operation);
+					onDropBefore(target, transferData, operation, component);
 				} else if ("drop-after".equals(type)) {
-					onDropAfter(target, drag, drop, operation);
+					onDropAfter(target, transferData, operation, component);
 				} else {
 					throw new IllegalArgumentException("unkown drop type");
 				}
@@ -136,48 +134,73 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 			// TODO how to indicate rejection
 			return;
 		}
-		
-		for (IBehavior behavior : dragSource.getBehaviors()) {
+
+		source.onDropped(target, transferData, operation);
+	}
+
+	private DragSource findDragSource() {
+		String id = getComponent().getRequest().getParameter("source");
+
+		Component component = MarkupIdVisitor.getComponent(getComponent()
+				.getPage(), id);
+
+		for (IBehavior behavior : component.getBehaviors()) {
 			if (behavior instanceof DragSource) {
-				((DragSource) behavior).onDragFinished(target, drag,
-						operation);
-				break;
+				return (DragSource) behavior;
 			}
 		}
+		throw new PageExpiredException("No drag source found for markupId "
+				+ id + "; Component: " + component.toString());
 	}
 
-	private Component findDescendent(MarkupContainer root, String parameter) {
-		String id = getComponent().getRequest().getParameter(parameter);
+	private Component findDrop() {
+		String id = getComponent().getRequest().getParameter("drop");
 
-		Component descendent = (Component) root
-				.visitChildren(new MarkupIdVisitor(id));
-		if (descendent == null) {
-			throw new PageExpiredException("No descendent found with id " + id
-					+ "; Component: " + root.toString());
-		}
-		return descendent;
+		return MarkupIdVisitor.getComponent((MarkupContainer) getComponent(),
+				id);
 	}
 
-	public void onDragOver(AjaxRequestTarget target, Component drag,
-			Component drop, int operation) {
+	/**
+	 * Notification that a drag happend over the given component.
+	 * 
+	 * @param target
+	 * @param component
+	 */
+	public void onDragOver(AjaxRequestTarget target, Component component) {
 	}
 
-	public void onDrop(AjaxRequestTarget target, Component drag, int operation) {
+	/**
+	 * Notification that the given transfer data was dropped on this target.
+	 */
+	public void onDrop(AjaxRequestTarget target, Object transferData,
+			int operation) {
 		throw new Reject();
 	}
 
-	public void onDropOver(AjaxRequestTarget target, Component drag,
-			Component drop, int operation) {
+	/**
+	 * Notification that the given transfer data was dropped on this target over
+	 * the given component.
+	 */
+	public void onDropOver(AjaxRequestTarget target, Object transferData,
+			int operation, Component component) {
 		throw new Reject();
 	}
 
-	public void onDropBefore(AjaxRequestTarget target, Component drag,
-			Component drop, int operation) {
+	/**
+	 * Notification that the given transfer data was dropped on this target
+	 * before the given component.
+	 */
+	public void onDropBefore(AjaxRequestTarget target, Object transferData,
+			int operation, Component component) {
 		throw new Reject();
 	}
 
-	public void onDropAfter(AjaxRequestTarget target, Component drag,
-			Component drop, int operation) {
+	/**
+	 * Notification that the given transfer data was dropped on this target
+	 * after the given component.
+	 */
+	public void onDropAfter(AjaxRequestTarget target, Object transferData,
+			int operation, Component component) {
 		throw new Reject();
 	}
 }
