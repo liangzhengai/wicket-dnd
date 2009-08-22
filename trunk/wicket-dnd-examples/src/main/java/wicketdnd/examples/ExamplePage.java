@@ -89,6 +89,12 @@ public class ExamplePage extends WebPage
 		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "div")
 		{
 			@Override
+			protected Foo getModelObject(Component component)
+			{
+				return getDefaultModelObject(component);
+			}
+
+			@Override
 			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
 			{
 				if (operation == DND.MOVE)
@@ -101,6 +107,12 @@ public class ExamplePage extends WebPage
 		});
 		container.add(new ModelDropTarget<Foo>(DND.LINK, null, "div", "div")
 		{
+			@Override
+			protected Foo getModelObject(Component component)
+			{
+				return getDefaultModelObject(component);
+			}
+
 			@Override
 			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
 			{
@@ -155,6 +167,12 @@ public class ExamplePage extends WebPage
 		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr")
 		{
 			@Override
+			protected Foo getModelObject(Component component)
+			{
+				return getDefaultModelObject(component);
+			}
+
+			@Override
 			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
 			{
 				if (operation == DND.MOVE)
@@ -167,6 +185,12 @@ public class ExamplePage extends WebPage
 		});
 		container.add(new ModelDropTarget<Foo>(DND.COPY, null, "tr", "tr")
 		{
+			@Override
+			protected Foo getModelObject(Component component)
+			{
+				return getDefaultModelObject(component);
+			}
+
 			@Override
 			public void onDropBefore(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
 			{
@@ -204,6 +228,12 @@ public class ExamplePage extends WebPage
 		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
 		{
 			@Override
+			protected Foo getModelObject(Component component)
+			{
+				return getDefaultModelObject(component);
+			}
+
+			@Override
 			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
 			{
 				if (operation == DND.MOVE)
@@ -214,8 +244,15 @@ public class ExamplePage extends WebPage
 				}
 			}
 		});
-		container.add(new ModelDropTarget<Foo>(DND.MOVE, "span.tree-content", "div.tree-branch", "div.tree-branch")
+		container.add(new ModelDropTarget<Foo>(DND.MOVE, "span.tree-content", "div.tree-branch",
+				"div.tree-branch")
 		{
+			@Override
+			protected Foo getModelObject(Component component)
+			{
+				return getDefaultModelObject(component);
+			}
+
 			@Override
 			public void onDragOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
 			{
@@ -271,6 +308,12 @@ public class ExamplePage extends WebPage
 		container.add(new ModelDragSource<Foo>(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
 		{
 			@Override
+			protected Foo getModelObject(Component component)
+			{
+				return getDefaultModelObject(component);
+			}
+
+			@Override
 			public void onDragFinished(AjaxRequestTarget target, Foo foo, int operation)
 			{
 				if (operation == DND.MOVE)
@@ -283,6 +326,12 @@ public class ExamplePage extends WebPage
 		});
 		container.add(new ModelDropTarget<Foo>(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
 		{
+			@Override
+			protected Foo getModelObject(Component component)
+			{
+				return getDefaultModelObject(component);
+			}
+
 			@Override
 			public void onDragOver(AjaxRequestTarget target, Foo drag, Foo drop, int operation)
 			{

@@ -21,7 +21,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 /**
  * @author Sven Meier
  */
-public class ModelDragSource<T> extends DragSource {
+public abstract class ModelDragSource<T> extends DragSource {
 
 	private static final long serialVersionUID = 1L;
 
@@ -30,14 +30,24 @@ public class ModelDragSource<T> extends DragSource {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected T getModelObject(Component drag) {
-		return (T) drag.getDefaultModelObject();
+	protected T getDefaultModelObject(Component component) {
+		return (T) component.getDefaultModelObject();
+	}
+
+	/**
+	 * Get the model object of the given component.
+	 */
+	protected abstract T getModelObject(Component component);
+
+	private T modelObject(Component component) {
+		// cannot reject - drop has already happend
+		return getModelObject(component);
 	}
 
 	@Override
 	public final void onDragFinished(AjaxRequestTarget target, Component drag,
 			int operation) {
-		onDragFinished(target, getModelObject(drag), operation);
+		onDragFinished(target, modelObject(drag), operation);
 	}
 
 	public void onDragFinished(AjaxRequestTarget target, T t, int operation) {

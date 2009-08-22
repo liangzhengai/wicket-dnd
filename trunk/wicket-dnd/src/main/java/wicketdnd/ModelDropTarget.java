@@ -21,7 +21,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 /**
  * @author Sven Meier
  */
-public class ModelDropTarget<T> extends DropTarget {
+public abstract class ModelDropTarget<T> extends DropTarget {
 
 	private static final long serialVersionUID = 1L;
 
@@ -35,62 +35,55 @@ public class ModelDropTarget<T> extends DropTarget {
 	}
 
 	@SuppressWarnings("unchecked")
-	protected T getModelObject(Component drop) {
-		return (T) drop.getDefaultModelObject();
+	protected T getDefaultModelObject(Component component) {
+		return (T) component.getDefaultModelObject();
 	}
 
+	/**
+	 * Get the model object of the given component.
+	 */
+	protected abstract T getModelObject(Component component);
+
+	private T modelObject(Component component) {
+		try {
+			return getModelObject(component);
+		} catch (Exception ex) {
+			throw new Reject();
+		}
+	}
+	
 	@Override
 	public final void onDragOver(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		try {
-			onDragOver(target, getModelObject(drag), getModelObject(drop),
-					operation);
-		} catch (ClassCastException ex) {
-			throw new Reject(ex);
-		}
+		onDragOver(target, modelObject(drag), modelObject(drop),
+				operation);
 	}
 
 	@Override
 	public final void onDrop(AjaxRequestTarget target, Component drag,
 			int operation) {
-		try {
-			onDrop(target, getModelObject(drag), operation);
-		} catch (ClassCastException ex) {
-			throw new Reject(ex);
-		}
+		onDrop(target, modelObject(drag), operation);
 	}
 
 	@Override
 	public final void onDropOver(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		try {
-			onDropOver(target, getModelObject(drag), getModelObject(drop),
-					operation);
-		} catch (ClassCastException ex) {
-			throw new Reject(ex);
-		}
+		onDropOver(target, modelObject(drag), modelObject(drop),
+				operation);
 	}
 
 	@Override
 	public final void onDropBefore(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		try {
-			onDropBefore(target, getModelObject(drag), getModelObject(drop),
-					operation);
-		} catch (ClassCastException ex) {
-			throw new Reject(ex);
-		}
+		onDropBefore(target, modelObject(drag), modelObject(drop),
+				operation);
 	}
 
 	@Override
 	public final void onDropAfter(AjaxRequestTarget target, Component drag,
 			Component drop, int operation) {
-		try {
-			onDropAfter(target, getModelObject(drag), getModelObject(drop),
-					operation);
-		} catch (ClassCastException ex) {
-			throw new Reject(ex);
-		}
+		onDropAfter(target, modelObject(drag), modelObject(drop),
+				operation);
 	}
 
 	public void onDragOver(AjaxRequestTarget target, T drag, T drop,
