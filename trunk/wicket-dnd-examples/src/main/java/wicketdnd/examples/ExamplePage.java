@@ -54,6 +54,8 @@ public class ExamplePage extends WebPage
 	{
 		add(CSSPackageResource.getHeaderContribution(new WindowsTheme()));
 
+		add(newLabel());
+
 		add(newList());
 
 		add(newTable());
@@ -63,12 +65,36 @@ public class ExamplePage extends WebPage
 		add(newTableTree());
 	}
 
-	private WebMarkupContainer newList()
+	private Component newLabel()
+	{
+		final WebMarkupContainer container = new WebMarkupContainer("label");
+
+		final Label label = new Label("label", Model.of(new Foo("A")));
+		label.setOutputMarkupId(true);
+		container.add(label);
+
+		container.add(new DragSource(DND.COPY | DND.LINK, "div")
+		{
+		});
+		container.add(new DropTarget(DND.COPY, null)
+		{
+			@Override
+			public void onDrop(AjaxRequestTarget target, Object transferData, int operation)
+			{
+				label.setDefaultModelObject(transferData);
+
+				target.addComponent(label);
+			}
+		});
+
+		return container;
+	}
+
+	private Component newList()
 	{
 		final FooList list = new FooList();
 
 		final WebMarkupContainer container = new WebMarkupContainer("list");
-		container.setOutputMarkupId(true);
 		final ListView<Foo> items = new ListView<Foo>("items", list)
 		{
 			@Override
@@ -141,7 +167,7 @@ public class ExamplePage extends WebPage
 		}
 	}
 
-	private WebMarkupContainer newTable()
+	private Component newTable()
 	{
 		final FooDataProvider provider = new FooDataProvider();
 
@@ -156,7 +182,6 @@ public class ExamplePage extends WebPage
 				return item;
 			}
 		};
-		container.setOutputMarkupId(true);
 		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "tr")
 		{
 			@Override
@@ -196,7 +221,7 @@ public class ExamplePage extends WebPage
 		return container;
 	}
 
-	private WebMarkupContainer newTree()
+	private Component newTree()
 	{
 		final FooTreeProvider provider = new FooTreeProvider();
 		final NestedTree<Foo> container = new DefaultNestedTree<Foo>("tree", provider)
@@ -209,7 +234,6 @@ public class ExamplePage extends WebPage
 				return component;
 			}
 		};
-		container.setOutputMarkupId(true);
 		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
 		{
 
@@ -229,7 +253,8 @@ public class ExamplePage extends WebPage
 		{
 
 			@Override
-			public void onDragOver(AjaxRequestTarget target, Component component)
+			public void onDragOver(AjaxRequestTarget target, Object transferData,
+					Component component)
 			{
 				container.expand((Foo)component.getDefaultModelObject());
 			}
@@ -268,7 +293,7 @@ public class ExamplePage extends WebPage
 		return container;
 	}
 
-	private WebMarkupContainer newTableTree()
+	private Component newTableTree()
 	{
 		final FooTreeProvider provider = new FooTreeProvider();
 		final TableTree<Foo> container = new DefaultTableTree<Foo>("tabletree", treeColumns(),
@@ -282,7 +307,6 @@ public class ExamplePage extends WebPage
 				return component;
 			}
 		};
-		container.setOutputMarkupId(true);
 		// reuse items or drop following expansion will fail due to new
 		// markup ids
 		container.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
@@ -302,7 +326,8 @@ public class ExamplePage extends WebPage
 		container.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK, "tr", null, null)
 		{
 			@Override
-			public void onDragOver(AjaxRequestTarget target, Component component)
+			public void onDragOver(AjaxRequestTarget target, Object transferData,
+					Component component)
 			{
 				container.expand((Foo)component.getDefaultModelObject());
 			}
