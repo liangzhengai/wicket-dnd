@@ -58,13 +58,13 @@ public abstract class DragSource extends AbstractBehavior {
 	}
 
 	@Override
-	public void bind(Component component) {
+	public final void bind(Component component) {
 		this.component = component;
 		component.setOutputMarkupId(true);
 	}
 
 	@Override
-	public void renderHead(IHeaderResponse response) {
+	public final void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 
 		response.renderJavascriptReference(PrototypeResourceReference.INSTANCE);
@@ -81,10 +81,10 @@ public abstract class DragSource extends AbstractBehavior {
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
-	Object getTransferData(AjaxRequestTarget target) {
-		Component component = findDrag();
+	final Object getTransferData(int operation) {
+		Component drag = findDrag();
 
-		return getTransferData(component);
+		return getTransferData(drag, operation);
 	}
 
 	private Component findDrag() {
@@ -94,23 +94,29 @@ public abstract class DragSource extends AbstractBehavior {
 	}
 
 	/**
-	 * Get the data to transfer from the given component - the default
+	 * Get the data to transfer from the given dragged component - the default
 	 * implementation returns the component's model object.
 	 * 
-	 * @param component
+	 * @param drag
 	 *            component to get data from
+	 * @param operation
 	 * @return transfer data
 	 */
-	public Object getTransferData(Component component) {
-		return component.getDefaultModelObject();
+	public Object getTransferData(Component drag, int operation) {
+		return drag.getDefaultModelObject();
 	}
 
 	/**
-	 * Notification of a drop of one of this source's transfer datas.
+	 * Notification that a drop happend of one of this source's transfer datas
+	 * 
+	 * The default implementation does nothing.
 	 * 
 	 * @param target
+	 *            initiating request target
 	 * @param transferData
+	 *            the transferred data
 	 * @param operation
+	 *            the DND operation
 	 */
 	public void onDropped(AjaxRequestTarget target, Object transferData,
 			int operation) {
