@@ -1,6 +1,9 @@
 .dnd-hover {
 	position: absolute;
 }
+.dnd-hover-clone {
+	margin: 0px !important;
+}
 .dnd-hover-table {
 	position: absolute;
 	top: 0px;

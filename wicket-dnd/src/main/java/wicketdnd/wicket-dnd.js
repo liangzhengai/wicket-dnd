@@ -278,6 +278,7 @@ var Hover = Class.create({
 			
 			tbody.insert(this.clone);
 		} else {
+			this.clone.addClassName("dnd-hover-clone");
 			this.element.insert(this.clone);
 		}
 		
