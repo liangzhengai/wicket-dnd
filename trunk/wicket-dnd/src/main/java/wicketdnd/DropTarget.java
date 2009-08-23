@@ -118,7 +118,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 				Component component = findDrop();
 
 				if ("drag-over".equals(type)) {
-					onDragOver(target, component);
+					onDragOver(target, transferData, component);
 					return;
 				} else if ("drop-over".equals(type)) {
 					onDropOver(target, transferData, operation, component);
@@ -166,7 +166,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	 * @param target
 	 * @param component
 	 */
-	public void onDragOver(AjaxRequestTarget target, Component component) {
+	public void onDragOver(AjaxRequestTarget target, Object transferData, Component component) {
 	}
 
 	/**
