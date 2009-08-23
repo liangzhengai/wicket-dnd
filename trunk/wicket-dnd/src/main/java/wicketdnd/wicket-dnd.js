@@ -470,7 +470,7 @@ var DragSource = Class.create({
 				src = src.up();
 			}
 			
-			if (src != this.element) {
+			if (src != this.element && src.id) {
 				var pointer = [event.pointerX(), event.pointerY()];
 				
 				new Drag(this, src, pointer);
@@ -522,25 +522,27 @@ var DropTarget = Class.create({
 			}
 		};
 
-		var bounds = DND.getBounds(element);
-		if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
-			if (drop == null) {
-				if (element.match(this.selector)) {
-					drop = new DropOver(this, element);
+		if (element.id) {
+			var bounds = DND.getBounds(element);
+			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
+				if (drop == null) {
+					if (element.match(this.selector)) {
+						drop = new DropOver(this, element);
+					}
 				}
-			}
-			
-			if (drop == null) {
-				if (element.match(this.beforeSelector) && y <= bounds.top + bounds.height/2) {
-					drop = new DropBefore(this, element);
-				} else if (element.match(this.afterSelector) && y >= bounds.top + bounds.height/2) {
-					drop = new DropAfter(this, element);
-				}
-			} else if (drop instanceof DropOver) {
-				if (element.match(this.beforeSelector) && y < bounds.top + 6) {
-					drop = new DropBefore(this, element);
-				} else if (element.match(this.afterSelector) && y > bounds.top + bounds.height - 6) {
-					drop = new DropAfter(this, element);
+				
+				if (drop == null) {
+					if (element.match(this.beforeSelector) && y <= bounds.top + bounds.height/2) {
+						drop = new DropBefore(this, element);
+					} else if (element.match(this.afterSelector) && y >= bounds.top + bounds.height/2) {
+						drop = new DropAfter(this, element);
+					}
+				} else if (drop instanceof DropOver) {
+					if (element.match(this.beforeSelector) && y < bounds.top + 6) {
+						drop = new DropBefore(this, element);
+					} else if (element.match(this.afterSelector) && y > bounds.top + bounds.height - 6) {
+						drop = new DropAfter(this, element);
+					}
 				}
 			}
 		}
