@@ -42,7 +42,24 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 
 	/**
 	 * Convenience constructor for drop targets supporting
-	 * {@link #onDropOver(Component, Component, int)} only.
+	 * {@link #onDrop(AjaxRequestTarget, Object, int)} only.
+	 * 
+	 * @param operations
+	 *            allowed operations
+	 * @param selector
+	 *            CSS selector for drops
+	 * @see DND#MOVE
+	 * @see DND#COPY
+	 * @see DND#LINK
+	 */
+	public DropTarget(int operations) {
+		this(operations, DND.UNDEFINED, DND.UNDEFINED, DND.UNDEFINED);
+	}
+
+	/**
+	 * Convenience constructor for drop targets supporting
+	 * {@link #onDrop(AjaxRequestTarget, Object, int)} and
+	 * {@link #onDropOver(AjaxRequestTarget, Object, int, Component)} only.
 	 * 
 	 * @param operations
 	 *            allowed operations
@@ -53,7 +70,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	 * @see DND#LINK
 	 */
 	public DropTarget(int operations, String selector) {
-		this(operations, selector, null, null);
+		this(operations, selector, DND.UNDEFINED, DND.UNDEFINED);
 	}
 
 	/**
@@ -81,7 +98,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	}
 
 	@Override
-	public void renderHead(IHeaderResponse response) {
+	public final void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
 
 		response.renderJavascriptReference(PrototypeResourceReference.INSTANCE);
@@ -104,28 +121,28 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	protected final void respond(AjaxRequestTarget target) {
 		String type = getComponent().getRequest().getParameter("type");
 
-		int operation = Integer.parseInt(getComponent().getRequest()
+		final int operation = Integer.parseInt(getComponent().getRequest()
 				.getParameter("operation"));
 
-		DragSource source = findDragSource();
+		final DragSource source = findDragSource();
 
-		Object transferData = source.getTransferData(target);
+		final Object transferData = source.getTransferData(operation);
 
 		try {
 			if ("drop".equals(type)) {
 				onDrop(target, transferData, operation);
 			} else {
-				Component component = findDrop();
+				final Component drop = findDrop();
 
 				if ("drag-over".equals(type)) {
-					onDragOver(target, transferData, component);
+					onDragOver(target, transferData, operation, drop);
 					return;
 				} else if ("drop-over".equals(type)) {
-					onDropOver(target, transferData, operation, component);
+					onDropOver(target, transferData, operation, drop);
 				} else if ("drop-before".equals(type)) {
-					onDropBefore(target, transferData, operation, component);
+					onDropBefore(target, transferData, operation, drop);
 				} else if ("drop-after".equals(type)) {
-					onDropAfter(target, transferData, operation, component);
+					onDropAfter(target, transferData, operation, drop);
 				} else {
 					throw new IllegalArgumentException("unkown drop type");
 				}
@@ -164,13 +181,29 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	 * Notification that a drag happend over the given component.
 	 * 
 	 * @param target
-	 * @param component
+	 *            initiating request target
+	 * @param transferData
+	 *            the transferring data
+	 * @param operation
+	 *            the DND operation
+	 * @param drop
+	 *            the component the drag happend over
 	 */
-	public void onDragOver(AjaxRequestTarget target, Object transferData, Component component) {
+	public void onDragOver(AjaxRequestTarget target, Object transferData,
+			int operation, Component drop) {
 	}
 
 	/**
-	 * Notification that the given transfer data was dropped on this target.
+	 * Notification that a drop happend on the owning component.
+	 * 
+	 * The default implementation always rejects the drop.
+	 * 
+	 * @param target
+	 *            initiating request target
+	 * @param transferData
+	 *            the transferred data
+	 * @param operation
+	 *            the DND operation
 	 */
 	public void onDrop(AjaxRequestTarget target, Object transferData,
 			int operation) {
@@ -178,29 +211,59 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	}
 
 	/**
-	 * Notification that the given transfer data was dropped on this target over
-	 * the given component.
+	 * Notification that a drop happend over the given component.
+	 * 
+	 * The default implementation always rejects the drop.
+	 * 
+	 * @param target
+	 *            initiating request target
+	 * @param transferData
+	 *            the transferred data
+	 * @param operation
+	 *            the DND operation
+	 * @param drop
+	 *            the component the drop happend over
 	 */
 	public void onDropOver(AjaxRequestTarget target, Object transferData,
-			int operation, Component component) {
+			int operation, Component drop) {
 		throw new Reject();
 	}
 
 	/**
-	 * Notification that the given transfer data was dropped on this target
-	 * before the given component.
+	 * Notification that a drop happend before the given component.
+	 * 
+	 * The default implementation always rejects the drop.
+	 * 
+	 * @param target
+	 *            initiating request target
+	 * @param transferData
+	 *            the transferred data
+	 * @param operation
+	 *            the DND operation
+	 * @param drop
+	 *            the component the drop happened before
 	 */
 	public void onDropBefore(AjaxRequestTarget target, Object transferData,
-			int operation, Component component) {
+			int operation, Component drop) {
 		throw new Reject();
 	}
 
 	/**
-	 * Notification that the given transfer data was dropped on this target
-	 * after the given component.
+	 * Notification that a drop happend after the given component.
+	 * 
+	 * The default implementation always rejects the drop.
+	 * 
+	 * @param target
+	 *            initiating request target
+	 * @param transferData
+	 *            the transferred data
+	 * @param operation
+	 *            the DND operation
+	 * @param drop
+	 *            the component the drop happened after
 	 */
 	public void onDropAfter(AjaxRequestTarget target, Object transferData,
-			int operation, Component component) {
+			int operation, Component drop) {
 		throw new Reject();
 	}
 }

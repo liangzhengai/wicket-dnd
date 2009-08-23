@@ -27,17 +27,22 @@ public class DND
 			"wicket-dnd.js");
 
 	/**
-	 * Action indicating a move.
+	 * Undefined CSS selector.
+	 */
+	public static final String UNDEFINED = "undefined";
+	
+	/**
+	 * Move operation.
 	 */
 	public static final int MOVE = 1;
 
 	/**
-	 * Action indicating a copy.
+	 * Copy operation.
 	 */
 	public static final int COPY = 2;
 	
 	/**
-	 * Action indicating a link.
+	 * Link operation.
 	 */
 	public static final int LINK = 4;
 }
