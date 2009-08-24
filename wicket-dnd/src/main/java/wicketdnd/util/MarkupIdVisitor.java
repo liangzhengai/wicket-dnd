@@ -23,8 +23,6 @@ import org.apache.wicket.protocol.http.PageExpiredException;
 /**
  * Find a child component by it's markup id.
  * 
- * NOTE: the markup id may be different from the wicket id used in the markup.
- * 
  * @author Sven Meier
  */
 public class MarkupIdVisitor implements IVisitor<Component> {
@@ -45,6 +43,17 @@ public class MarkupIdVisitor implements IVisitor<Component> {
 		return IVisitor.CONTINUE_TRAVERSAL;
 	}
 
+	/**
+	 * Get the given container's descendent by markup id.
+	 * 
+	 * @param container
+	 *            container to find descendent of
+	 * @param id
+	 *            markup id
+	 * @return component
+	 * @throws PageExpiredException
+	 *             if no descendent has the given markup id
+	 */
 	public static Component getComponent(MarkupContainer container, String id) {
 		Component component = (Component) container
 				.visitChildren(new MarkupIdVisitor(id));

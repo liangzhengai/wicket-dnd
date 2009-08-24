@@ -17,16 +17,20 @@ package wicketdnd;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.Request;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.protocol.http.PageExpiredException;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
 import wicketdnd.util.MarkupIdVisitor;
 
 /**
+ * A target of drops.
+ * 
+ * @see #onDragOver(AjaxRequestTarget, Object, int, Component)
+ * @see #onDrop(AjaxRequestTarget, Object, int)
+ * 
  * @author Sven Meier
  */
 public class DropTarget extends AbstractDefaultAjaxBehavior {
@@ -103,10 +107,10 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 
 		response.renderJavascriptReference(PrototypeResourceReference.INSTANCE);
 
-		renderDragHead(response);
+		renderDropHead(response);
 	}
 
-	private void renderDragHead(IHeaderResponse response) {
+	private void renderDropHead(IHeaderResponse response) {
 		response.renderJavascriptReference(DND.JS);
 
 		final String id = getComponent().getMarkupId();
@@ -117,18 +121,28 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
+	public int getOperations() {
+		return operations;
+	}
+
 	@Override
 	protected final void respond(AjaxRequestTarget target) {
-		String type = getComponent().getRequest().getParameter("type");
+		Request request = getComponent().getRequest();
+		
+		String type = request.getParameter("type");
 
-		final int operation = Integer.parseInt(getComponent().getRequest()
+		final int operation = Integer.parseInt(request
 				.getParameter("operation"));
 
-		final DragSource source = findDragSource();
-
-		final Object transferData = source.getTransferData(operation);
-
+		final DragSource source = DragSource.get(request);
+		
 		try {
+			if ((operation & getOperations() & source.getOperations()) == 0) {
+				throw new Reject();
+			}
+			
+			final Object transferData = source.getTransferData(operation);
+
 			if ("drop".equals(type)) {
 				onDrop(target, transferData, operation);
 			} else {
@@ -147,27 +161,11 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 					throw new IllegalArgumentException("unkown drop type");
 				}
 			}
+
+			source.onDropped(target, transferData, operation);
 		} catch (Reject reject) {
 			// TODO how to indicate rejection
-			return;
 		}
-
-		source.onDropped(target, transferData, operation);
-	}
-
-	private DragSource findDragSource() {
-		String id = getComponent().getRequest().getParameter("source");
-
-		Component component = MarkupIdVisitor.getComponent(getComponent()
-				.getPage(), id);
-
-		for (IBehavior behavior : component.getBehaviors()) {
-			if (behavior instanceof DragSource) {
-				return (DragSource) behavior;
-			}
-		}
-		throw new PageExpiredException("No drag source found for markupId "
-				+ id + "; Component: " + component.toString());
 	}
 
 	private Component findDrop() {
@@ -194,7 +192,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	}
 
 	/**
-	 * Notification that a drop happend on the owning component.
+	 * Notification that a drop happend.
 	 * 
 	 * The default implementation always rejects the drop.
 	 * 

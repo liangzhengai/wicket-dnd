@@ -12,8 +12,6 @@ var DND = {
 	
 	DELAY: 1,
 	
-	bounds: [],
-	
 	executor: null,
 	
 	elements: {},
@@ -41,6 +39,8 @@ var DND = {
 	},
 	
 	endDrag: function() {
+		this.target = null;
+		
 		if (this.drop != null && this.hover.operation != this.NONE) {
 			this.drop.onDrop(this.drag, this.hover.operation);
 			
@@ -58,8 +58,6 @@ var DND = {
 		}
 		this.elements = {};
 
-		this.bounds = [];
-		
 		if (this.excutor != null) {
 			this.executor.stop();
 			this.executor = null;
@@ -124,11 +122,11 @@ var DND = {
 	},
 
 	updateDropAndOperation: function() {
-		var target = this.findTarget(document.body, this.pointer[0], this.pointer[1]);
-		if (target == null) {
+		this.target = this.findTarget(this.pointer[0], this.pointer[1]);
+		if (this.target == null) {
 			this.setDrop(null);
 		} else {
-			this.setDrop(target.findDrop(this.pointer[0], this.pointer[1]));
+			this.setDrop(this.target.findDrop(this.pointer[0], this.pointer[1]));
 		}
 		
 		this.hover.setOperation(this.findOperation());
@@ -160,19 +158,33 @@ var DND = {
 		
 		return this.NONE;
 	},
-	
-	findTarget: function(element, x, y) {
+
+	findTarget: function(x, y) {
+		if (this.target != null) {
+			var bounds = this.getBounds($(this.target.id));
+			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
+				return this.target;
+			}
+		}
+		
+		return this.findTargetFor(document.body, x, y);
+	},
+
+	findTargetFor: function(element, x, y) {
 		if (element.dropTarget != undefined) {
-			return element.dropTarget;
+			var bounds = this.getBounds(element);
+			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
+				return element.dropTarget;
+			}
 		}
 
 		var children = element.childElements();
 		for (var index = 0; index < children.length; index++) {
 			var child = children[index];
-			
-			var bounds = this.getBounds(child);
-			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
-				return this.findTarget(child, x, y);
+
+			var target = this.findTargetFor(child, x, y);
+			if (target != null) {
+				return target;
 			}
 		};
 		
@@ -191,7 +203,6 @@ var DND = {
 			}
 			
 			this.drop = drop;
-			
 			if (this.drop != null) {
 				this.drop.draw();
 				
@@ -213,25 +224,15 @@ var DND = {
 	},
 
 	getBounds: function(element) {
-		for (var index = 0; index < this.bounds.length; index++) {
-			var bounds = this.bounds[index];
-			if (bounds.element == element) {
-				return bounds;
-			}
-		}
-		
 		var position = element.cumulativeOffset();
 		var dimension = element.getDimensions();
 
 		var bounds = {};
-		bounds.element = element;
 		bounds.top  = position.top;
 		bounds.left = position.left;
 		bounds.width = dimension.width;
 		bounds.height = dimension.height;
 
-		this.bounds.push(bounds);
-		
 		return bounds;
 	},
 	
@@ -262,10 +263,7 @@ var Hover = Class.create({
 	initialize: function(drag, offset) {
 		this.offset = offset;
 	
-		this.element = new Element("div");
-		this.element.setOpacity(DND.OPACITY);
-		this.element.className = "dnd-hover";
-		$(document.body).insert(this.element);
+		this.element = DND.newElement("dnd-hover");
 		
 		this.clone = $(drag.id).cloneNode(true);
 		if (this.clone.match("tr")) {
@@ -308,13 +306,15 @@ var Hover = Class.create({
 	},
 	
 	clear: function() {
-		this.element.remove();
+		this.element.hide();
 	},
 	
 	draw: function(pointer) {
 		var style = this.element.style;
 		style.left = pointer[0] -this.offset[0] + "px";
 		style.top = pointer[1] - this.offset[1] + "px";
+		
+		this.element.show();
 	}
 });
 
@@ -324,12 +324,12 @@ var Drop = Class.create({
 		this.target = target;
 	},
 
-	clear: function() {
-		this.target.element.removeClassName("dnd-drop");
-	},
-
 	draw: function() {
-		this.target.element.addClassName("dnd-drop");
+		$(this.target.id).addClassName("dnd-drop");
+	},
+	
+	clear: function() {
+		$(this.target.id).removeClassName("dnd-drop");
 	},
 
 	onDrop: function(drag, operation) {
@@ -344,12 +344,12 @@ var DropOver = Class.create({
 		this.id = element.identify();
 	},
 
-	clear: function() {
-		$(this.id).removeClassName("dnd-drop-over");
-	},
-
 	draw: function() {
 		$(this.id).addClassName("dnd-drop-over");
+	},
+	
+	clear: function() {
+		$(this.id).removeClassName("dnd-drop-over");
 	},
 
 	onDrop: function(drag, operation) {
@@ -361,27 +361,25 @@ var DropBefore = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
-		this.id = element.identify();
+		this.id = element.id;
 		
-		this.element = DND.newElement("dnd-drop-before");
-		
-		this.height = DND.getBounds(this.element).height;
-	},
-
-	clear: function() {
-		this.element.hide();
+		this.element = DND.newElement("dnd-drop-before");		
 	},
 
 	draw: function() {
-		this.element.show();
-
 		var bounds = DND.getBounds($(this.id));
 		
 		var style = this.element.style;
 		style.left  = bounds.left + "px";
-		style.top   = bounds.top - (this.height/2) + "px";
+		style.top   = bounds.top - (DND.getBounds(this.element).height/2) + "px";
 		style.width = bounds.width + "px";
-	},	
+
+		this.element.show();
+	},
+	
+	clear: function() {
+		this.element.hide();
+	},
 
 	onDrop: function(drag, operation) {
 		this.target.notify("drop-before", operation, drag, this);
@@ -394,24 +392,22 @@ var DropAfter = Class.create({
 		this.target = target;
 		this.id = element.identify();
 		
-		this.element = DND.newElement("dnd-drop-after");
-		
-		this.height = DND.getBounds(this.element).height;
-	},
-
-	clear: function() {
-		this.element.hide();
+		this.element = DND.newElement("dnd-drop-after");		
 	},
 
 	draw: function() {
-		this.element.show();
-		
 		var bounds = DND.getBounds($(this.id));
 		
 		var style = this.element.style;
-		style.left = bounds.left + "px";
-		style.top = bounds.top + bounds.height - (this.height/2) + "px";
+		style.left  = bounds.left + "px";
+		style.top   = bounds.top + bounds.height - (DND.getBounds(this.element).height/2) + "px";
 		style.width = bounds.width + "px";
+
+		this.element.show();
+	},
+	
+	clear: function() {
+		this.element.hide();
 	},
 	
 	onDrop: function(drag, operation) {
@@ -440,8 +436,10 @@ var Drag = Class.create({
 
 var DragSource = Class.create({
 
-	initialize: function(element, operations, selector) {
-		this.element = $(element);
+	initialize: function(id, path, operations, selector) {
+		this.element = $(id);
+		
+		this.path = path;
 		
 		this.operations = operations;
 				
@@ -483,10 +481,10 @@ var DragSource = Class.create({
 
 var DropTarget = Class.create({
 
-	initialize: function(element, url, operations, selector, beforeSelector, afterSelector) {
-		this.element = $(element);
+	initialize: function(id, url, operations, selector, beforeSelector, afterSelector) {
+		this.id = id;
 
-		this.element.dropTarget = this;
+		$(this.id).dropTarget = this;
 		
 		this.url = url;
 		
@@ -498,7 +496,7 @@ var DropTarget = Class.create({
 	},
 
 	findDrop: function(x, y) {
-		var drop = this.findDropFor(this.element, x, y);
+		var drop = this.findDropFor($(this.id), x, y);
 		if (drop == null) {
 			drop = new Drop(this);
 		}
@@ -508,39 +506,66 @@ var DropTarget = Class.create({
 	findDropFor: function(element, x, y) {
 		var drop = null;
 		
-		var children = element.childElements();
-		for (var index = 0; index < children.length; index++) {
-			var child = children[index];
+		if (element.id) {
+			if (element.match(this.selector)) {
+				var bounds = DND.getBounds(element);
 
-			if (child.match('colgroup')) {
-				continue;
+				if (x >= bounds.left && x < bounds.left + bounds.width &&
+					y >= bounds.top && y < bounds.top + bounds.height) {
+					
+					drop = new DropOver(this, element);
+				}
 			}
-			
-			drop = this.findDropFor(child, x, y);
-			if (drop != null) {
-				break;
-			}
-		};
+		}
+		
+		if (drop == null) {
+			var children = element.childElements();
+			for (var index = 0; index < children.length; index++) {
+				var child = children[index];
+	
+				drop = this.findDropFor(child, x, y);
+				if (drop != null) {
+					break;
+				}
+			};
+		}
 
 		if (element.id) {
-			var bounds = DND.getBounds(element);
-			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
+			if (element.match(this.beforeSelector)) {
 				if (drop == null) {
-					if (element.match(this.selector)) {
-						drop = new DropOver(this, element);
+					var bounds = DND.getBounds(element);
+	
+					if (x >= bounds.left && x < bounds.left + bounds.width &&
+						y >= bounds.top && y < bounds.top + bounds.height/2) {
+						
+						drop = new DropBefore(this, element);
+					}
+				} else if (drop instanceof DropOver) {
+					var bounds = DND.getBounds(element);
+	
+					if (x >= bounds.left && x < bounds.left + bounds.width &&
+						y >= bounds.top && y < bounds.top + 6) {
+						
+						drop = new DropBefore(this, element);
 					}
 				}
-				
+			}
+			
+			if (element.match(this.afterSelector)) {
 				if (drop == null) {
-					if (element.match(this.beforeSelector) && y <= bounds.top + bounds.height/2) {
-						drop = new DropBefore(this, element);
-					} else if (element.match(this.afterSelector) && y >= bounds.top + bounds.height/2) {
+					var bounds = DND.getBounds(element);
+	
+					if (x >= bounds.left && x < bounds.left + bounds.width &&
+						y >= bounds.top + bounds.height/2 && y < bounds.top + bounds.height) {
+						
 						drop = new DropAfter(this, element);
 					}
 				} else if (drop instanceof DropOver) {
-					if (element.match(this.beforeSelector) && y < bounds.top + 6) {
-						drop = new DropBefore(this, element);
-					} else if (element.match(this.afterSelector) && y > bounds.top + bounds.height - 6) {
+					var bounds = DND.getBounds(element);
+	
+					if (x >= bounds.left && x < bounds.left + bounds.width &&
+						y >= bounds.top + bounds.height - 6 && y < bounds.top + bounds.height) {
+						
 						drop = new DropAfter(this, element);
 					}
 				}
@@ -553,7 +578,7 @@ var DropTarget = Class.create({
 	notify: function(type, operation, drag, drop, successHandler) {
 		var params = "&type=" + type
 					+ "&operation=" + operation
-					+ "&source=" + drag.source.element.id
+					+ "&source=" + drag.source.path
 					+ "&drag=" + drag.id;
 		if (drop != null) {
 			params = params + "&drop=" + drop.id;

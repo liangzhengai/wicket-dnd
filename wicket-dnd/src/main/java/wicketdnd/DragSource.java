@@ -17,15 +17,20 @@ package wicketdnd;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
+import org.apache.wicket.Request;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.behavior.IBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.protocol.http.PageExpiredException;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
 import wicketdnd.util.MarkupIdVisitor;
 
 /**
- * @see #getTransferData(Component)
+ * A source of drags.
+ * 
+ * @see #getTransferData(Component, int)
  * @see #onDropped(AjaxRequestTarget, Object, int)
  * 
  * @author Sven Meier
@@ -76,11 +81,17 @@ public abstract class DragSource extends AbstractBehavior {
 		response.renderJavascriptReference(DND.JS);
 
 		final String id = component.getMarkupId();
-		String initJS = String.format("new DragSource('%s',%d,'%s');", id,
-				operations, selector);
+		final String path = component.getPageRelativePath();
+
+		String initJS = String.format("new DragSource('%s','%s',%d,'%s');", id,
+				path, operations, selector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
+	public int getOperations() {
+		return operations;
+	}
+	
 	final Object getTransferData(int operation) {
 		Component drag = findDrag();
 
@@ -100,6 +111,7 @@ public abstract class DragSource extends AbstractBehavior {
 	 * @param drag
 	 *            component to get data from
 	 * @param operation
+	 *            the drag's operation
 	 * @return transfer data
 	 */
 	public Object getTransferData(Component drag, int operation) {
@@ -120,5 +132,28 @@ public abstract class DragSource extends AbstractBehavior {
 	 */
 	public void onDropped(AjaxRequestTarget target, Object transferData,
 			int operation) {
+	}
+
+	/**
+	 * Get the drag source of the given request.
+	 * 
+	 * @param request
+	 *            request on which a drag happened
+	 * @return drag source
+	 */
+	final static DragSource get(Request request) {
+		String path = request.getParameter("source");
+
+		Component component = request.getPage().get(path);
+
+		if (component != null) {
+			for (IBehavior behavior : component.getBehaviors()) {
+				if (behavior instanceof DragSource) {
+					return (DragSource) behavior;
+				}
+			}
+		}
+
+		throw new PageExpiredException("No drag source found " + path);
 	}
 }
