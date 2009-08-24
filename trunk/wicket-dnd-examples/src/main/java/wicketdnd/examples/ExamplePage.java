@@ -112,7 +112,7 @@ public class ExamplePage extends WebPage
 			}
 		};
 		container.add(items);
-		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "div")
+		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "div.item")
 		{
 
 			@Override
@@ -126,7 +126,7 @@ public class ExamplePage extends WebPage
 				}
 			}
 		});
-		container.add(new DropTarget(DND.LINK, DND.UNDEFINED, "div", "div")
+		container.add(new DropTarget(DND.LINK, DND.UNDEFINED, "div.item", "div.item")
 		{
 			@Override
 			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
