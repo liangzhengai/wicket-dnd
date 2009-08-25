@@ -19,18 +19,20 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.wicket.markup.repeater.data.IDataProvider;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.ISortState;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.ISortableDataProvider;
+import org.apache.wicket.extensions.markup.html.repeater.util.SingleSortState;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 /**
  * @author Sven Meier
  */
-public class FooDataProvider implements IDataProvider<Foo>
+public class FooDataProvider implements ISortableDataProvider<Foo>
 {
 
 	private List<Foo> foos = new ArrayList<Foo>();
-	
+
 	{
 		foos.add(new Foo("A"));
 		foos.add(new Foo("B"));
@@ -52,6 +54,15 @@ public class FooDataProvider implements IDataProvider<Foo>
 		return Model.of(foo);
 	}
 
+	public ISortState getSortState()
+	{
+		return new SingleSortState();
+	}
+
+	public void setSortState(ISortState state)
+	{
+	}
+
 	public void detach()
 	{
 	}
@@ -61,12 +72,17 @@ public class FooDataProvider implements IDataProvider<Foo>
 		foos.remove(foo);
 	}
 
+	public void add(Foo drag)
+	{
+		foos.add(drag);
+	}
+
 	public void addBefore(Foo drag, Foo drop)
 	{
 		drag.remove();
 		foos.add(foos.indexOf(drop), drag);
 	}
-	
+
 	public void addAfter(Foo drag, Foo drop)
 	{
 		drag.remove();
