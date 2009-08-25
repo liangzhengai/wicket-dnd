@@ -32,6 +32,11 @@ public class DND
 	public static final String UNDEFINED = "undefined";
 	
 	/**
+	 * No operation.
+	 */
+	public static final int NONE = 0;
+	
+	/**
 	 * Move operation.
 	 */
 	public static final int MOVE = 1;
