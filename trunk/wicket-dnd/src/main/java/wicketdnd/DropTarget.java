@@ -131,19 +131,19 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 		
 		String type = request.getParameter("type");
 
-		final int operation = Integer.parseInt(request
-				.getParameter("operation"));
-
 		final DragSource source = DragSource.get(request);
 		
+		final int operation = Integer.parseInt(request
+				.getParameter("operation")) & getOperations() & source.getOperations();
+
 		try {
-			if ((operation & getOperations() & source.getOperations()) == 0) {
-				throw new Reject();
-			}
-			
 			final Object transferData = source.getTransferData(operation);
 
 			if ("drop".equals(type)) {
+				if (operation == 0) {
+					throw new Reject();
+				}
+				
 				onDrop(target, transferData, operation);
 			} else {
 				final Component drop = findDrop();
@@ -151,7 +151,13 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 				if ("drag-over".equals(type)) {
 					onDragOver(target, transferData, operation, drop);
 					return;
-				} else if ("drop-over".equals(type)) {
+				}
+				
+				if (operation == 0) {
+					throw new Reject();
+				}
+				
+				if ("drop-over".equals(type)) {
 					onDropOver(target, transferData, operation, drop);
 				} else if ("drop-before".equals(type)) {
 					onDropBefore(target, transferData, operation, drop);
