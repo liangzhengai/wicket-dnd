@@ -23,11 +23,13 @@ var DND = {
 		
 		this.hover = new Hover(drag, offset);
 
-		this.eventMousemove = this.handleMousemove.bindAsEventListener(this);
-		this.eventMouseup   = this.handleMouseup.bindAsEventListener(this);
-		this.eventKeypress  = this.handleKeypress.bindAsEventListener(this);
-		this.eventKeydown   = this.handleKeydown.bindAsEventListener(this);
-		this.eventKeyup     = this.handleKeyup.bindAsEventListener(this);
+		this.eventMousemove  = this.handleMousemove.bindAsEventListener(this);
+		this.eventMouseup    = this.handleMouseup.bindAsEventListener(this);
+		this.eventKeypress   = this.handleKeypress.bindAsEventListener(this);
+		this.eventKeydown    = this.handleKeydown.bindAsEventListener(this);
+		this.eventKeyup      = this.handleKeyup.bindAsEventListener(this);
+		this.eventDragOver   = this.handleDragOver.bindAsEventListener(this);
+		
 		Event.observe(document, "mousemove", this.eventMousemove);
 		Event.observe(document, "mouseup", this.eventMouseup);
 		Event.observe(document, "keypress", this.eventKeypress);
@@ -206,12 +208,14 @@ var DND = {
 			if (this.drop != null) {
 				this.drop.draw();
 				
-				this.executor = new PeriodicalExecuter(this.onDragOver.bindAsEventListener(this), this.DELAY);
+				if (!(this.drop instanceof Drop)) {
+					this.executor = new PeriodicalExecuter(this.eventDragOver, this.DELAY);
+				}
 			}
 		}
 	},
 	
-	onDragOver: function() {
+	handleDragOver: function() {
 		if (this.executor != null) {
 			this.executor.stop();
 			this.executor = null;
@@ -219,7 +223,7 @@ var DND = {
 
 		if (this.drop != null) {
 			this.drop.target.notify("drag-over", this.hover.operation, this.drag, this.drop,
-							this.afterDragOver.bindAsEventListener(this));
+							this.updateDropAndOperation.bindAsEventListener(this));
 		}		
 	},
 
@@ -236,12 +240,6 @@ var DND = {
 		return bounds;
 	},
 	
-	afterDragOver: function() {
-		this.bounds = [];
-		
-		this.updateDropAndOperation();
-	},
-
 	newElement: function(className) {
 		var element = this.elements[className];
 		if (element == null) {
@@ -349,7 +347,11 @@ var DropOver = Class.create({
 	},
 	
 	clear: function() {
-		$(this.id).removeClassName("dnd-drop-over");
+		var element = $(this.id);
+		if (element) {
+			// element might no longer exist
+			$(this.id).removeClassName("dnd-drop-over");
+		}
 	},
 
 	onDrop: function(drag, operation) {
@@ -430,7 +432,11 @@ var Drag = Class.create({
 	},
 
 	clear: function() {
-		$(this.id).removeClassName("dnd-drag");
+		var element = $(this.id);
+		if (element) {
+			// element might no longer exist
+			element.removeClassName("dnd-drag");
+		}
 	}
 });
 
