@@ -401,7 +401,7 @@ public class ExamplePage extends WebPage
 		};
 		tabbed.setOutputMarkupId(true);
 		// would be nice if TabbedPanel had a factory method for the container
-		// of tabs
+		// of tabs - see WICKET-2435
 		tabbed.get("tabs-container").add(new DropTarget(DND.NONE, "a")
 		{
 			@Override
