@@ -17,8 +17,22 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd" >
     <head>  
 <style>
-table {
-	border-spacing: 0px;
+div.tab-row {
+	float: left;
+}
+div.tab-row ul {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+div.tab-row li {
+	float: left;
+}
+div.tab-row a {
+	padding: 4px;
+}
+div.tab-panel {
+	clear: both;
 }
 </style>
     </head>
@@ -45,6 +59,10 @@ table {
 		
 		<h2>TableTree (move/copy/link)</h2>
 		<table wicket:id="tabletree" class="tree">[tabletree]</table>
+
+		<h2>Tabbing</h2>
+		<div wicket:id="tabbed">
+		</div>
 
     </body>
 </html>

@@ -15,11 +15,17 @@
  */
 package wicketdnd.examples;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.tabs.ITab;
+import org.apache.wicket.extensions.markup.html.tabs.TabbedPanel;
 import org.apache.wicket.markup.html.CSSPackageResource;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
@@ -63,6 +69,8 @@ public class ExamplePage extends WebPage
 		add(newTree());
 
 		add(newTableTree());
+
+		add(newTabbing());
 	}
 
 	private Component newLabel()
@@ -171,8 +179,8 @@ public class ExamplePage extends WebPage
 	{
 		final FooDataProvider provider = new FooDataProvider();
 
-		final DataTable<Foo> container = new DataTable<Foo>("table", dataColumns(), provider,
-				Integer.MAX_VALUE)
+		final DataTable<Foo> container = new DefaultDataTable<Foo>("table", dataColumns(),
+				provider, Integer.MAX_VALUE)
 		{
 			@Override
 			protected Item<Foo> newRowItem(String id, int index, IModel<Foo> model)
@@ -197,6 +205,14 @@ public class ExamplePage extends WebPage
 		});
 		container.add(new DropTarget(DND.COPY, DND.UNDEFINED, "tr", "tr")
 		{
+			@Override
+			public void onDrop(AjaxRequestTarget target, Object transfer, int operation)
+			{
+				provider.add(operate((Foo)transfer, operation));
+
+				target.addComponent(container);
+			}
+
 			@Override
 			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
 					Component component)
@@ -362,6 +378,45 @@ public class ExamplePage extends WebPage
 		});
 
 		return container;
+	}
+
+	private Component newTabbing()
+	{
+		List<ITab> tabs = new ArrayList<ITab>();
+		for (int i = 0; i < 4; i++)
+		{
+			tabs.add(new Tab(i));
+		}
+
+		final TabbedPanel tabbed = new TabbedPanel("tabbed", tabs)
+		{
+			@Override
+			protected WebMarkupContainer newLink(String linkId, int index)
+			{
+				WebMarkupContainer link = super.newLink(linkId, index);
+				link.setDefaultModel(Model.of(index));
+				link.setOutputMarkupId(true);
+				return link;
+			}
+		};
+		tabbed.setOutputMarkupId(true);
+		// would be nice if TabbedPanel had a factory method for the container
+		// of tabs
+		tabbed.get("tabs-container").add(new DropTarget(DND.NONE, "a")
+		{
+			@Override
+			public void onDragOver(AjaxRequestTarget target, Object transferData, int operation,
+					Component drop)
+			{
+				int index = (Integer)drop.getDefaultModelObject();
+
+				tabbed.setSelectedTab(index);
+
+				target.addComponent(tabbed);
+			}
+		});
+
+		return tabbed;
 	}
 
 	@SuppressWarnings("unchecked")
