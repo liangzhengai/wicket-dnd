@@ -15,10 +15,12 @@
  */
 package wicketdnd;
 
+import org.apache.wicket.RequestCycle;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
+import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 /**
  * @author Sven Meier
@@ -32,11 +34,14 @@ public class IECursorFix extends AbstractBehavior {
 
 	@Override
 	public final void renderHead(IHeaderResponse response) {
-		super.renderHead(response);
 
-		response.renderJavascriptReference(JS);
+		WebClientInfo info = ((WebClientInfo) RequestCycle.get()
+				.getClientInfo());
+		if (info.getProperties().isBrowserInternetExplorer()) {
+			response.renderJavascriptReference(JS);
 
-		String initJS = "IECursor.fix();";
-		response.renderOnDomReadyJavascript(initJS);
+			String initJS = "IECursor.fix();";
+			response.renderOnDomReadyJavascript(initJS);
+		}
 	}
 }
