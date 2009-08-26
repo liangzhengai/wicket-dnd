@@ -49,11 +49,15 @@ var DND = {
 			this.setDrop(null);
 		}
 
-		this.drag.clear();
-		this.drag = null;
+		if (this.drag != null) {
+			this.drag.clear();
+			this.drag = null;
+		}
 
-		this.hover.clear();
-		this.hover = null;
+		if (this.hoover != null) {
+			this.hover.clear();
+			this.hover = null;
+		}
 		
 		for (var className in this.elements) {
 			this.elements[className].remove();
@@ -65,8 +69,9 @@ var DND = {
 			this.executor = null;
 		}
 
-		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
 		Event.stopObserving(document, "mousemove", this.eventMousemove);
+		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
+		Event.stopObserving(document, "keypress" , this.eventKeypress);
 		Event.stopObserving(document, "keydown"  , this.eventKeydown);
 		Event.stopObserving(document, "keyup"    , this.eventKeyup);
 	},
@@ -89,6 +94,8 @@ var DND = {
 
 	handleKeypress: function(event) {
 		if (event.keyCode == Event.KEY_ESC) {
+			this.setDrop(null);
+			
 			this.endDrag();
 
 			Event.stop(event);
@@ -103,7 +110,9 @@ var DND = {
 			this.ctrl = true;
 		}
 
-		this.hover.setOperation(this.findOperation());
+		if (this.hover != null) {
+			this.hover.setOperation(this.findOperation());
+		}
 	},
 
 	handleKeyup: function(event) {
@@ -114,7 +123,9 @@ var DND = {
 			this.ctrl = false;
 		}
 
-		this.hover.setOperation(this.findOperation());
+		if (this.hover != null) {
+			this.hover.setOperation(this.findOperation());
+		}
 	},
 
 	handleMouseup: function(event) {
@@ -135,6 +146,10 @@ var DND = {
 	},
 		
 	findOperation: function() {
+		if (this.drag == null) {
+			return this.NONE;
+		}
+		
 		var operations = this.drag.source.operations;
 		if (this.drop != null) {
 			operations = operations & this.drop.target.operations;
