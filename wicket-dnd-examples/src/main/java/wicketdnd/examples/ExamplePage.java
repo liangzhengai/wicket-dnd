@@ -41,6 +41,7 @@ import org.apache.wicket.model.PropertyModel;
 import wicketdnd.DND;
 import wicketdnd.DragSource;
 import wicketdnd.DropTarget;
+import wicketdnd.IECursorFix;
 import wicketdnd.theme.WindowsTheme;
 import wickettree.DefaultNestedTree;
 import wickettree.DefaultTableTree;
@@ -58,6 +59,8 @@ public class ExamplePage extends WebPage
 
 	public ExamplePage()
 	{
+		add(new IECursorFix());
+		
 		add(CSSPackageResource.getHeaderContribution(new WindowsTheme()));
 
 		add(newLabel());
