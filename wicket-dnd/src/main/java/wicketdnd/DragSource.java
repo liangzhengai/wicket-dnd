@@ -35,7 +35,7 @@ import wicketdnd.util.MarkupIdVisitor;
  * 
  * @author Sven Meier
  */
-public abstract class DragSource extends AbstractBehavior {
+public class DragSource extends AbstractBehavior {
 
 	private static final long serialVersionUID = 1L;
 
