@@ -80,19 +80,18 @@ public class ExamplePage extends WebPage
 	{
 		final WebMarkupContainer container = new WebMarkupContainer("label");
 
-		final Label label = new Label("label", Model.of(new Foo("A")));
+		final Model<Foo> model = Model.of(new Foo("A"));
+		final Label label = new Label("label", model);
 		label.setOutputMarkupId(true);
 		container.add(label);
 
-		container.add(new DragSource(DND.COPY | DND.LINK, "div")
-		{
-		});
+		container.add(new DragSource(DND.COPY | DND.LINK, "div"));
 		container.add(new DropTarget(DND.COPY)
 		{
 			@Override
 			public void onDrop(AjaxRequestTarget target, Object transferData, int operation)
 			{
-				label.setDefaultModelObject(transferData);
+				model.setObject((Foo)transferData);
 
 				target.addComponent(label);
 			}
