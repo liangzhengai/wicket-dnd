@@ -8,6 +8,10 @@ var IECursor = {
 	},
 	
 	fixStyleSheet: function(styleSheet) {
+		if (!styleSheet.rules) {
+			return;
+		}
+		
 		var href = styleSheet.href;
 		if (href == null) {
 			return;
@@ -15,7 +19,7 @@ var IECursor = {
 	
 		var path = this.getPath(href);
 					
-		var rules = styleSheet.cssRules;		
+		var rules = styleSheet.rules;		
 		for (var r = 0; r < rules.length; r++) {
 			this.fixStyle(rules[r].style, path);
 		}
