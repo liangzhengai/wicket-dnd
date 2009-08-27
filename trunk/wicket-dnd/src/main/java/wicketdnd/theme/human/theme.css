@@ -1,5 +1,7 @@
 .dnd-hover {
 	position: absolute;
+	background: white;
+	border: 1px solid black;
 }
 .dnd-hover-clone {
 	margin: 0px !important;
@@ -17,7 +19,7 @@
 	width: 100%;
 	height: 100%;
 	background: url(cover.gif) repeat;
-	cursor: url(move.cur), url(move.gif), move;
+	cursor: url(move.gif), move;
 }
 .dnd-hover-copy {
 	position: absolute;
@@ -26,7 +28,7 @@
 	width: 100%;
 	height: 100%;
 	background: url(cover.gif) repeat;
-	cursor: url(copy.cur), url(copy.gif), move;
+	cursor: url(copy.gif), move;
 }
 .dnd-hover-link {
 	position: absolute;
@@ -35,7 +37,7 @@
 	width: 100%;
 	height: 100%;
 	background: url(cover.gif) repeat;
-	cursor: url(link.cur), url(link.gif), move;
+	cursor: url(link.gif), move;
 }
 .dnd-hover-none {
 	position: absolute;
@@ -44,17 +46,15 @@
 	width: 100%;
 	height: 100%;
 	background: url(cover.gif) repeat;
-	cursor: url(none.cur), url(none.gif), move;
+	cursor: url(none.gif), move;
 }
 .dnd-drag  {
-	background-color: #0000ee !important;
-	color: #FFFFFF !important;
+	background-color: #fccb7f !important;
 }
 .dnd-drop  {
 }
 .dnd-drop-over  {
-	background-color: #0000ee;
-	color: #FFFFFF;
+	background-color: #fccb7f !important;
 }
 .dnd-drop-before  {
 	position: absolute;
