@@ -34,14 +34,23 @@ div.tab-row a {
 div.tab-panel {
 	clear: both;
 }
+tr.even {
+	background: #eeeeee;
+}
 </style>
     </head>
     <body>
     	Visit our project on <a href="http://code.google.com/p/wicket-dnd/">http://code.google.com/p/wicket-dnd/</a>!
     	
+		<form wicket:id="form">
+			<p>
+				Theme: <select wicket:id="theme"/>
+			</p>
+		</form>
+
 		<h2>Label (move)</h2>
 		<div wicket:id="label">
-			<div wicket:id="label">[label]</div>
+			<span wicket:id="label">[label]</span>
 		</div>
 
 		<h2>ListView (link)</h2>

@@ -19,17 +19,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DefaultDataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.extensions.markup.html.tabs.TabbedPanel;
-import org.apache.wicket.markup.html.CSSPackageResource;
+import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.repeater.Item;
@@ -42,6 +48,8 @@ import wicketdnd.DND;
 import wicketdnd.DragSource;
 import wicketdnd.DropTarget;
 import wicketdnd.IECursorFix;
+import wicketdnd.theme.HumanTheme;
+import wicketdnd.theme.WebTheme;
 import wicketdnd.theme.WindowsTheme;
 import wickettree.DefaultNestedTree;
 import wickettree.DefaultTableTree;
@@ -57,11 +65,38 @@ public class ExamplePage extends WebPage
 
 	private static final long serialVersionUID = 1L;
 
+	private List<ResourceReference> themes;
+
+	private ResourceReference theme;
+
 	public ExamplePage()
 	{
 		add(new IECursorFix());
-		
-		add(CSSPackageResource.getHeaderContribution(new WindowsTheme()));
+
+		Form<Void> form = new Form<Void>("form");
+		form.add(new HeaderContributor(new IHeaderContributor()
+		{
+			private static final long serialVersionUID = 1L;
+
+			public void renderHead(IHeaderResponse response)
+			{
+				response.renderCSSReference(theme);
+			}
+		}));
+		add(form);
+
+		form.add(new DropDownChoice<ResourceReference>("theme",
+				new PropertyModel<ResourceReference>(this, "theme"), initThemes(),
+				new ChoiceRenderer<ResourceReference>("class.simpleName"))
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected boolean wantOnSelectionChangedNotifications()
+			{
+				return true;
+			}
+		});
 
 		add(newLabel());
 
@@ -76,6 +111,19 @@ public class ExamplePage extends WebPage
 		add(newTabbing());
 	}
 
+	private List<ResourceReference> initThemes()
+	{
+		themes = new ArrayList<ResourceReference>();
+
+		themes.add(new WindowsTheme());
+		themes.add(new HumanTheme());
+		themes.add(new WebTheme());
+
+		theme = themes.get(0);
+
+		return themes;
+	}
+
 	private Component newLabel()
 	{
 		final WebMarkupContainer container = new WebMarkupContainer("label");
@@ -85,7 +133,7 @@ public class ExamplePage extends WebPage
 		label.setOutputMarkupId(true);
 		container.add(label);
 
-		container.add(new DragSource(DND.COPY | DND.LINK, "div"));
+		container.add(new DragSource(DND.COPY | DND.LINK, "span"));
 		container.add(new DropTarget(DND.COPY)
 		{
 			@Override
