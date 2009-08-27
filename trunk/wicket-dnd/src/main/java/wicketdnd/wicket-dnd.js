@@ -14,6 +14,8 @@ var DND = {
 	
 	executor: null,
 	
+	targets: [],
+	
 	elements: {},
 	
 	startDrag: function(pointer, drag, offset) {
@@ -22,13 +24,16 @@ var DND = {
 		this.drop = null;
 		
 		this.hover = new Hover(drag, offset);
+		
+		this.targets = [];
+		this.findTargets(document.body);
 
 		this.eventMousemove  = this.handleMousemove.bindAsEventListener(this);
 		this.eventMouseup    = this.handleMouseup.bindAsEventListener(this);
 		this.eventKeypress   = this.handleKeypress.bindAsEventListener(this);
 		this.eventKeydown    = this.handleKeydown.bindAsEventListener(this);
 		this.eventKeyup      = this.handleKeyup.bindAsEventListener(this);
-		this.eventDragOver   = this.handleDragOver.bindAsEventListener(this);
+		this.eventExecute    = this.handleExecute.bindAsEventListener(this);
 		
 		Event.observe(document, "mousemove", this.eventMousemove);
 		Event.observe(document, "mouseup", this.eventMouseup);
@@ -41,8 +46,6 @@ var DND = {
 	},
 	
 	endDrag: function() {
-		this.target = null;
-		
 		if (this.drop != null && this.hover.operation != this.NONE) {
 			this.drop.onDrop(this.drag, this.hover.operation);
 			
@@ -63,6 +66,8 @@ var DND = {
 			this.elements[className].remove();
 		}
 		this.elements = {};
+		
+		this.targets = [];
 
 		if (this.excutor != null) {
 			this.executor.stop();
@@ -135,11 +140,11 @@ var DND = {
 	},
 
 	updateDropAndOperation: function() {
-		this.target = this.findTarget(this.pointer[0], this.pointer[1]);
-		if (this.target == null) {
+		var target = this.findTarget(this.pointer[0], this.pointer[1]);
+		if (target == null) {
 			this.setDrop(null);
 		} else {
-			this.setDrop(this.target.findDrop(this.pointer[0], this.pointer[1]));
+			this.setDrop(target.findDrop(this.pointer[0], this.pointer[1]));
 		}
 		
 		this.hover.setOperation(this.findOperation());
@@ -177,60 +182,59 @@ var DND = {
 	},
 
 	findTarget: function(x, y) {
-		if (this.target != null) {
-			var bounds = this.getBounds($(this.target.id));
+		for (var index = 0; index < this.targets.length; index++) {
+			var target = this.targets[index];
+
+			var bounds = this.getBounds($(target.id));
 			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
-				return this.target;
+				return target;
 			}
 		}
 		
-		return this.findTargetFor(document.body, x, y);
+		return null;
 	},
 
-	findTargetFor: function(element, x, y) {
+	findTargets: function(element) {
 		if (element.dropTarget != undefined) {
-			var bounds = this.getBounds(element);
-			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
-				return element.dropTarget;
-			}
+			this.targets.push(element.dropTarget);
 		}
 
 		var children = element.childElements();
 		for (var index = 0; index < children.length; index++) {
 			var child = children[index];
 
-			var target = this.findTargetFor(child, x, y);
-			if (target != null) {
-				return target;
-			}
+			this.findTargets(child);
 		};
-		
-		return null;
 	},
 
 	setDrop: function(drop) {
-		if (drop != this.drop) {
-			if (this.drop != null) {
-				this.drop.clear();
+		if (this.drop != null && drop != null) {
+			if (this.drop.id == drop.id && this.drop.element == drop.element) {
+				return;
 			}
+		}
+		
+		if (this.drop != null) {
+			this.drop.clear();
+		}
+		
+		if (this.executor != null) {
+			this.executor.stop();
+			this.executor = null;
+		}
+		
+		this.drop = drop;
+		
+		if (this.drop != null) {
+			this.drop.draw();
 			
-			if (this.executor != null) {
-				this.executor.stop();
-				this.executor = null;
-			}
-			
-			this.drop = drop;
-			if (this.drop != null) {
-				this.drop.draw();
-				
-				if (!(this.drop instanceof Drop)) {
-					this.executor = new PeriodicalExecuter(this.eventDragOver, this.DELAY);
-				}
+			if (!(this.drop instanceof Drop)) {
+				this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
 			}
 		}
 	},
 	
-	handleDragOver: function() {
+	handleExecute: function() {
 		if (this.executor != null) {
 			this.executor.stop();
 			this.executor = null;
@@ -278,8 +282,12 @@ var Hover = Class.create({
 	
 		this.element = DND.newElement("dnd-hover");
 		
-		this.clone = $(drag.id).cloneNode(true);
-		if (this.clone.match("tr")) {
+		var clone = $(drag.id).cloneNode(true);
+		clone.addClassName("dnd-hover-clone");
+		var style = clone.style;
+		style.width = DND.getBounds($(drag.id)).width + "px";
+		style.height = DND.getBounds($(drag.id)).height + "px";
+		if (clone.match("tr")) {
 			var table = new Element("table");
 			table.className = "dnd-hover-table";
 			this.element.insert(table);
@@ -287,19 +295,14 @@ var Hover = Class.create({
 			var tbody = new Element("tbody");
 			table.insert(tbody);
 			
-			tbody.insert(this.clone);
+			tbody.insert(clone);
 		} else {
-			this.clone.addClassName("dnd-hover-clone");
-			this.element.insert(this.clone);
+			this.element.insert(clone);
 		}
 		
 		this.cover = new Element("div");
 		this.cover.className = "dnd-hover-move";
-		this.element.insert(this.cover);
-		
-		var style = this.element.style;
-		style.width = DND.getBounds($(drag.id)).width + "px";
-		style.height = DND.getBounds($(drag.id)).height + "px";
+		this.element.insert(this.cover);		
 	},
 
 	setOperation: function(operation) {
