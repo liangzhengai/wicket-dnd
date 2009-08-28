@@ -23,10 +23,9 @@ var DND = {
 
 		this.drop = null;
 		
-		this.hover = new Hover(drag, offset);
+		this.hover = new DND.Hover(drag, offset);
 		
-		this.targets = [];
-		this.findTargets(document.body);
+		this.targets = this.collectTargets([], document.body);
 
 		this.eventMousemove  = this.handleMousemove.bindAsEventListener(this);
 		this.eventMouseup    = this.handleMouseup.bindAsEventListener(this);
@@ -194,17 +193,19 @@ var DND = {
 		return null;
 	},
 
-	findTargets: function(element) {
+	collectTargets: function(targets, element) {
 		if (element.dropTarget != undefined) {
-			this.targets.push(element.dropTarget);
+			targets.push(element.dropTarget);
 		}
 
 		var children = element.childElements();
 		for (var index = 0; index < children.length; index++) {
 			var child = children[index];
 
-			this.findTargets(child);
+			this.collectTargets(targets, child);
 		};
+		
+		return targets;
 	},
 
 	setDrop: function(drop) {
@@ -228,7 +229,7 @@ var DND = {
 		if (this.drop != null) {
 			this.drop.draw();
 			
-			if (!(this.drop instanceof Drop)) {
+			if (!(this.drop instanceof DND.Drop)) {
 				this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
 			}
 		}
@@ -275,12 +276,12 @@ var DND = {
 	}
 };
 
-var Hover = Class.create({
+DND.Hover = Class.create({
 
 	initialize: function(drag, offset) {
 		this.offset = offset;
 	
-		this.element = DND.newElement("dnd-hover");
+		this.element = DND.newElement("dnd-hover-move");
 		
 		var clone = $(drag.id).cloneNode(true);
 		clone.addClassName("dnd-hover-clone");
@@ -300,9 +301,9 @@ var Hover = Class.create({
 			this.element.insert(clone);
 		}
 		
-		this.cover = new Element("div");
-		this.cover.className = "dnd-hover-move";
-		this.element.insert(this.cover);		
+		var cover = new Element("div");
+		cover.className = "dnd-hover-cover";
+		this.element.insert(cover);		
 	},
 
 	setOperation: function(operation) {
@@ -310,13 +311,13 @@ var Hover = Class.create({
 			this.operation = operation;
 			
 			if (operation == DND.MOVE) {
-				this.cover.className = "dnd-hover-move";
+				this.element.className = "dnd-hover-move";
 			} else if (operation == DND.COPY) {
-				this.cover.className = "dnd-hover-copy";
+				this.element.className = "dnd-hover-copy";
 			} else if (operation == DND.LINK) {
-				this.cover.className = "dnd-hover-link";
+				this.element.className = "dnd-hover-link";
 			} else {
-				this.cover.className = "dnd-hover-none";
+				this.element.className = "dnd-hover-none";
 			}
 		}
 	},
@@ -334,7 +335,7 @@ var Hover = Class.create({
 	}
 });
 
-var Drop = Class.create({
+DND.Drop = Class.create({
 
 	initialize: function(target) {
 		this.target = target;
@@ -353,7 +354,7 @@ var Drop = Class.create({
 	}
 });
 
-var DropOver = Class.create({
+DND.DropOver = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
@@ -377,7 +378,7 @@ var DropOver = Class.create({
 	}
 });
 
-var DropBefore = Class.create({
+DND.DropBefore = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
@@ -406,7 +407,7 @@ var DropBefore = Class.create({
 	}
 });
 
-var DropAfter = Class.create({
+DND.DropAfter = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
@@ -435,7 +436,7 @@ var DropAfter = Class.create({
 	}
 });
 
-var Drag = Class.create({
+DND.Drag = Class.create({
 
 	initialize: function(source, element, pointer) {
 		this.source = source;
@@ -458,7 +459,7 @@ var Drag = Class.create({
 	}
 });
 
-var DragSource = Class.create({
+DND.DragSource = Class.create({
 
 	initialize: function(id, path, operations, selector) {
 		this.element = $(id);
@@ -495,7 +496,7 @@ var DragSource = Class.create({
 			if (src != this.element && src.id) {
 				var pointer = [event.pointerX(), event.pointerY()];
 				
-				new Drag(this, src, pointer);
+				new DND.Drag(this, src, pointer);
 				
 				event.stop();
 			}
@@ -503,7 +504,7 @@ var DragSource = Class.create({
 	}
 });
 
-var DropTarget = Class.create({
+DND.DropTarget = Class.create({
 
 	initialize: function(id, url, operations, selector, beforeSelector, afterSelector) {
 		this.id = id;
@@ -522,7 +523,7 @@ var DropTarget = Class.create({
 	findDrop: function(x, y) {
 		var drop = this.findDropFor($(this.id), x, y);
 		if (drop == null) {
-			drop = new Drop(this);
+			drop = new DND.Drop(this);
 		}
 		return drop;
 	},
@@ -537,7 +538,7 @@ var DropTarget = Class.create({
 				if (x >= bounds.left && x < bounds.left + bounds.width &&
 					y >= bounds.top && y < bounds.top + bounds.height) {
 					
-					drop = new DropOver(this, element);
+					drop = new DND.DropOver(this, element);
 				}
 			}
 		}
@@ -562,15 +563,15 @@ var DropTarget = Class.create({
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height/2) {
 						
-						drop = new DropBefore(this, element);
+						drop = new DND.DropBefore(this, element);
 					}
-				} else if (drop instanceof DropOver) {
+				} else if (drop instanceof DND.DropOver) {
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + 6) {
 						
-						drop = new DropBefore(this, element);
+						drop = new DND.DropBefore(this, element);
 					}
 				}
 			}
@@ -582,15 +583,15 @@ var DropTarget = Class.create({
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height/2 && y < bounds.top + bounds.height) {
 						
-						drop = new DropAfter(this, element);
+						drop = new DND.DropAfter(this, element);
 					}
-				} else if (drop instanceof DropOver) {
+				} else if (drop instanceof DND.DropOver) {
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height - 6 && y < bounds.top + bounds.height) {
 						
-						drop = new DropAfter(this, element);
+						drop = new DND.DropAfter(this, element);
 					}
 				}
 			}

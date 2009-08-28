@@ -1,5 +1,34 @@
-.dnd-hover {
+div.dnd-hover-move {
 	position: absolute;
+}
+div.dnd-hover-copy {
+	position: absolute;
+}
+div.dnd-hover-link {
+	position: absolute;
+}
+div.dnd-hover-none {
+	position: absolute;
+}
+div.dnd-hover-move div.dnd-hover-cover {
+	cursor: url(move.cur), url(move.gif), move;
+}
+div.dnd-hover-copy div.dnd-hover-cover {
+	cursor: url(copy.cur), url(copy.gif), move;
+}
+div.dnd-hover-link  div.dnd-hover-cover {
+	cursor: url(link.cur), url(link.gif), move;
+}
+div.dnd-hover-none div.dnd-hover-cover {
+	cursor: url(none.cur), url(none.gif), move;
+}
+div.dnd-hover-cover {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background: url(cover.gif) repeat;
 }
 .dnd-hover-clone {
 	margin: 0px !important;
@@ -10,42 +39,6 @@
 	border-spacing: 0px;
 	border-collapse: collapse:
 }
-.dnd-hover-move {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: url(cover.gif) repeat;
-	cursor: url(move.cur), url(move.gif), move;
-}
-.dnd-hover-copy {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: url(cover.gif) repeat;
-	cursor: url(copy.cur), url(copy.gif), move;
-}
-.dnd-hover-link {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: url(cover.gif) repeat;
-	cursor: url(link.cur), url(link.gif), move;
-}
-.dnd-hover-none {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: url(cover.gif) repeat;
-	cursor: url(none.cur), url(none.gif), move;
-}
 .dnd-drag  {
 	background-color: #0000ee !important;
 	color: #FFFFFF !important;
@@ -53,7 +46,7 @@
 .dnd-drop  {
 }
 .dnd-drop-over  {
-	background-color: #0000ee;
+	background-color: #0000ee !important;
 	color: #FFFFFF;
 }
 .dnd-drop-before  {
