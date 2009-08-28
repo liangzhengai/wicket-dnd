@@ -83,7 +83,7 @@ public class DragSource extends AbstractBehavior {
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
 
-		String initJS = String.format("new DragSource('%s','%s',%d,'%s');", id,
+		String initJS = String.format("new DND.DragSource('%s','%s',%d,'%s');", id,
 				path, operations, selector);
 		response.renderOnDomReadyJavascript(initJS);
 	}

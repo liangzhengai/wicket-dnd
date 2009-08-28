@@ -115,7 +115,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format(
-				"new DropTarget('%s','%s',%d,'%s','%s','%s');", id,
+				"new DND.DropTarget('%s','%s',%d,'%s','%s','%s');", id,
 				getCallbackUrl(), operations, selector, beforeSelector,
 				afterSelector);
 		response.renderOnDomReadyJavascript(initJS);

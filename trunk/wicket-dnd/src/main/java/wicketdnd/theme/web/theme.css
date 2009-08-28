@@ -1,7 +1,35 @@
-.dnd-hover {
+div.dnd-hover-move {
 	position: absolute;
+	background: white url(move.gif) no-repeat 0px center;
 	padding-left: 16px;
-	background: white;
+	border: 1px solid #00ff00;
+}
+div.dnd-hover-copy {
+	position: absolute;
+	background: white url(copy.gif) no-repeat 0px center;
+	padding-left: 16px;
+	border: 1px solid #0000ff;
+}
+div.dnd-hover-link {
+	position: absolute;
+	background: white url(link.gif) no-repeat 0px center;
+	padding-left: 16px;
+	border: 1px solid #000000;
+}
+div.dnd-hover-none {
+	position: absolute;
+	background: white url(none.gif) no-repeat 0px center;
+	padding-left: 16px;
+	border: 1px solid #ff0000;
+}
+div.dnd-hover-cover {
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	width: 100%;
+	height: 100%;
+	background: url(cover.gif) repeat;
+	cursor: move;
 }
 .dnd-hover-clone {
 	margin: 0px !important;
@@ -12,45 +40,13 @@
 	border-spacing: 0px;
 	border-collapse: collapse:
 }
-.dnd-hover-move {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: url(cover.gif) repeat;
-}
-.dnd-hover-copy {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: url(cover.gif) repeat;
-}
-.dnd-hover-link {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: url(cover.gif) repeat;
-}
-.dnd-hover-none {
-	position: absolute;
-	top: 0px;
-	left: 0px;
-	width: 100%;
-	height: 100%;
-	background: url(cover.gif) repeat;
-}
 .dnd-drag  {
 	background-color: #cccccc !important;
 }
 .dnd-drop  {
 }
 .dnd-drop-over  {
-	background-color: #cccccc;
+	background-color: #cccccc !important;
 }
 .dnd-drop-before  {
 	position: absolute;
