@@ -17,6 +17,16 @@
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd" >
     <head>  
 <style>
+div.items {
+	width: 50%;
+}
+div.item {
+	font-size: 32px;
+	border: 1px dotted black;
+}
+tr.even {
+	background: #eeeeee;
+}
 div.tab-row {
 	float: left;
 }
@@ -33,9 +43,6 @@ div.tab-row a {
 }
 div.tab-panel {
 	clear: both;
-}
-tr.even {
-	background: #eeeeee;
 }
 </style>
     </head>
@@ -54,7 +61,7 @@ tr.even {
 		</div>
 
 		<h2>ListView (link)</h2>
-		<div wicket:id="list">
+		<div wicket:id="list" class="items">
 			<div wicket:id="items" class="item">
 				<span wicket:id="name">[name]</span>
 			</div>
