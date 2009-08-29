@@ -499,6 +499,8 @@ DND.DragSource = Class.create({
 				new DND.Drag(this, src, pointer);
 				
 				event.stop();
+				
+				window.focus();
 			}
 		}
 	}
