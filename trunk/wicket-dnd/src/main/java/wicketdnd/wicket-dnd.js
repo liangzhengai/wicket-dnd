@@ -60,9 +60,11 @@ var DND = {
 			this.executor = null;
 		}
 
-		if (this.drop != null && this.hover.operation != this.NONE) {
+		if (this.drop != null) {
 			this.drop.clear();
-			this.drop.onDrop(this.drag, this.hover.operation);
+			if (this.hover.operation != this.NONE) {
+				this.drop.onDrop(this.drag, this.hover.operation);
+			}
 			this.drop = null;
 		}
 
@@ -149,6 +151,10 @@ var DND = {
 	},
 
 	updateDropAndOperation: function() {
+		if (this.drag == null) {
+			return;
+		}
+		
 		var target = this.findTarget(this.pointer[0], this.pointer[1]);
 		if (target == null) {
 			this.setDrop(null);
