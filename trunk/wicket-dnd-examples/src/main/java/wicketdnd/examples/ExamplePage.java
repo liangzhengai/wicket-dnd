@@ -133,7 +133,7 @@ public class ExamplePage extends WebPage
 		label.setOutputMarkupId(true);
 		container.add(label);
 
-		container.add(new DragSource(DND.COPY | DND.LINK, "span"));
+		container.add(new DragSource(DND.COPY | DND.LINK).from("span"));
 		container.add(new DropTarget(DND.COPY)
 		{
 			@Override
@@ -170,7 +170,7 @@ public class ExamplePage extends WebPage
 			}
 		};
 		container.add(items);
-		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "div.item")
+		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK)
 		{
 
 			@Override
@@ -183,46 +183,32 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		});
-		container.add(new DropTarget(DND.LINK, DND.UNDEFINED, "div.item", "div.item")
+		}.from("div.item"));
+		container.add(new DropTarget(DND.LINK)
 		{
 			@Override
-			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
-					Component component)
+			public void onDrop(AjaxRequestTarget target, Object transfer, int operation,
+					Component component, int location)
 			{
-				list.addBefore(operate((Foo)transfer, operation), (Foo)component
-						.getDefaultModelObject());
+				switch (location)
+				{
+					case DND.TOP :
+						list.addBefore(operate((Foo)transfer, operation), (Foo)component
+								.getDefaultModelObject());
+						break;
+					case DND.BOTTOM :
+						list.addAfter(operate((Foo)transfer, operation), (Foo)component
+								.getDefaultModelObject());
+						break;
+					default :
+						DND.reject();
+				}
 
 				target.addComponent(container);
 			}
-
-			@Override
-			public void onDropAfter(AjaxRequestTarget target, Object transfer, int operation,
-					Component component)
-			{
-				list.addAfter(operate((Foo)transfer, operation), (Foo)component
-						.getDefaultModelObject());
-
-				target.addComponent(container);
-			}
-		});
+		}.topAndBottom("div.item"));
 
 		return container;
-	}
-
-	protected Foo operate(Foo foo, int operation)
-	{
-		switch (operation)
-		{
-			case DND.MOVE :
-				return foo;
-			case DND.COPY :
-				return foo.copy();
-			case DND.LINK :
-				return foo.link();
-			default :
-				throw new IllegalArgumentException();
-		}
 	}
 
 	private Component newTable()
@@ -240,7 +226,7 @@ public class ExamplePage extends WebPage
 				return item;
 			}
 		};
-		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "tr")
+		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK)
 		{
 			@Override
 			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
@@ -252,8 +238,8 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		});
-		container.add(new DropTarget(DND.COPY, DND.UNDEFINED, "tr", "tr")
+		}.from("tr"));
+		container.add(new DropTarget(DND.COPY)
 		{
 			@Override
 			public void onDrop(AjaxRequestTarget target, Object transfer, int operation)
@@ -264,25 +250,26 @@ public class ExamplePage extends WebPage
 			}
 
 			@Override
-			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
-					Component component)
+			public void onDrop(AjaxRequestTarget target, Object transfer, int operation,
+					Component component, int location)
 			{
-				provider.addBefore(operate((Foo)transfer, operation), (Foo)component
-						.getDefaultModelObject());
+				switch (location)
+				{
+					case DND.TOP :
+						provider.addBefore(operate((Foo)transfer, operation), (Foo)component
+								.getDefaultModelObject());
+						break;
+					case DND.BOTTOM :
+						provider.addAfter(operate((Foo)transfer, operation), (Foo)component
+								.getDefaultModelObject());
+						break;
+					default :
+						DND.reject();
+				}
 
 				target.addComponent(container);
 			}
-
-			@Override
-			public void onDropAfter(AjaxRequestTarget target, Object transfer, int operation,
-					Component component)
-			{
-				provider.addAfter(operate((Foo)transfer, operation), (Foo)component
-						.getDefaultModelObject());
-
-				target.addComponent(container);
-			}
-		});
+		}.topAndBottom("tr"));
 
 		return container;
 	}
@@ -300,7 +287,7 @@ public class ExamplePage extends WebPage
 				return component;
 			}
 		};
-		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
+		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK)
 		{
 
 			@Override
@@ -313,47 +300,42 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		});
-		container.add(new DropTarget(DND.MOVE, "span.tree-content", "div.tree-branch",
-				"div.tree-branch")
+		}.from("span.tree-content"));
+		container.add(new DropTarget(DND.MOVE)
 		{
 
 			@Override
-			public void onDragOver(AjaxRequestTarget target, Object transferData, int operation,
+			public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
 					Component drop)
 			{
 				container.expand((Foo)drop.getDefaultModelObject());
 			}
 
 			@Override
-			public void onDropOver(AjaxRequestTarget target, Object transfer, int operation,
-					Component drop)
+			public void onDrop(AjaxRequestTarget target, Object transfer, int operation,
+					Component drop, int location)
 			{
-				provider.add(operate((Foo)transfer, operation), (Foo)drop.getDefaultModelObject());
+				switch (location)
+				{
+					case DND.OVER :
+						provider.add(operate((Foo)transfer, operation), (Foo)drop
+								.getDefaultModelObject());
+						break;
+					case DND.TOP :
+						provider.addBefore(operate((Foo)transfer, operation), (Foo)drop
+								.getDefaultModelObject());
+						break;
+					case DND.BOTTOM :
+						provider.addAfter(operate((Foo)transfer, operation), (Foo)drop
+								.getDefaultModelObject());
+						break;
+					default :
+						DND.reject();
+				}
 
 				target.addComponent(container);
 			}
-
-			@Override
-			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
-					Component drop)
-			{
-				provider.addBefore(operate((Foo)transfer, operation), (Foo)drop
-						.getDefaultModelObject());
-
-				target.addComponent(container);
-			}
-
-			@Override
-			public void onDropAfter(AjaxRequestTarget target, Object transfer, int operation,
-					Component component)
-			{
-				provider.addAfter(operate((Foo)transfer, operation), (Foo)component
-						.getDefaultModelObject());
-
-				target.addComponent(container);
-			}
-		});
+		}.over("span.tree-content").topAndBottom("div.tree-branch"));
 
 		return container;
 	}
@@ -375,7 +357,7 @@ public class ExamplePage extends WebPage
 		// reuse items or drop following expansion will fail due to new
 		// markup ids
 		container.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
-		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK, "span.tree-content")
+		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK)
 		{
 			@Override
 			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
@@ -387,45 +369,41 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		});
-		container.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK, "tr")
+		}.from("span.tree-content"));
+		container.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK)
 		{
 			@Override
-			public void onDragOver(AjaxRequestTarget target, Object transferData, int operation,
+			public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
 					Component drop)
 			{
 				container.expand((Foo)drop.getDefaultModelObject());
 			}
 
 			@Override
-			public void onDropOver(AjaxRequestTarget target, Object transfer, int operation,
-					Component drop)
+			public void onDrop(AjaxRequestTarget target, Object transfer, int operation,
+					Component drop, int location)
 			{
-				provider.add(operate((Foo)transfer, operation), (Foo)drop.getDefaultModelObject());
+				switch (location)
+				{
+					case DND.OVER :
+						provider.add(operate((Foo)transfer, operation), (Foo)drop
+								.getDefaultModelObject());
+						break;
+					case DND.TOP :
+						provider.addBefore(operate((Foo)transfer, operation), (Foo)drop
+								.getDefaultModelObject());
+						break;
+					case DND.BOTTOM :
+						provider.addAfter(operate((Foo)transfer, operation), (Foo)drop
+								.getDefaultModelObject());
+						break;
+					default :
+						DND.reject();
+				}
 
 				target.addComponent(container);
 			}
-
-			@Override
-			public void onDropBefore(AjaxRequestTarget target, Object transfer, int operation,
-					Component drop)
-			{
-				provider.addBefore(operate((Foo)transfer, operation), (Foo)drop
-						.getDefaultModelObject());
-
-				target.addComponent(container);
-			}
-
-			@Override
-			public void onDropAfter(AjaxRequestTarget target, Object transfer, int operation,
-					Component drop)
-			{
-				provider.addAfter(operate((Foo)transfer, operation), (Foo)drop
-						.getDefaultModelObject());
-
-				target.addComponent(container);
-			}
-		});
+		}.over("tr"));
 
 		return container;
 	}
@@ -452,10 +430,10 @@ public class ExamplePage extends WebPage
 		tabbed.setOutputMarkupId(true);
 		// would be nice if TabbedPanel had a factory method for the container
 		// of tabs - see WICKET-2435
-		tabbed.get("tabs-container").add(new DropTarget(DND.NONE, "a")
+		tabbed.get("tabs-container").add(new DropTarget(DND.NONE)
 		{
 			@Override
-			public void onDragOver(AjaxRequestTarget target, Object transferData, int operation,
+			public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
 					Component drop)
 			{
 				int index = (Integer)drop.getDefaultModelObject();
@@ -464,7 +442,7 @@ public class ExamplePage extends WebPage
 
 				target.addComponent(tabbed);
 			}
-		});
+		}.over("a").leftAndRight("a"));
 
 		return tabbed;
 	}
@@ -481,4 +459,20 @@ public class ExamplePage extends WebPage
 		return new IColumn[] { new TreeColumn<Foo>(Model.of("Name")),
 				new PropertyColumn<Foo>(Model.of("Name"), "name") };
 	}
+
+	protected Foo operate(Foo foo, int operation)
+	{
+		switch (operation)
+		{
+			case DND.MOVE :
+				return foo;
+			case DND.COPY :
+				return foo.copy();
+			case DND.LINK :
+				return foo.link();
+			default :
+				throw new IllegalArgumentException();
+		}
+	}
+
 }
