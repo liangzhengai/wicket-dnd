@@ -8,6 +8,16 @@ var DND = {
 	
 	LINK: 4,
 	
+	OVER: 0,
+		
+	TOP: 1,
+		
+	RIGHT: 2,
+		
+	BOTTOM: 3,
+		
+	LEFT: 4,
+		
 	OPACITY: 0.7,
 	
 	DELAY: 1,
@@ -45,10 +55,15 @@ var DND = {
 	},
 	
 	endDrag: function() {
+		if (this.excutor != null) {
+			this.executor.stop();
+			this.executor = null;
+		}
+
 		if (this.drop != null && this.hover.operation != this.NONE) {
+			this.drop.clear();
 			this.drop.onDrop(this.drag, this.hover.operation);
-			
-			this.setDrop(null);
+			this.drop = null;
 		}
 
 		if (this.drag != null) {
@@ -67,11 +82,6 @@ var DND = {
 		this.elements = {};
 		
 		this.targets = [];
-
-		if (this.excutor != null) {
-			this.executor.stop();
-			this.executor = null;
-		}
 
 		Event.stopObserving(document, "mousemove", this.eventMousemove);
 		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
@@ -241,8 +251,8 @@ var DND = {
 			this.executor = null;
 		}
 
-		if (this.drop != null) {
-			this.drop.target.notify("drag-over", this.hover.operation, this.drag, this.drop,
+		if (this.drag != null && this.drop != null) {
+			this.drop.target.notify(-2, this.hover.operation, this.drag, this.drop,
 							this.updateDropAndOperation.bindAsEventListener(this));
 		}		
 	},
@@ -350,7 +360,7 @@ DND.Drop = Class.create({
 	},
 
 	onDrop: function(drag, operation) {
-		this.target.notify("drop", operation, drag, null);
+		this.target.notify(-1, operation, drag, null);
 	}
 });
 
@@ -374,17 +384,17 @@ DND.DropOver = Class.create({
 	},
 
 	onDrop: function(drag, operation) {
-		this.target.notify("drop-over", operation, drag, this);
+		this.target.notify(DND.OVER, operation, drag, this);
 	}
 });
 
-DND.DropBefore = Class.create({
+DND.DropTop = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.id;
 		
-		this.element = DND.newElement("dnd-drop-before");		
+		this.element = DND.newElement("dnd-drop-top");
 	},
 
 	draw: function() {
@@ -403,17 +413,17 @@ DND.DropBefore = Class.create({
 	},
 
 	onDrop: function(drag, operation) {
-		this.target.notify("drop-before", operation, drag, this);
+		this.target.notify(DND.TOP, operation, drag, this);
 	}
 });
 
-DND.DropAfter = Class.create({
+DND.DropBottom = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
 		
-		this.element = DND.newElement("dnd-drop-after");		
+		this.element = DND.newElement("dnd-drop-bottom");
 	},
 
 	draw: function() {
@@ -432,7 +442,65 @@ DND.DropAfter = Class.create({
 	},
 	
 	onDrop: function(drag, operation) {
-		this.target.notify("drop-after", operation, drag, this);
+		this.target.notify(DND.BOTTOM, operation, drag, this);
+	}
+});
+
+DND.DropLeft = Class.create({
+
+	initialize: function(target, element) {
+		this.target = target;
+		this.id = element.id;
+		
+		this.element = DND.newElement("dnd-drop-left");
+	},
+
+	draw: function() {
+		var bounds = DND.getBounds($(this.id));
+		
+		var style = this.element.style;
+		style.left  = bounds.left - (DND.getBounds(this.element).width/2) + "px";
+		style.top   = bounds.top + "px";
+		style.height = bounds.height + "px";
+
+		this.element.show();
+	},
+	
+	clear: function() {
+		this.element.hide();
+	},
+
+	onDrop: function(drag, operation) {
+		this.target.notify(DND.LEFT, operation, drag, this);
+	}
+});
+
+DND.DropRight = Class.create({
+
+	initialize: function(target, element) {
+		this.target = target;
+		this.id = element.identify();
+		
+		this.element = DND.newElement("dnd-drop-right");
+	},
+
+	draw: function() {
+		var bounds = DND.getBounds($(this.id));
+		
+		var style = this.element.style;
+		style.left  = bounds.left + bounds.width - (DND.getBounds(this.element).width/2) + "px";
+		style.top   = bounds.top + "px";
+		style.height = bounds.height + "px";
+
+		this.element.show();
+	},
+	
+	clear: function() {
+		this.element.hide();
+	},
+	
+	onDrop: function(drag, operation) {
+		this.target.notify(DND.RIGHT, operation, drag, this);
 	}
 });
 
@@ -508,7 +576,7 @@ DND.DragSource = Class.create({
 
 DND.DropTarget = Class.create({
 
-	initialize: function(id, url, operations, selector, beforeSelector, afterSelector) {
+	initialize: function(id, url, operations, overSelector, topSelector, rightSelector, bottomSelector, leftSelector) {
 		this.id = id;
 
 		$(this.id).dropTarget = this;
@@ -517,9 +585,11 @@ DND.DropTarget = Class.create({
 		
 		this.operations = operations;
 				
-		this.selector       = selector;
-		this.beforeSelector = beforeSelector;
-		this.afterSelector  = afterSelector;
+		this.overSelector   = overSelector;
+		this.topSelector    = topSelector;
+		this.rightSelector  = rightSelector;
+		this.bottomSelector = bottomSelector;
+		this.leftSelector   = leftSelector;
 	},
 
 	findDrop: function(x, y) {
@@ -534,7 +604,7 @@ DND.DropTarget = Class.create({
 		var drop = null;
 		
 		if (element.id) {
-			if (element.match(this.selector)) {
+			if (element.match(this.overSelector)) {
 				var bounds = DND.getBounds(element);
 
 				if (x >= bounds.left && x < bounds.left + bounds.width &&
@@ -558,14 +628,14 @@ DND.DropTarget = Class.create({
 		}
 
 		if (element.id) {
-			if (element.match(this.beforeSelector)) {
+			if (element.match(this.topSelector)) {
 				if (drop == null) {
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height/2) {
 						
-						drop = new DND.DropBefore(this, element);
+						drop = new DND.DropTop(this, element);
 					}
 				} else if (drop instanceof DND.DropOver) {
 					var bounds = DND.getBounds(element);
@@ -573,19 +643,19 @@ DND.DropTarget = Class.create({
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + 6) {
 						
-						drop = new DND.DropBefore(this, element);
+						drop = new DND.DropTop(this, element);
 					}
 				}
 			}
 			
-			if (element.match(this.afterSelector)) {
+			if (element.match(this.bottomSelector)) {
 				if (drop == null) {
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height/2 && y < bounds.top + bounds.height) {
 						
-						drop = new DND.DropAfter(this, element);
+						drop = new DND.DropBottom(this, element);
 					}
 				} else if (drop instanceof DND.DropOver) {
 					var bounds = DND.getBounds(element);
@@ -593,7 +663,47 @@ DND.DropTarget = Class.create({
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height - 6 && y < bounds.top + bounds.height) {
 						
-						drop = new DND.DropAfter(this, element);
+						drop = new DND.DropBottom(this, element);
+					}
+				}
+			}
+			
+			if (element.match(this.leftSelector)) {
+				if (drop == null) {
+					var bounds = DND.getBounds(element);
+	
+					if (x >= bounds.left && x < bounds.left + bounds.width/2 &&
+						y >= bounds.top && y < bounds.top + bounds.height) {
+						
+						drop = new DND.DropLeft(this, element);
+					}
+				} else if (drop instanceof DND.DropOver) {
+					var bounds = DND.getBounds(element);
+	
+					if (x >= bounds.left && x < bounds.left + 6 &&
+						y >= bounds.top && y < bounds.top + bounds.height) {
+						
+						drop = new DND.DropLeft(this, element);
+					}
+				}
+			}
+			
+			if (element.match(this.rightSelector)) {
+				if (drop == null) {
+					var bounds = DND.getBounds(element);
+	
+					if (x >= bounds.left + bounds.width/2  && x < bounds.left + bounds.width &&
+						y >= bounds.top && y < bounds.top + bounds.height) {
+						
+						drop = new DND.DropRight(this, element);
+					}
+				} else if (drop instanceof DND.DropOver) {
+					var bounds = DND.getBounds(element);
+	
+					if (x >= bounds.left + bounds.width - 6 && x < bounds.left + bounds.width &&
+						y >= bounds.top && y < bounds.top + bounds.height) {
+						
+						drop = new DND.DropRight(this, element);
 					}
 				}
 			}
@@ -602,8 +712,8 @@ DND.DropTarget = Class.create({
 		return drop;
 	},	
 	
-	notify: function(type, operation, drag, drop, successHandler) {
-		var params = "&type=" + type
+	notify: function(location, operation, drag, drop, successHandler) {
+		var params = "&location=" + location
 					+ "&operation=" + operation
 					+ "&source=" + drag.source.path
 					+ "&drag=" + drag.id;

@@ -48,15 +48,27 @@ div.dnd-hover-cover {
 .dnd-drop-over  {
 	background-color: #cccccc !important;
 }
-.dnd-drop-before  {
+.dnd-drop-top {
 	position: absolute;
 	background: #aaaaaa;
 	height: 2px;
 	overflow: hidden;
 }
-.dnd-drop-after  {
+.dnd-drop-bottom {
 	position: absolute;
 	background: #aaaaaa;
 	height: 2px;
+	overflow: hidden;
+}
+.dnd-drop-left {
+	position: absolute;
+	background: #aaaaaa;
+	width: 2px;
+	overflow: hidden;
+}
+.dnd-drop-right {
+	position: absolute;
+	background: #aaaaaa;
+	width: 2px;
 	overflow: hidden;
 }

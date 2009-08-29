@@ -41,7 +41,7 @@ public class DragSource extends AbstractBehavior {
 
 	private Component component;
 
-	private String selector;
+	private String selector = DND.UNDEFINED;
 
 	private int operations;
 
@@ -50,18 +50,20 @@ public class DragSource extends AbstractBehavior {
 	 * 
 	 * @param operations
 	 *            allowed operations
-	 * @param selector
-	 *            CSS selector
 	 * 
 	 * @see DND#MOVE
 	 * @see DND#COPY
 	 * @see DND#LINK
 	 */
-	public DragSource(int operations, String selector) {
+	public DragSource(int operations) {
 		this.operations = operations;
-		this.selector = selector;
 	}
 
+	public DragSource from(String selector) {
+		this.selector = selector;
+		return this;
+	}
+	
 	@Override
 	public final void bind(Component component) {
 		this.component = component;

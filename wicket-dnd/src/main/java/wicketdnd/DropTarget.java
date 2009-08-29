@@ -36,69 +36,66 @@ import wicketdnd.util.MarkupIdVisitor;
 public class DropTarget extends AbstractDefaultAjaxBehavior {
 	private static final long serialVersionUID = 1L;
 
-	private String selector;
+	private String overSelector = DND.UNDEFINED;
 
-	private String beforeSelector;
+	private String topSelector = DND.UNDEFINED;
 
-	private String afterSelector;
+	private String bottomSelector = DND.UNDEFINED;
+
+	private String leftSelector = DND.UNDEFINED;
+
+	private String rightSelector = DND.UNDEFINED;
 
 	private int operations;
-
-	/**
-	 * Convenience constructor for drop targets supporting
-	 * {@link #onDrop(AjaxRequestTarget, Object, int)} only.
-	 * 
-	 * @param operations
-	 *            allowed operations
-	 * @param selector
-	 *            CSS selector for drops
-	 * @see DND#MOVE
-	 * @see DND#COPY
-	 * @see DND#LINK
-	 */
-	public DropTarget(int operations) {
-		this(operations, DND.UNDEFINED, DND.UNDEFINED, DND.UNDEFINED);
-	}
-
-	/**
-	 * Convenience constructor for drop targets supporting
-	 * {@link #onDrop(AjaxRequestTarget, Object, int)} and
-	 * {@link #onDropOver(AjaxRequestTarget, Object, int, Component)} only.
-	 * 
-	 * @param operations
-	 *            allowed operations
-	 * @param selector
-	 *            CSS selector for drops
-	 * @see DND#MOVE
-	 * @see DND#COPY
-	 * @see DND#LINK
-	 */
-	public DropTarget(int operations, String selector) {
-		this(operations, selector, DND.UNDEFINED, DND.UNDEFINED);
-	}
 
 	/**
 	 * Create a drop target.
 	 * 
 	 * @param operations
 	 *            allowed operations
-	 * @param selector
-	 *            CSS selector for drops
-	 * @param afterSelector
-	 *            CSS selector for drops after elements
-	 * @param beforeSelector
-	 *            CSS selector for drops before elements
 	 * @see DND#MOVE
 	 * @see DND#COPY
 	 * @see DND#LINK
 	 */
-	public DropTarget(int operations, String selector, String beforeSelector,
-			String afterSelector) {
+	public DropTarget(int operations) {
 		this.operations = operations;
+	}
 
-		this.selector = selector;
-		this.beforeSelector = beforeSelector;
-		this.afterSelector = afterSelector;
+	public DropTarget over(String selector) {
+		this.overSelector = selector;
+		return this;
+	}
+
+	public DropTarget top(String selector) {
+		this.topSelector = selector;
+		return this;
+	}
+
+	public DropTarget right(String selector) {
+		this.rightSelector = selector;
+		return this;
+	}
+
+	public DropTarget bottom(String selector) {
+		this.bottomSelector = selector;
+		return this;
+	}
+
+	public DropTarget left(String selector) {
+		this.leftSelector = selector;
+		return this;
+	}
+
+	public DropTarget topAndBottom(String selector) {
+		this.topSelector = selector;
+		this.bottomSelector = selector;
+		return this;
+	}
+
+	public DropTarget leftAndRight(String selector) {
+		this.leftSelector = selector;
+		this.rightSelector = selector;
+		return this;
 	}
 
 	@Override
@@ -115,9 +112,9 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format(
-				"new DND.DropTarget('%s','%s',%d,'%s','%s','%s');", id,
-				getCallbackUrl(), operations, selector, beforeSelector,
-				afterSelector);
+				"new DND.DropTarget('%s','%s',%d,'%s','%s','%s','%s','%s');",
+				id, getCallbackUrl(), operations, overSelector, topSelector,
+				rightSelector, bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
@@ -128,44 +125,37 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	@Override
 	protected final void respond(AjaxRequestTarget target) {
 		Request request = getComponent().getRequest();
-		
-		String type = request.getParameter("type");
+
+		int location = Integer.parseInt(request.getParameter("location"));
 
 		final DragSource source = DragSource.get(request);
-		
+
 		final int operation = Integer.parseInt(request
-				.getParameter("operation")) & getOperations() & source.getOperations();
+				.getParameter("operation"))
+				& getOperations() & source.getOperations();
 
 		try {
 			final Object transferData = source.getTransferData(operation);
 
-			if ("drop".equals(type)) {
+			if (location == -1) {
 				if (operation == 0) {
 					throw new Reject();
 				}
-				
+
 				onDrop(target, transferData, operation);
 			} else {
 				final Component drop = findDrop();
 
-				if ("drag-over".equals(type)) {
-					onDragOver(target, transferData, operation, drop);
+				if (location == -2) {
+					onDrag(target, transferData, operation, drop);
 					return;
 				}
-				
+
 				if (operation == 0) {
 					throw new Reject();
 				}
-				
-				if ("drop-over".equals(type)) {
-					onDropOver(target, transferData, operation, drop);
-				} else if ("drop-before".equals(type)) {
-					onDropBefore(target, transferData, operation, drop);
-				} else if ("drop-after".equals(type)) {
-					onDropAfter(target, transferData, operation, drop);
-				} else {
-					throw new IllegalArgumentException("unkown drop type");
-				}
+
+				onDrop(target, transferData, operation, drop, location);
 			}
 
 			source.onDropped(target, transferData, operation);
@@ -182,7 +172,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	}
 
 	/**
-	 * Notification that a drag happend over the given component.
+	 * Notification that a drag happend on the given component.
 	 * 
 	 * @param target
 	 *            initiating request target
@@ -193,7 +183,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	 * @param drop
 	 *            the component the drag happend over
 	 */
-	public void onDragOver(AjaxRequestTarget target, Object transferData,
+	public void onDrag(AjaxRequestTarget target, Object transferData,
 			int operation, Component drop) {
 	}
 
@@ -215,7 +205,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	}
 
 	/**
-	 * Notification that a drop happend over the given component.
+	 * Notification that a drop happend on the given component.
 	 * 
 	 * The default implementation always rejects the drop.
 	 * 
@@ -228,46 +218,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	 * @param drop
 	 *            the component the drop happend over
 	 */
-	public void onDropOver(AjaxRequestTarget target, Object transferData,
-			int operation, Component drop) {
-		throw new Reject();
-	}
-
-	/**
-	 * Notification that a drop happend before the given component.
-	 * 
-	 * The default implementation always rejects the drop.
-	 * 
-	 * @param target
-	 *            initiating request target
-	 * @param transferData
-	 *            the transferred data
-	 * @param operation
-	 *            the DND operation
-	 * @param drop
-	 *            the component the drop happened before
-	 */
-	public void onDropBefore(AjaxRequestTarget target, Object transferData,
-			int operation, Component drop) {
-		throw new Reject();
-	}
-
-	/**
-	 * Notification that a drop happend after the given component.
-	 * 
-	 * The default implementation always rejects the drop.
-	 * 
-	 * @param target
-	 *            initiating request target
-	 * @param transferData
-	 *            the transferred data
-	 * @param operation
-	 *            the DND operation
-	 * @param drop
-	 *            the component the drop happened after
-	 */
-	public void onDropAfter(AjaxRequestTarget target, Object transferData,
-			int operation, Component drop) {
+	public void onDrop(AjaxRequestTarget target, Object transferData,
+			int operation, Component drop, int location) {
 		throw new Reject();
 	}
 }
