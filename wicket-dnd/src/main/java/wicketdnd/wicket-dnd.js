@@ -8,16 +8,6 @@ var DND = {
 	
 	LINK: 4,
 	
-	OVER: 0,
-		
-	TOP: 1,
-		
-	RIGHT: 2,
-		
-	BOTTOM: 3,
-		
-	LEFT: 4,
-		
 	OPACITY: 0.7,
 	
 	DELAY: 1,
@@ -63,7 +53,7 @@ var DND = {
 		if (this.drop != null) {
 			this.drop.clear();
 			if (this.hover.operation != this.NONE) {
-				this.drop.onDrop(this.drag, this.hover.operation);
+				this.drop.notify("drop", this.hover.operation, this.drag);
 			}
 			this.drop = null;
 		}
@@ -257,9 +247,8 @@ var DND = {
 			this.executor = null;
 		}
 
-		if (this.drag != null && this.drop != null) {
-			this.drop.target.notify(-2, this.hover.operation, this.drag, this.drop,
-							this.updateDropAndOperation.bindAsEventListener(this));
+		if (this.drop != null) {
+			this.drop.notify("drag", this.hover.operation, this.drag, this.updateDropAndOperation.bindAsEventListener(this));
 		}		
 	},
 
@@ -365,16 +354,17 @@ DND.Drop = Class.create({
 		$(this.target.id).removeClassName("dnd-drop");
 	},
 
-	onDrop: function(drag, operation) {
-		this.target.notify(-1, operation, drag, null);
+	notify: function(type, operation, drag, successHandler) {
+		this.target.notify(type, operation, drag, null, successHandler);
 	}
 });
 
-DND.DropOver = Class.create({
+DND.DropCenter = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
+		this.anchor = 0;
 	},
 
 	draw: function() {
@@ -389,8 +379,8 @@ DND.DropOver = Class.create({
 		}
 	},
 
-	onDrop: function(drag, operation) {
-		this.target.notify(DND.OVER, operation, drag, this);
+	notify: function(type, operation, drag, successHandler) {
+		this.target.notify(type, operation, drag, this, successHandler);
 	}
 });
 
@@ -399,6 +389,7 @@ DND.DropTop = Class.create({
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.id;
+		this.anchor = 1;
 		
 		this.element = DND.newElement("dnd-drop-top");
 	},
@@ -418,8 +409,8 @@ DND.DropTop = Class.create({
 		this.element.hide();
 	},
 
-	onDrop: function(drag, operation) {
-		this.target.notify(DND.TOP, operation, drag, this);
+	notify: function(type, operation, drag, successHandler) {
+		this.target.notify(type, operation, drag, this, successHandler);
 	}
 });
 
@@ -428,6 +419,7 @@ DND.DropBottom = Class.create({
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
+		this.anchor = 3;
 		
 		this.element = DND.newElement("dnd-drop-bottom");
 	},
@@ -447,8 +439,8 @@ DND.DropBottom = Class.create({
 		this.element.hide();
 	},
 	
-	onDrop: function(drag, operation) {
-		this.target.notify(DND.BOTTOM, operation, drag, this);
+	notify: function(type, operation, drag, successHandler) {
+		this.target.notify(type, operation, drag, this, successHandler);
 	}
 });
 
@@ -457,6 +449,7 @@ DND.DropLeft = Class.create({
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.id;
+		this.anchor = 4;
 		
 		this.element = DND.newElement("dnd-drop-left");
 	},
@@ -476,8 +469,8 @@ DND.DropLeft = Class.create({
 		this.element.hide();
 	},
 
-	onDrop: function(drag, operation) {
-		this.target.notify(DND.LEFT, operation, drag, this);
+	notify: function(type, operation, drag, successHandler) {
+		this.target.notify(type, operation, drag, this, successHandler);
 	}
 });
 
@@ -486,6 +479,7 @@ DND.DropRight = Class.create({
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
+		this.anchor = 2;
 		
 		this.element = DND.newElement("dnd-drop-right");
 	},
@@ -505,8 +499,8 @@ DND.DropRight = Class.create({
 		this.element.hide();
 	},
 	
-	onDrop: function(drag, operation) {
-		this.target.notify(DND.RIGHT, operation, drag, this);
+	notify: function(type, operation, drag, successHandler) {
+		this.target.notify(type, operation, drag, this, successHandler);
 	}
 });
 
@@ -616,7 +610,7 @@ DND.DropTarget = Class.create({
 				if (x >= bounds.left && x < bounds.left + bounds.width &&
 					y >= bounds.top && y < bounds.top + bounds.height) {
 					
-					drop = new DND.DropOver(this, element);
+					drop = new DND.DropCenter(this, element);
 				}
 			}
 		}
@@ -643,7 +637,7 @@ DND.DropTarget = Class.create({
 						
 						drop = new DND.DropTop(this, element);
 					}
-				} else if (drop instanceof DND.DropOver) {
+				} else if (drop instanceof DND.DropCenter) {
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
@@ -663,7 +657,7 @@ DND.DropTarget = Class.create({
 						
 						drop = new DND.DropBottom(this, element);
 					}
-				} else if (drop instanceof DND.DropOver) {
+				} else if (drop instanceof DND.DropCenter) {
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
@@ -683,7 +677,7 @@ DND.DropTarget = Class.create({
 						
 						drop = new DND.DropLeft(this, element);
 					}
-				} else if (drop instanceof DND.DropOver) {
+				} else if (drop instanceof DND.DropCenter) {
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + 6 &&
@@ -703,7 +697,7 @@ DND.DropTarget = Class.create({
 						
 						drop = new DND.DropRight(this, element);
 					}
-				} else if (drop instanceof DND.DropOver) {
+				} else if (drop instanceof DND.DropCenter) {
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left + bounds.width - 6 && x < bounds.left + bounds.width &&
@@ -718,15 +712,17 @@ DND.DropTarget = Class.create({
 		return drop;
 	},	
 	
-	notify: function(location, operation, drag, drop, successHandler) {
-		var params = "&location=" + location
-					+ "&operation=" + operation
-					+ "&source=" + drag.source.path
-					+ "&drag=" + drag.id;
-		if (drop != null) {
-			params = params + "&drop=" + drop.id;
+	notify: function(type, operation, drag, location, successHandler) {
+		var url = this.url;
+		url += "&type=" + type;
+		url += "&operation=" + operation;
+		url += "&source=" + drag.source.path;
+		url += "&drag=" + drag.id;
+		if (location != null) {
+			url += "&component=" + location.id;
+			url += "&anchor=" + location.anchor;
 		}
 		
-		wicketAjaxGet(this.url + params, successHandler);
+		wicketAjaxGet(url, successHandler);
 	}
 });
