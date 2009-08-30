@@ -48,6 +48,7 @@ import wicketdnd.DND;
 import wicketdnd.DragSource;
 import wicketdnd.DropTarget;
 import wicketdnd.IECursorFix;
+import wicketdnd.Location;
 import wicketdnd.theme.HumanTheme;
 import wicketdnd.theme.WebTheme;
 import wicketdnd.theme.WindowsTheme;
@@ -137,7 +138,8 @@ public class ExamplePage extends WebPage
 		container.add(new DropTarget(DND.COPY)
 		{
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transferData, int operation)
+			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
+					Location location)
 			{
 				model.setObject((Foo)transferData);
 
@@ -187,24 +189,26 @@ public class ExamplePage extends WebPage
 		container.add(new DropTarget(DND.LINK)
 		{
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transfer, int operation,
-					Component component, int location)
+			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
+					Location location)
 			{
-				switch (location)
+				if (location != null)
 				{
-					case DND.TOP :
-						list.addBefore(operate((Foo)transfer, operation), (Foo)component
-								.getDefaultModelObject());
-						break;
-					case DND.BOTTOM :
-						list.addAfter(operate((Foo)transfer, operation), (Foo)component
-								.getDefaultModelObject());
-						break;
-					default :
-						DND.reject();
-				}
+					Foo foo = location.getModelObject();
+					switch (location.getAnchor())
+					{
+						case Location.TOP :
+							list.addBefore(operate((Foo)transferData, operation), foo);
+							break;
+						case Location.BOTTOM :
+							list.addAfter(operate((Foo)transferData, operation), foo);
+							break;
+						default :
+							DND.reject();
+					}
 
-				target.addComponent(container);
+					target.addComponent(container);
+				}
 			}
 		}.topAndBottom("div.item"));
 
@@ -242,29 +246,28 @@ public class ExamplePage extends WebPage
 		container.add(new DropTarget(DND.COPY)
 		{
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transfer, int operation)
+			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
+					Location location)
 			{
-				provider.add(operate((Foo)transfer, operation));
-
-				target.addComponent(container);
-			}
-
-			@Override
-			public void onDrop(AjaxRequestTarget target, Object transfer, int operation,
-					Component component, int location)
-			{
-				switch (location)
+				if (location == null)
 				{
-					case DND.TOP :
-						provider.addBefore(operate((Foo)transfer, operation), (Foo)component
-								.getDefaultModelObject());
-						break;
-					case DND.BOTTOM :
-						provider.addAfter(operate((Foo)transfer, operation), (Foo)component
-								.getDefaultModelObject());
-						break;
-					default :
-						DND.reject();
+					provider.add(operate((Foo)transferData, operation));
+				}
+				else
+				{
+					Foo foo = location.getModelObject();
+					switch (location.getAnchor())
+					{
+						case Location.TOP :
+							provider.addBefore(operate((Foo)transferData, operation), foo);
+							break;
+						case Location.BOTTOM :
+							provider.addAfter(operate((Foo)transferData, operation), foo);
+							break;
+						default :
+							DND.reject();
+					}
+
 				}
 
 				target.addComponent(container);
@@ -303,37 +306,38 @@ public class ExamplePage extends WebPage
 		}.from("span.tree-content"));
 		container.add(new DropTarget(DND.MOVE)
 		{
-
 			@Override
 			public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
-					Component drop)
+					Location location)
 			{
-				container.expand((Foo)drop.getDefaultModelObject());
+				Foo foo = location.getModelObject();
+				container.expand(foo);
 			}
 
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transfer, int operation,
-					Component drop, int location)
+			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
+					Location location)
 			{
-				switch (location)
+				if (location != null)
 				{
-					case DND.OVER :
-						provider.add(operate((Foo)transfer, operation), (Foo)drop
-								.getDefaultModelObject());
-						break;
-					case DND.TOP :
-						provider.addBefore(operate((Foo)transfer, operation), (Foo)drop
-								.getDefaultModelObject());
-						break;
-					case DND.BOTTOM :
-						provider.addAfter(operate((Foo)transfer, operation), (Foo)drop
-								.getDefaultModelObject());
-						break;
-					default :
-						DND.reject();
-				}
+					Foo foo = location.getModelObject();
+					switch (location.getAnchor())
+					{
+						case Location.CENTER :
+							provider.add(operate((Foo)transferData, operation), foo);
+							break;
+						case Location.TOP :
+							provider.addBefore(operate((Foo)transferData, operation), foo);
+							break;
+						case Location.BOTTOM :
+							provider.addAfter(operate((Foo)transferData, operation), foo);
+							break;
+						default :
+							DND.reject();
+					}
 
-				target.addComponent(container);
+					target.addComponent(container);
+				}
 			}
 		}.over("span.tree-content").topAndBottom("div.tree-branch"));
 
@@ -374,34 +378,36 @@ public class ExamplePage extends WebPage
 		{
 			@Override
 			public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
-					Component drop)
+					Location location)
 			{
-				container.expand((Foo)drop.getDefaultModelObject());
+				Foo foo = location.getModelObject();
+				container.expand(foo);
 			}
 
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transfer, int operation,
-					Component drop, int location)
+			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
+					Location location)
 			{
-				switch (location)
+				if (location != null)
 				{
-					case DND.OVER :
-						provider.add(operate((Foo)transfer, operation), (Foo)drop
-								.getDefaultModelObject());
-						break;
-					case DND.TOP :
-						provider.addBefore(operate((Foo)transfer, operation), (Foo)drop
-								.getDefaultModelObject());
-						break;
-					case DND.BOTTOM :
-						provider.addAfter(operate((Foo)transfer, operation), (Foo)drop
-								.getDefaultModelObject());
-						break;
-					default :
-						DND.reject();
-				}
+					Foo foo = location.getModelObject();
+					switch (location.getAnchor())
+					{
+						case Location.CENTER :
+							provider.add(operate((Foo)transferData, operation), foo);
+							break;
+						case Location.TOP :
+							provider.addBefore(operate((Foo)transferData, operation), foo);
+							break;
+						case Location.BOTTOM :
+							provider.addAfter(operate((Foo)transferData, operation), foo);
+							break;
+						default :
+							DND.reject();
+					}
 
-				target.addComponent(container);
+					target.addComponent(container);
+				}
 			}
 		}.over("tr"));
 
@@ -434,9 +440,9 @@ public class ExamplePage extends WebPage
 		{
 			@Override
 			public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
-					Component drop)
+					Location location)
 			{
-				int index = (Integer)drop.getDefaultModelObject();
+				Integer index = location.getModelObject();
 
 				tabbed.setSelectedTab(index);
 

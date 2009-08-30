@@ -33,7 +33,8 @@ import wicketdnd.util.MarkupIdVisitor;
  * 
  * @author Sven Meier
  */
-public class DropTarget extends AbstractDefaultAjaxBehavior {
+public class DropTarget extends AbstractDefaultAjaxBehavior
+{
 	private static final long serialVersionUID = 1L;
 
 	private String overSelector = DND.UNDEFINED;
@@ -57,49 +58,58 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	 * @see DND#COPY
 	 * @see DND#LINK
 	 */
-	public DropTarget(int operations) {
+	public DropTarget(int operations)
+	{
 		this.operations = operations;
 	}
 
-	public DropTarget over(String selector) {
+	public DropTarget over(String selector)
+	{
 		this.overSelector = selector;
 		return this;
 	}
 
-	public DropTarget top(String selector) {
+	public DropTarget top(String selector)
+	{
 		this.topSelector = selector;
 		return this;
 	}
 
-	public DropTarget right(String selector) {
+	public DropTarget right(String selector)
+	{
 		this.rightSelector = selector;
 		return this;
 	}
 
-	public DropTarget bottom(String selector) {
+	public DropTarget bottom(String selector)
+	{
 		this.bottomSelector = selector;
 		return this;
 	}
 
-	public DropTarget left(String selector) {
+	public DropTarget left(String selector)
+	{
 		this.leftSelector = selector;
 		return this;
 	}
 
-	public DropTarget topAndBottom(String selector) {
+	public DropTarget topAndBottom(String selector)
+	{
 		this.topSelector = selector;
 		this.bottomSelector = selector;
 		return this;
 	}
 
-	public DropTarget leftAndRight(String selector) {
+	public DropTarget leftAndRight(String selector)
+	{
 		this.leftSelector = selector;
 		this.rightSelector = selector;
 		return this;
 	}
 
 	@Override
-	public final void renderHead(IHeaderResponse response) {
+	public final void renderHead(IHeaderResponse response)
+	{
 		super.renderHead(response);
 
 		response.renderJavascriptReference(PrototypeResourceReference.INSTANCE);
@@ -107,72 +117,80 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 		renderDropHead(response);
 	}
 
-	private void renderDropHead(IHeaderResponse response) {
+	private void renderDropHead(IHeaderResponse response)
+	{
 		response.renderJavascriptReference(DND.JS);
 
 		final String id = getComponent().getMarkupId();
-		String initJS = String.format(
-				"new DND.DropTarget('%s','%s',%d,'%s','%s','%s','%s','%s');",
-				id, getCallbackUrl(), operations, overSelector, topSelector,
-				rightSelector, bottomSelector, leftSelector);
+		String initJS = String.format("new DND.DropTarget('%s','%s',%d,'%s','%s','%s','%s','%s');",
+				id, getCallbackUrl(), operations, overSelector, topSelector, rightSelector,
+				bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
-	public int getOperations() {
+	public int getOperations()
+	{
 		return operations;
 	}
 
 	@Override
-	protected final void respond(AjaxRequestTarget target) {
+	protected final void respond(AjaxRequestTarget target)
+	{
 		Request request = getComponent().getRequest();
 
-		int location = Integer.parseInt(request.getParameter("location"));
+		final String type = request.getParameter("type");
 
 		final DragSource source = DragSource.get(request);
 
-		final int operation = Integer.parseInt(request
-				.getParameter("operation"))
-				& getOperations() & source.getOperations();
+		final int operation = Integer.parseInt(request.getParameter("operation")) & getOperations()
+				& source.getOperations();
 
-		try {
-			final Object transferData = source.getTransferData(operation);
+		final Object transferData = source.getTransferData(operation);
 
-			if (location == -1) {
-				if (operation == 0) {
+		final Location location = createLocation(request);
+
+		if ("drag".equals(type))
+		{
+			onDrag(target, transferData, operation, location);
+		}
+		else
+		{
+			try
+			{
+				if (operation == 0)
+				{
 					throw new Reject();
 				}
 
-				onDrop(target, transferData, operation);
-			} else {
-				final Component drop = findDrop();
-
-				if (location == -2) {
-					onDrag(target, transferData, operation, drop);
-					return;
-				}
-
-				if (operation == 0) {
-					throw new Reject();
-				}
-
-				onDrop(target, transferData, operation, drop, location);
+				onDrop(target, transferData, operation, location);
+			}
+			catch (Reject reject)
+			{
+				// TODO how to indicate rejection
+				return;
 			}
 
 			source.onDropped(target, transferData, operation);
-		} catch (Reject reject) {
-			// TODO how to indicate rejection
 		}
 	}
 
-	private Component findDrop() {
-		String id = getComponent().getRequest().getParameter("drop");
+	private Location createLocation(Request request)
+	{
+		String id = getComponent().getRequest().getParameter("component");
+		if (id == null)
+		{
+			return null;
+		}
 
-		return MarkupIdVisitor.getComponent((MarkupContainer) getComponent(),
-				id);
+		Component component = MarkupIdVisitor.getComponent((MarkupContainer)getComponent(), id);
+
+		int anchor = Integer.parseInt(request.getParameter("anchor"));
+
+		return new Location(component, anchor);
 	}
 
 	/**
-	 * Notification that a drag happend on the given component.
+	 * Notification that a drag happend over this drop target.
 	 * 
 	 * @param target
 	 *            initiating request target
@@ -180,15 +198,16 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	 *            the transferring data
 	 * @param operation
 	 *            the DND operation
-	 * @param drop
-	 *            the component the drag happend over
+	 * @param location
+	 *            the location
 	 */
-	public void onDrag(AjaxRequestTarget target, Object transferData,
-			int operation, Component drop) {
+	public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
+			Location location)
+	{
 	}
 
 	/**
-	 * Notification that a drop happend.
+	 * Notification that a drop happend on this drop target.
 	 * 
 	 * The default implementation always rejects the drop.
 	 * 
@@ -198,28 +217,12 @@ public class DropTarget extends AbstractDefaultAjaxBehavior {
 	 *            the transferred data
 	 * @param operation
 	 *            the DND operation
+	 * @param location
+	 *            the location or <code>null</code> if not available
 	 */
-	public void onDrop(AjaxRequestTarget target, Object transferData,
-			int operation) {
-		throw new Reject();
-	}
-
-	/**
-	 * Notification that a drop happend on the given component.
-	 * 
-	 * The default implementation always rejects the drop.
-	 * 
-	 * @param target
-	 *            initiating request target
-	 * @param transferData
-	 *            the transferred data
-	 * @param operation
-	 *            the DND operation
-	 * @param drop
-	 *            the component the drop happend over
-	 */
-	public void onDrop(AjaxRequestTarget target, Object transferData,
-			int operation, Component drop, int location) {
+	public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
+			Location location) throws Reject
+	{
 		throw new Reject();
 	}
 }
