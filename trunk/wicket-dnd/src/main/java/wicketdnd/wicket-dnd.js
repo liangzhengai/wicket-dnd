@@ -529,14 +529,15 @@ DND.Drag = Class.create({
 
 DND.DragSource = Class.create({
 
-	initialize: function(id, path, operations, selector) {
+	initialize: function(id, path, operations, startSelector, cloneSelector) {
 		this.element = $(id);
 		
 		this.path = path;
 		
 		this.operations = operations;
 				
-		this.selector = selector;
+		this.startSelector = startSelector;
+		this.cloneSelector = cloneSelector;
 		
 		this.eventMouseDown = this.initDrag.bindAsEventListener(this);
 		Event.observe(this.element, "mousedown", this.eventMouseDown);
@@ -557,7 +558,7 @@ DND.DragSource = Class.create({
 				return;
 			}
 
-			while (src != this.element && !src.match(this.selector)) {
+			while (src != this.element && !src.match(this.startSelector)) {
 				src = src.up();
 			}
 			

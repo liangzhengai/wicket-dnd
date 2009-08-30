@@ -37,7 +37,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 {
 	private static final long serialVersionUID = 1L;
 
-	private String overSelector = DND.UNDEFINED;
+	private String centerSelector = DND.UNDEFINED;
 
 	private String topSelector = DND.UNDEFINED;
 
@@ -63,9 +63,9 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		this.operations = operations;
 	}
 
-	public DropTarget over(String selector)
+	public DropTarget center(String selector)
 	{
-		this.overSelector = selector;
+		this.centerSelector = selector;
 		return this;
 	}
 
@@ -123,7 +123,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format("new DND.DropTarget('%s','%s',%d,'%s','%s','%s','%s','%s');",
-				id, getCallbackUrl(), operations, overSelector, topSelector, rightSelector,
+				id, getCallbackUrl(), operations, centerSelector, topSelector, rightSelector,
 				bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
