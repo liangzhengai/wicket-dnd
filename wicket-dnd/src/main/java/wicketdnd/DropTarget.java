@@ -138,16 +138,16 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	{
 		Request request = getComponent().getRequest();
 
-		final String type = request.getParameter("type");
+		final String type = readType(request);
 
 		final DragSource source = DragSource.get(request);
 
-		final int operation = Integer.parseInt(request.getParameter("operation")) & getOperations()
+		final int operation = readOperation(request) & this.getOperations()
 				& source.getOperations();
 
 		final Object transferData = source.getTransferData(operation);
 
-		final Location location = createLocation(request);
+		final Location location = readLocation(request);
 
 		if ("drag".equals(type))
 		{
@@ -174,7 +174,17 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		}
 	}
 
-	private Location createLocation(Request request)
+	private String readType(Request request)
+	{
+		return request.getParameter("type");
+	}
+
+	private int readOperation(Request request)
+	{
+		return Integer.parseInt(request.getParameter("operation"));
+	}
+
+	private Location readLocation(Request request)
 	{
 		String id = getComponent().getRequest().getParameter("component");
 		if (id == null)
