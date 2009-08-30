@@ -35,13 +35,16 @@ import wicketdnd.util.MarkupIdVisitor;
  * 
  * @author Sven Meier
  */
-public class DragSource extends AbstractBehavior {
+public class DragSource extends AbstractBehavior
+{
 
 	private static final long serialVersionUID = 1L;
 
 	private Component component;
 
-	private String selector = DND.UNDEFINED;
+	private String startSelector = DND.UNDEFINED;
+
+	private String cloneSelector = DND.UNDEFINED;
 
 	private int operations;
 
@@ -55,23 +58,39 @@ public class DragSource extends AbstractBehavior {
 	 * @see DND#COPY
 	 * @see DND#LINK
 	 */
-	public DragSource(int operations) {
+	public DragSource(int operations)
+	{
 		this.operations = operations;
 	}
 
-	public DragSource from(String selector) {
-		this.selector = selector;
+	public DragSource start(String selector)
+	{
+		this.startSelector = selector;
+
+		if (this.cloneSelector.equals(DND.UNDEFINED))
+		{
+			this.cloneSelector = selector;
+		}
+
 		return this;
 	}
-	
+
+	public DragSource clone(String selector)
+	{
+		this.cloneSelector = selector;
+		return this;
+	}
+
 	@Override
-	public final void bind(Component component) {
+	public final void bind(Component component)
+	{
 		this.component = component;
 		component.setOutputMarkupId(true);
 	}
 
 	@Override
-	public final void renderHead(IHeaderResponse response) {
+	public final void renderHead(IHeaderResponse response)
+	{
 		super.renderHead(response);
 
 		response.renderJavascriptReference(PrototypeResourceReference.INSTANCE);
@@ -79,31 +98,35 @@ public class DragSource extends AbstractBehavior {
 		renderDragHead(response);
 	}
 
-	private void renderDragHead(IHeaderResponse response) {
+	private void renderDragHead(IHeaderResponse response)
+	{
 		response.renderJavascriptReference(DND.JS);
 
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
 
-		String initJS = String.format("new DND.DragSource('%s','%s',%d,'%s');", id,
-				path, operations, selector);
+		String initJS = String.format("new DND.DragSource('%s','%s',%d,'%s','%s');", id, path,
+				operations, startSelector, cloneSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
-	public int getOperations() {
+	public int getOperations()
+	{
 		return operations;
 	}
-	
-	final Object getTransferData(int operation) {
+
+	final Object getTransferData(int operation)
+	{
 		Component drag = findDrag();
 
 		return getTransferData(drag, operation);
 	}
 
-	private Component findDrag() {
+	private Component findDrag()
+	{
 		String id = component.getRequest().getParameter("drag");
 
-		return MarkupIdVisitor.getComponent((MarkupContainer) component, id);
+		return MarkupIdVisitor.getComponent((MarkupContainer)component, id);
 	}
 
 	/**
@@ -116,7 +139,8 @@ public class DragSource extends AbstractBehavior {
 	 *            the drag's operation
 	 * @return transfer data
 	 */
-	public Object getTransferData(Component drag, int operation) {
+	public Object getTransferData(Component drag, int operation)
+	{
 		return drag.getDefaultModelObject();
 	}
 
@@ -132,8 +156,8 @@ public class DragSource extends AbstractBehavior {
 	 * @param operation
 	 *            the DND operation
 	 */
-	public void onDropped(AjaxRequestTarget target, Object transferData,
-			int operation) {
+	public void onDropped(AjaxRequestTarget target, Object transferData, int operation)
+	{
 	}
 
 	/**
@@ -143,15 +167,19 @@ public class DragSource extends AbstractBehavior {
 	 *            request on which a drag happened
 	 * @return drag source
 	 */
-	final static DragSource get(Request request) {
+	final static DragSource get(Request request)
+	{
 		String path = request.getParameter("source");
 
 		Component component = request.getPage().get(path);
 
-		if (component != null) {
-			for (IBehavior behavior : component.getBehaviors()) {
-				if (behavior instanceof DragSource) {
-					return (DragSource) behavior;
+		if (component != null)
+		{
+			for (IBehavior behavior : component.getBehaviors())
+			{
+				if (behavior instanceof DragSource)
+				{
+					return (DragSource)behavior;
 				}
 			}
 		}
