@@ -185,7 +185,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.from("div.item"));
+		}.from("div.item").initiateWith("a"));
 		container.add(new DropTarget(DND.LINK)
 		{
 			@Override
@@ -210,7 +210,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.topAndBottom("div.item"));
+		}.onTopAndBottom("div.item"));
 
 		return container;
 	}
@@ -272,7 +272,7 @@ public class ExamplePage extends WebPage
 
 				target.addComponent(container);
 			}
-		}.topAndBottom("tr"));
+		}.onTopAndBottom("tr"));
 
 		return container;
 	}
@@ -339,7 +339,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.over("span.tree-content").topAndBottom("div.tree-branch"));
+		}.onCenter("span.tree-content").onTopAndBottom("div.tree-branch"));
 
 		return container;
 	}
@@ -373,7 +373,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.from("span.tree-content"));
+		}.from("span.tree-content").initiateWith("tr"));
 		container.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK)
 		{
 			@Override
@@ -409,7 +409,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.over("tr"));
+		}.onCenter("tr"));
 
 		return container;
 	}
@@ -448,7 +448,7 @@ public class ExamplePage extends WebPage
 
 				target.addComponent(tabbed);
 			}
-		}.over("a").leftAndRight("a"));
+		}.onCenter("a").onLeftAndRight("a"));
 
 		return tabbed;
 	}

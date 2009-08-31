@@ -10,6 +10,8 @@ var DND = {
 	
 	OPACITY: 0.7,
 	
+	BORDER: 6,
+	
 	DELAY: 1,
 	
 	executor: null,
@@ -288,23 +290,28 @@ DND.Hover = Class.create({
 	
 		this.element = DND.newElement("dnd-hover-move");
 		
-		var clone = $(drag.id).cloneNode(true);
-		clone.addClassName("dnd-hover-clone");
-		var style = clone.style;
-		style.width = DND.getBounds($(drag.id)).width + "px";
-		style.height = DND.getBounds($(drag.id)).height + "px";
+		var clone = drag.clone();
+		
+		if (clone.match("td")) {
+			var tr = new Element("tr");
+			tr.className = "dnd-hover-tr";
+			tr.insert(clone);
+			clone = tr;
+		}
 		if (clone.match("tr")) {
+			var tbody = new Element("tbody");
+			tbody.className = "dnd-hover-tbody";
+			tbody.insert(clone);
+			clone = tbody;
+		}
+		if (clone.match("tbody")) {
 			var table = new Element("table");
 			table.className = "dnd-hover-table";
-			this.element.insert(table);
-
-			var tbody = new Element("tbody");
-			table.insert(tbody);
-			
-			tbody.insert(clone);
-		} else {
-			this.element.insert(clone);
+			table.insert(clone);
+			clone = table;
 		}
+
+		this.element.insert(clone);
 		
 		var cover = new Element("div");
 		cover.className = "dnd-hover-cover";
@@ -518,10 +525,24 @@ DND.Drag = Class.create({
 		element.addClassName("dnd-drag");
 	},
 
+	clone: function() {
+		var element = $(this.id);
+		
+		var clone = element.cloneNode(true);
+		clone.addClassName("dnd-hover-clone");
+		
+		var bounds = DND.getBounds(element);
+		var style = clone.style;
+		style.width = bounds.width + "px";
+		style.height = bounds.height + "px";
+		
+		return clone;
+	},
+	
 	clear: function() {
+		// element might no longer exist
 		var element = $(this.id);
 		if (element) {
-			// element might no longer exist
 			element.removeClassName("dnd-drag");
 		}
 	}
@@ -529,27 +550,26 @@ DND.Drag = Class.create({
 
 DND.DragSource = Class.create({
 
-	initialize: function(id, path, operations, startSelector, cloneSelector) {
+	initialize: function(id, path, operations, selector, initiateSelector) {
 		this.element = $(id);
 		
 		this.path = path;
 		
 		this.operations = operations;
 				
-		this.startSelector = startSelector;
-		this.cloneSelector = cloneSelector;
+		this.selector = selector;
+		this.initiateSelector = initiateSelector;
 		
 		this.eventMouseDown = this.initDrag.bindAsEventListener(this);
 		Event.observe(this.element, "mousedown", this.eventMouseDown);
 	},
 	
 	initDrag: function(event) {
-
 		if (event.isLeftClick()) {
-			var src = event.element();
+			var element = event.element();
 			
 			// abort on form elements, fixes a Firefox issue
-			if ((tag_name = src.tagName.toUpperCase()) && (
+			if ((tag_name = element.tagName.toUpperCase()) && (
 				tag_name=='INPUT' ||
 				tag_name=='SELECT' ||
 				tag_name=='OPTION' ||
@@ -558,18 +578,24 @@ DND.DragSource = Class.create({
 				return;
 			}
 
-			while (src != this.element && !src.match(this.startSelector)) {
-				src = src.up();
+			while (element != this.element && !element.match(this.initiateSelector)) {
+				element = element.up();
 			}
 			
-			if (src != this.element && src.id) {
-				var pointer = [event.pointerX(), event.pointerY()];
+			if (element != this.element) {
+				if (!element.match(this.selector)) {
+					element = element.up(this.selector);
+				}
 				
-				new DND.Drag(this, src, pointer);
-				
-				event.stop();
-				
-				window.focus();
+				if (element != null && element.id) {
+					var pointer = [event.pointerX(), event.pointerY()];
+					
+					new DND.Drag(this, element, pointer);
+					
+					event.stop();
+					
+					window.focus();
+				}
 			}
 		}
 	}
@@ -642,7 +668,7 @@ DND.DropTarget = Class.create({
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
-						y >= bounds.top && y < bounds.top + 6) {
+						y >= bounds.top && y < bounds.top + DND.BORDER) {
 						
 						drop = new DND.DropTop(this, element);
 					}
@@ -662,7 +688,7 @@ DND.DropTarget = Class.create({
 					var bounds = DND.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
-						y >= bounds.top + bounds.height - 6 && y < bounds.top + bounds.height) {
+						y >= bounds.top + bounds.height - DND.BORDER && y < bounds.top + bounds.height) {
 						
 						drop = new DND.DropBottom(this, element);
 					}
@@ -681,7 +707,7 @@ DND.DropTarget = Class.create({
 				} else if (drop instanceof DND.DropCenter) {
 					var bounds = DND.getBounds(element);
 	
-					if (x >= bounds.left && x < bounds.left + 6 &&
+					if (x >= bounds.left && x < bounds.left + DND.BORDER &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
 						drop = new DND.DropLeft(this, element);
@@ -701,7 +727,7 @@ DND.DropTarget = Class.create({
 				} else if (drop instanceof DND.DropCenter) {
 					var bounds = DND.getBounds(element);
 	
-					if (x >= bounds.left + bounds.width - 6 && x < bounds.left + bounds.width &&
+					if (x >= bounds.left + bounds.width - DND.BORDER && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
 						drop = new DND.DropRight(this, element);

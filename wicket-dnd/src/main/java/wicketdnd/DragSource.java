@@ -42,9 +42,9 @@ public class DragSource extends AbstractBehavior
 
 	private Component component;
 
-	private String startSelector = DND.UNDEFINED;
+	private String selector = DND.UNDEFINED;
 
-	private String cloneSelector = DND.UNDEFINED;
+	private String initiateSelector = DND.UNDEFINED;
 
 	private int operations;
 
@@ -63,21 +63,21 @@ public class DragSource extends AbstractBehavior
 		this.operations = operations;
 	}
 
-	public DragSource start(String selector)
+	public DragSource from(String selector)
 	{
-		this.startSelector = selector;
+		this.selector = selector;
 
-		if (this.cloneSelector.equals(DND.UNDEFINED))
+		if (this.initiateSelector.equals(DND.UNDEFINED))
 		{
-			this.cloneSelector = selector;
+			this.initiateSelector = selector;
 		}
 
 		return this;
 	}
 
-	public DragSource clone(String selector)
+	public DragSource initiateWith(String selector)
 	{
-		this.cloneSelector = selector;
+		this.initiateSelector = selector;
 		return this;
 	}
 
@@ -106,7 +106,7 @@ public class DragSource extends AbstractBehavior
 		final String path = component.getPageRelativePath();
 
 		String initJS = String.format("new DND.DragSource('%s','%s',%d,'%s','%s');", id, path,
-				operations, startSelector, cloneSelector);
+				operations, selector, initiateSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 

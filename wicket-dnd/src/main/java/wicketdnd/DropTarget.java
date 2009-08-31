@@ -63,44 +63,44 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		this.operations = operations;
 	}
 
-	public DropTarget center(String selector)
+	public DropTarget onCenter(String selector)
 	{
 		this.centerSelector = selector;
 		return this;
 	}
 
-	public DropTarget top(String selector)
+	public DropTarget onTop(String selector)
 	{
 		this.topSelector = selector;
 		return this;
 	}
 
-	public DropTarget right(String selector)
+	public DropTarget onRight(String selector)
 	{
 		this.rightSelector = selector;
 		return this;
 	}
 
-	public DropTarget bottom(String selector)
+	public DropTarget onBottom(String selector)
 	{
 		this.bottomSelector = selector;
 		return this;
 	}
 
-	public DropTarget left(String selector)
+	public DropTarget onLeft(String selector)
 	{
 		this.leftSelector = selector;
 		return this;
 	}
 
-	public DropTarget topAndBottom(String selector)
+	public DropTarget onTopAndBottom(String selector)
 	{
 		this.topSelector = selector;
 		this.bottomSelector = selector;
 		return this;
 	}
 
-	public DropTarget leftAndRight(String selector)
+	public DropTarget onLeftAndRight(String selector)
 	{
 		this.leftSelector = selector;
 		this.rightSelector = selector;
