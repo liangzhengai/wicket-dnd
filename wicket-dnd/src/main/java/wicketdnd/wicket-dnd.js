@@ -94,7 +94,7 @@ var DND = {
 	
 			this.hover.draw(pointer);
 
-			this.updateDropAndOperation();
+			this.updateDrop();
 		}
 
 		Event.stop(event);
@@ -142,7 +142,7 @@ var DND = {
 		Event.stop(event);
 	},
 
-	updateDropAndOperation: function() {
+	updateDrop: function() {
 		if (this.drag == null) {
 			return;
 		}
@@ -153,17 +153,35 @@ var DND = {
 		} else {
 			this.setDrop(target.findDrop(this.pointer[0], this.pointer[1]));
 		}
-		
-		this.hover.setOperation(this.findOperation());
 	},
+
+	hasTransfer: function() {
+		if (this.drag == null || this.drop == null) {
+			return false;
+		}
 		
+		var targetTransfers = this.drop.target.transfers;
+		var sourceTransfers = this.drag.source.transfers;
+		for (var index = 0; index < sourceTransfers.length; index++) {
+			var transfer = sourceTransfers[index];
+			
+			if (targetTransfers.indexOf(transfer) != -1) {
+				return true;
+			}
+		}		
+
+		return false;
+	},
+	
 	findOperation: function() {
-		if (this.drag == null) {
+		if (!this.hasTransfer()) {
 			return this.NONE;
 		}
 		
 		var operations = this.drag.source.operations;
-		if (this.drop != null) {
+		if (this.drop == null) {
+			operations = 0;
+		} else {
 			operations = operations & this.drop.target.operations;
 		}
 		
@@ -241,6 +259,8 @@ var DND = {
 				this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
 			}
 		}
+
+		this.hover.setOperation(this.findOperation());		
 	},
 	
 	handleExecute: function() {
@@ -250,7 +270,7 @@ var DND = {
 		}
 
 		if (this.drop != null) {
-			this.drop.notify("drag", this.hover.operation, this.drag, this.updateDropAndOperation.bindAsEventListener(this));
+			this.drop.notify("drag", this.hover.operation, this.drag, this.updateDrop.bindAsEventListener(this));
 		}		
 	},
 
@@ -289,6 +309,8 @@ DND.Hover = Class.create({
 		this.offset = offset;
 	
 		this.element = DND.newElement("dnd-hover-move");
+		
+		this.operation = DND.NONE;
 		
 		var clone = drag.clone();
 		
@@ -557,12 +579,13 @@ DND.Drag = Class.create({
 
 DND.DragSource = Class.create({
 
-	initialize: function(id, path, operations, selector, initiateSelector) {
+	initialize: function(id, path, operations, transfers, selector, initiateSelector) {
 		this.element = $(id);
 		
 		this.path = path;
 		
 		this.operations = operations;
+		this.transfers = transfers;
 				
 		this.selector = selector;
 		this.initiateSelector = initiateSelector;
@@ -610,7 +633,7 @@ DND.DragSource = Class.create({
 
 DND.DropTarget = Class.create({
 
-	initialize: function(id, url, operations, overSelector, topSelector, rightSelector, bottomSelector, leftSelector) {
+	initialize: function(id, url, operations, transfers, overSelector, topSelector, rightSelector, bottomSelector, leftSelector) {
 		this.id = id;
 
 		$(this.id).dropTarget = this;
@@ -618,6 +641,7 @@ DND.DropTarget = Class.create({
 		this.url = url;
 		
 		this.operations = operations;
+		this.transfers = transfers;
 				
 		this.overSelector   = overSelector;
 		this.topSelector    = topSelector;

@@ -54,6 +54,8 @@ public class DND
 	 */
 	public static final int LINK = 4;
 	
+	public static final String ANY = "";
+	
 	public static void reject() {
 		throw new Reject();
 	}

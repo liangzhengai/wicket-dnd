@@ -24,6 +24,7 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
 import wicketdnd.util.MarkupIdVisitor;
+import wicketdnd.util.StringArrayFormattable;
 
 /**
  * A target of drops.
@@ -61,6 +62,11 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	public DropTarget(int operations)
 	{
 		this.operations = operations;
+	}
+
+	public String[] getTransfers()
+	{
+		return new String[] { DND.ANY };
 	}
 
 	public DropTarget onCenter(String selector)
@@ -122,9 +128,10 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		response.renderJavascriptReference(DND.JS);
 
 		final String id = getComponent().getMarkupId();
-		String initJS = String.format("new DND.DropTarget('%s','%s',%d,'%s','%s','%s','%s','%s');",
-				id, getCallbackUrl(), operations, centerSelector, topSelector, rightSelector,
-				bottomSelector, leftSelector);
+		String initJS = String.format(
+				"new DND.DropTarget('%s','%s',%d,%s,'%s','%s','%s','%s','%s');", id,
+				getCallbackUrl(), operations, new StringArrayFormattable(getTransfers()),
+				centerSelector, topSelector, rightSelector, bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
@@ -145,7 +152,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		final int operation = readOperation(request) & this.getOperations()
 				& source.getOperations();
 
-		final Object transferData = source.getTransferData(operation);
+		// TODO who decides the transfer
+		final Object transferData = source.getTransferData(operation, DND.ANY);
 
 		final Location location = readLocation(request);
 
