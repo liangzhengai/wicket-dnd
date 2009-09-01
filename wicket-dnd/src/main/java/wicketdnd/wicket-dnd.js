@@ -313,9 +313,16 @@ DND.Hover = Class.create({
 
 		this.element.insert(clone);
 		
+		var bounds = DND.getBounds(this.element);	
+
 		var cover = new Element("div");
 		cover.className = "dnd-hover-cover";
-		this.element.insert(cover);		
+		var style = cover.style;
+		style.top = "0px";
+		style.left = "0px";
+		style.width = bounds.width + "px";
+		style.height = bounds.height + "px";
+		this.element.insert(cover);	
 	},
 
 	setOperation: function(operation) {
