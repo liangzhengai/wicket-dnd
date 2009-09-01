@@ -348,16 +348,7 @@ public class ExamplePage extends WebPage
 	{
 		final FooTreeProvider provider = new FooTreeProvider();
 		final TableTree<Foo> container = new DefaultTableTree<Foo>("tabletree", treeColumns(),
-				provider, Integer.MAX_VALUE)
-		{
-			@Override
-			protected Component newContentComponent(String arg0, IModel<Foo> arg1)
-			{
-				Component component = super.newContentComponent(arg0, arg1);
-				component.setOutputMarkupId(true);
-				return component;
-			}
-		};
+				provider, Integer.MAX_VALUE);
 		// reuse items or drop following expansion will fail due to new
 		// markup ids
 		container.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
@@ -373,7 +364,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.from("span.tree-content").initiateWith("tr"));
+		}.from("tr").initiateWith("span.tree-content"));
 		container.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK)
 		{
 			@Override
