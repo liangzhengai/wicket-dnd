@@ -26,6 +26,7 @@ import org.apache.wicket.protocol.http.PageExpiredException;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
 import wicketdnd.util.MarkupIdVisitor;
+import wicketdnd.util.StringArrayFormattable;
 
 /**
  * A source of drags.
@@ -61,6 +62,16 @@ public class DragSource extends AbstractBehavior
 	public DragSource(int operations)
 	{
 		this.operations = operations;
+	}
+
+	/**
+	 * Get possible transfers.
+	 * 
+	 * @return transfers
+	 */
+	public String[] getTransfers()
+	{
+		return new String[] { DND.ANY };
 	}
 
 	public DragSource from(String selector)
@@ -105,8 +116,8 @@ public class DragSource extends AbstractBehavior
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
 
-		String initJS = String.format("new DND.DragSource('%s','%s',%d,'%s','%s');", id, path,
-				operations, selector, initiateSelector);
+		String initJS = String.format("new DND.DragSource('%s','%s',%d,%s,'%s','%s');", id, path,
+				operations, new StringArrayFormattable(getTransfers()), selector, initiateSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
@@ -115,11 +126,11 @@ public class DragSource extends AbstractBehavior
 		return operations;
 	}
 
-	final Object getTransferData(int operation)
+	final Object getTransferData(int operation, String transfer)
 	{
 		Component drag = findDrag();
 
-		return getTransferData(drag, operation);
+		return getTransferData(drag, operation, transfer);
 	}
 
 	private Component findDrag()
@@ -139,7 +150,7 @@ public class DragSource extends AbstractBehavior
 	 *            the drag's operation
 	 * @return transfer data
 	 */
-	public Object getTransferData(Component drag, int operation)
+	public Object getTransferData(Component drag, int operation, String transfer)
 	{
 		return drag.getDefaultModelObject();
 	}
