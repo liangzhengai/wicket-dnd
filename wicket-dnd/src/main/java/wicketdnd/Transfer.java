@@ -15,30 +15,32 @@
  */
 package wicketdnd;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.ResourceReference;
+import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 
 /**
+ * A drag and drop transfer.
+ * 
  * @author Sven Meier
  */
-public class DND
+public class Transfer
 {
-	public static final ResourceReference JS = new JavascriptResourceReference(DND.class,
+
+	public static final ResourceReference JS = new JavascriptResourceReference(Transfer.class,
 			"wicket-dnd.js");
 
-	private DND() {
-	}
-	
 	/**
 	 * Undefined CSS selector.
 	 */
 	public static final String UNDEFINED = "undefined";
-	
+
 	/**
 	 * No operation.
 	 */
 	public static final int NONE = 0;
-	
+
 	/**
 	 * Move operation.
 	 */
@@ -48,15 +50,60 @@ public class DND
 	 * Copy operation.
 	 */
 	public static final int COPY = 2;
-	
+
 	/**
 	 * Link operation.
 	 */
 	public static final int LINK = 4;
-	
+
 	public static final String ANY = "";
-	
-	public static void reject() {
+
+	private String type;
+
+	private int operation;
+
+	private Object data;
+
+	Transfer(String type, int operation)
+	{
+		this.type = type;
+		this.operation = operation;
+	}
+
+	public String getType()
+	{
+		return type;
+	}
+
+	/**
+	 * @see DragSource#getOperations()
+	 * @see DropTarget#getOperations()
+	 */
+	public int getOperation()
+	{
+		return operation;
+	}
+
+	/**
+	 * @see DragSource#setData(Component, Transfer)
+	 */
+	public void setData(Object data)
+	{
+		this.data = data;
+	}
+
+	/**
+	 * @see DropTarget#onDrop(AjaxRequestTarget, Transfer, Location)
+	 * @see DragSource#onDropped(AjaxRequestTarget, Transfer)
+	 */
+	@SuppressWarnings("unchecked")
+	public <T> T getData()
+	{
+		return (T)this.data;
+	}
+
+	public void reject()
+	{
 		throw new Reject();
 	}
 }

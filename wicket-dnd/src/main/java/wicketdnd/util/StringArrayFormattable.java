@@ -34,11 +34,11 @@ public class StringArrayFormattable implements Formattable
 		StringBuilder builder = new StringBuilder();
 		builder.append("[");
 		for (String string : strings) {
-			if (builder.length()  > 0) {
+			if (builder.length() > 1) {
 				builder.append(",");
 			}
 			builder.append("'");
-			builder.append(string);
+			builder.append(string.replace("'", "\\'"));
 			builder.append("'");
 		}
 		builder.append("]");

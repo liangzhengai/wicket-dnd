@@ -44,11 +44,12 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 
-import wicketdnd.DND;
 import wicketdnd.DragSource;
 import wicketdnd.DropTarget;
 import wicketdnd.IECursorFix;
 import wicketdnd.Location;
+import wicketdnd.Reject;
+import wicketdnd.Transfer;
 import wicketdnd.theme.HumanTheme;
 import wicketdnd.theme.WebTheme;
 import wicketdnd.theme.WindowsTheme;
@@ -134,14 +135,16 @@ public class ExamplePage extends WebPage
 		label.setOutputMarkupId(true);
 		container.add(label);
 
-		container.add(new DragSource(DND.COPY | DND.LINK).from("span"));
-		container.add(new DropTarget(DND.COPY)
+		container.add(new DragSource(Transfer.COPY | Transfer.LINK).from("span"));
+		container.add(new DropTarget(Transfer.COPY)
 		{
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
-					Location location)
+			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
+					throws Reject
 			{
-				model.setObject((Foo)transferData);
+				Foo foo = transfer.getData();
+
+				model.setObject(foo);
 
 				target.addComponent(label);
 			}
@@ -172,25 +175,24 @@ public class ExamplePage extends WebPage
 			}
 		};
 		container.add(items);
-		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK)
+		container.add(new DragSource(Transfer.MOVE | Transfer.COPY | Transfer.LINK)
 		{
 
 			@Override
-			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
+			public void onDropped(AjaxRequestTarget target, Transfer transfer)
 			{
-				if (operation == DND.MOVE)
+				if (transfer.getOperation() == Transfer.MOVE)
 				{
-					list.remove(transfer);
+					list.remove(transfer.getData());
 
 					target.addComponent(container);
 				}
 			}
 		}.from("div.item").initiateWith("a"));
-		container.add(new DropTarget(DND.LINK)
+		container.add(new DropTarget(Transfer.LINK)
 		{
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
-					Location location)
+			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 			{
 				if (location != null)
 				{
@@ -198,13 +200,13 @@ public class ExamplePage extends WebPage
 					switch (location.getAnchor())
 					{
 						case Location.TOP :
-							list.addBefore(operate((Foo)transferData, operation), foo);
+							list.addBefore(operate(transfer), foo);
 							break;
 						case Location.BOTTOM :
-							list.addAfter(operate((Foo)transferData, operation), foo);
+							list.addAfter(operate(transfer), foo);
 							break;
 						default :
-							DND.reject();
+							transfer.reject();
 					}
 
 					target.addComponent(container);
@@ -230,28 +232,30 @@ public class ExamplePage extends WebPage
 				return item;
 			}
 		};
-		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK)
+		container.add(new DragSource(Transfer.MOVE | Transfer.COPY | Transfer.LINK)
 		{
 			@Override
-			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
+			public void onDropped(AjaxRequestTarget target, Transfer transfer)
 			{
-				if (operation == DND.MOVE)
+				if (transfer.getOperation() == Transfer.MOVE)
 				{
-					provider.remove((Foo)transfer);
+					Foo foo = transfer.getData();
+
+					provider.remove(foo);
 
 					target.addComponent(container);
 				}
 			}
 		}.from("tr"));
-		container.add(new DropTarget(DND.COPY)
+		container.add(new DropTarget(Transfer.COPY)
 		{
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
-					Location location)
+			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
+					throws Reject
 			{
 				if (location == null)
 				{
-					provider.add(operate((Foo)transferData, operation));
+					provider.add(operate(transfer));
 				}
 				else
 				{
@@ -259,13 +263,13 @@ public class ExamplePage extends WebPage
 					switch (location.getAnchor())
 					{
 						case Location.TOP :
-							provider.addBefore(operate((Foo)transferData, operation), foo);
+							provider.addBefore(operate(transfer), foo);
 							break;
 						case Location.BOTTOM :
-							provider.addAfter(operate((Foo)transferData, operation), foo);
+							provider.addAfter(operate(transfer), foo);
 							break;
 						default :
-							DND.reject();
+							transfer.reject();
 					}
 
 				}
@@ -290,33 +294,33 @@ public class ExamplePage extends WebPage
 				return component;
 			}
 		};
-		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK)
+		container.add(new DragSource(Transfer.MOVE | Transfer.COPY | Transfer.LINK)
 		{
-
 			@Override
-			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
+			public void onDropped(AjaxRequestTarget target, Transfer transfer)
 			{
-				if (operation == DND.MOVE)
+				if (transfer.getOperation() == Transfer.MOVE)
 				{
-					provider.remove((Foo)transfer);
+					Foo foo = transfer.getData();
+
+					provider.remove(foo);
 
 					target.addComponent(container);
 				}
 			}
 		}.from("span.tree-content"));
-		container.add(new DropTarget(DND.MOVE)
+		container.add(new DropTarget(Transfer.MOVE)
 		{
 			@Override
-			public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
-					Location location)
+			public void onDrag(AjaxRequestTarget target, Location location)
 			{
 				Foo foo = location.getModelObject();
 				container.expand(foo);
 			}
 
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
-					Location location)
+			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
+					throws Reject
 			{
 				if (location != null)
 				{
@@ -324,18 +328,17 @@ public class ExamplePage extends WebPage
 					switch (location.getAnchor())
 					{
 						case Location.CENTER :
-							provider.add(operate((Foo)transferData, operation), foo);
+							provider.add(operate(transfer), foo);
 							break;
 						case Location.TOP :
-							provider.addBefore(operate((Foo)transferData, operation), foo);
+							provider.addBefore(operate(transfer), foo);
 							break;
 						case Location.BOTTOM :
-							provider.addAfter(operate((Foo)transferData, operation), foo);
+							provider.addAfter(operate(transfer), foo);
 							break;
 						default :
-							DND.reject();
+							transfer.reject();
 					}
-
 					target.addComponent(container);
 				}
 			}
@@ -352,32 +355,33 @@ public class ExamplePage extends WebPage
 		// reuse items or drop following expansion will fail due to new
 		// markup ids
 		container.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
-		container.add(new DragSource(DND.MOVE | DND.COPY | DND.LINK)
+		container.add(new DragSource(Transfer.MOVE | Transfer.COPY | Transfer.LINK)
 		{
 			@Override
-			public void onDropped(AjaxRequestTarget target, Object transfer, int operation)
+			public void onDropped(AjaxRequestTarget target, Transfer transfer)
 			{
-				if (operation == DND.MOVE)
+				if (transfer.getOperation() == Transfer.MOVE)
 				{
-					provider.remove((Foo)transfer);
+					Foo foo = transfer.getData();
+
+					provider.remove(foo);
 
 					target.addComponent(container);
 				}
 			}
 		}.from("tr").initiateWith("span.tree-content"));
-		container.add(new DropTarget(DND.MOVE | DND.COPY | DND.LINK)
+		container.add(new DropTarget(Transfer.MOVE | Transfer.COPY | Transfer.LINK)
 		{
 			@Override
-			public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
-					Location location)
+			public void onDrag(AjaxRequestTarget target, Location location)
 			{
 				Foo foo = location.getModelObject();
 				container.expand(foo);
 			}
 
 			@Override
-			public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
-					Location location)
+			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
+					throws Reject
 			{
 				if (location != null)
 				{
@@ -385,16 +389,16 @@ public class ExamplePage extends WebPage
 					switch (location.getAnchor())
 					{
 						case Location.CENTER :
-							provider.add(operate((Foo)transferData, operation), foo);
+							provider.add(operate(transfer), foo);
 							break;
 						case Location.TOP :
-							provider.addBefore(operate((Foo)transferData, operation), foo);
+							provider.addBefore(operate(transfer), foo);
 							break;
 						case Location.BOTTOM :
-							provider.addAfter(operate((Foo)transferData, operation), foo);
+							provider.addAfter(operate(transfer), foo);
 							break;
 						default :
-							DND.reject();
+							transfer.reject();
 					}
 
 					target.addComponent(container);
@@ -427,11 +431,10 @@ public class ExamplePage extends WebPage
 		tabbed.setOutputMarkupId(true);
 		// would be nice if TabbedPanel had a factory method for the container
 		// of tabs - see WICKET-2435
-		tabbed.get("tabs-container").add(new DropTarget(DND.NONE)
+		tabbed.get("tabs-container").add(new DropTarget(Transfer.NONE)
 		{
 			@Override
-			public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
-					Location location)
+			public void onDrag(AjaxRequestTarget target, Location location)
 			{
 				Integer index = location.getModelObject();
 
@@ -457,15 +460,16 @@ public class ExamplePage extends WebPage
 				new PropertyColumn<Foo>(Model.of("Name"), "name") };
 	}
 
-	protected Foo operate(Foo foo, int operation)
+	protected Foo operate(Transfer transfer)
 	{
-		switch (operation)
+		Foo foo = transfer.getData();
+		switch (transfer.getOperation())
 		{
-			case DND.MOVE :
+			case Transfer.MOVE :
 				return foo;
-			case DND.COPY :
+			case Transfer.COPY :
 				return foo.copy();
-			case DND.LINK :
+			case Transfer.LINK :
 				return foo.link();
 			default :
 				throw new IllegalArgumentException();

@@ -31,8 +31,9 @@ import wicketdnd.util.StringArrayFormattable;
 /**
  * A source of drags.
  * 
- * @see #getTransferData(Component, int)
- * @see #onDropped(AjaxRequestTarget, Object, int)
+ * @see #getTransferTypes()
+ * @see #setData(Request, Transfer)
+ * @see #onDropped(AjaxRequestTarget, Transfer)
  * 
  * @author Sven Meier
  */
@@ -43,9 +44,9 @@ public class DragSource extends AbstractBehavior
 
 	private Component component;
 
-	private String selector = DND.UNDEFINED;
+	private String selector = Transfer.UNDEFINED;
 
-	private String initiateSelector = DND.UNDEFINED;
+	private String initiateSelector = Transfer.UNDEFINED;
 
 	private int operations;
 
@@ -69,16 +70,16 @@ public class DragSource extends AbstractBehavior
 	 * 
 	 * @return transfers
 	 */
-	public String[] getTransfers()
+	public String[] getTransferTypes()
 	{
-		return new String[] { DND.ANY };
+		return new String[] { Transfer.ANY };
 	}
 
 	public DragSource from(String selector)
 	{
 		this.selector = selector;
 
-		if (this.initiateSelector.equals(DND.UNDEFINED))
+		if (this.initiateSelector.equals(Transfer.UNDEFINED))
 		{
 			this.initiateSelector = selector;
 		}
@@ -111,13 +112,14 @@ public class DragSource extends AbstractBehavior
 
 	private void renderDragHead(IHeaderResponse response)
 	{
-		response.renderJavascriptReference(DND.JS);
+		response.renderJavascriptReference(Transfer.JS);
 
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
 
 		String initJS = String.format("new DND.DragSource('%s','%s',%d,%s,'%s','%s');", id, path,
-				operations, new StringArrayFormattable(getTransfers()), selector, initiateSelector);
+				operations, new StringArrayFormattable(getTransferTypes()), selector,
+				initiateSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
@@ -126,16 +128,16 @@ public class DragSource extends AbstractBehavior
 		return operations;
 	}
 
-	final Object getTransferData(int operation, String transfer)
+	final void setData(Request request, Transfer transfer)
 	{
-		Component drag = findDrag();
+		Component drag = getDrag(request);
 
-		return getTransferData(drag, operation, transfer);
+		setData(drag, transfer);
 	}
 
-	private Component findDrag()
+	private Component getDrag(Request request)
 	{
-		String id = component.getRequest().getParameter("drag");
+		String id = request.getParameter("drag");
 
 		return MarkupIdVisitor.getComponent((MarkupContainer)component, id);
 	}
@@ -148,26 +150,25 @@ public class DragSource extends AbstractBehavior
 	 *            component to get data from
 	 * @param operation
 	 *            the drag's operation
-	 * @return transfer data
+	 * @param transfer
+	 *            the transfer
 	 */
-	public Object getTransferData(Component drag, int operation, String transfer)
+	public void setData(Component drag, Transfer transfer)
 	{
-		return drag.getDefaultModelObject();
+		transfer.setData(drag.getDefaultModelObject());
 	}
 
 	/**
-	 * Notification that a drop happend of one of this source's transfer datas
+	 * Notification that a drop happend of one of this source's transfer datas.
 	 * 
 	 * The default implementation does nothing.
 	 * 
 	 * @param target
 	 *            initiating request target
-	 * @param transferData
-	 *            the transferred data
-	 * @param operation
-	 *            the DND operation
+	 * @param transfer
+	 *            the transfer
 	 */
-	public void onDropped(AjaxRequestTarget target, Object transferData, int operation)
+	public void onDropped(AjaxRequestTarget target, Transfer transfer)
 	{
 	}
 
