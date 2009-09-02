@@ -15,6 +15,10 @@
  */
 package wicketdnd;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Request;
@@ -29,8 +33,9 @@ import wicketdnd.util.StringArrayFormattable;
 /**
  * A target of drops.
  * 
- * @see #onDragOver(AjaxRequestTarget, Object, int, Component)
- * @see #onDrop(AjaxRequestTarget, Object, int)
+ * @see #getTransferTypes()
+ * @see #onDrag(AjaxRequestTarget, Location)
+ * @see #onDrop(AjaxRequestTarget, Transfer, Location)
  * 
  * @author Sven Meier
  */
@@ -38,15 +43,15 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 {
 	private static final long serialVersionUID = 1L;
 
-	private String centerSelector = DND.UNDEFINED;
+	private String centerSelector = Transfer.UNDEFINED;
 
-	private String topSelector = DND.UNDEFINED;
+	private String topSelector = Transfer.UNDEFINED;
 
-	private String bottomSelector = DND.UNDEFINED;
+	private String bottomSelector = Transfer.UNDEFINED;
 
-	private String leftSelector = DND.UNDEFINED;
+	private String leftSelector = Transfer.UNDEFINED;
 
-	private String rightSelector = DND.UNDEFINED;
+	private String rightSelector = Transfer.UNDEFINED;
 
 	private int operations;
 
@@ -64,9 +69,14 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		this.operations = operations;
 	}
 
-	public String[] getTransfers()
+	/**
+	 * Get possible types of transfers.
+	 * 
+	 * @return transfer types
+	 */
+	public String[] getTransferTypes()
 	{
-		return new String[] { DND.ANY };
+		return new String[] { Transfer.ANY };
 	}
 
 	public DropTarget onCenter(String selector)
@@ -125,12 +135,12 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 	private void renderDropHead(IHeaderResponse response)
 	{
-		response.renderJavascriptReference(DND.JS);
+		response.renderJavascriptReference(Transfer.JS);
 
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format(
 				"new DND.DropTarget('%s','%s',%d,%s,'%s','%s','%s','%s','%s');", id,
-				getCallbackUrl(), operations, new StringArrayFormattable(getTransfers()),
+				getCallbackUrl(), operations, new StringArrayFormattable(getTransferTypes()),
 				centerSelector, topSelector, rightSelector, bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
@@ -145,51 +155,63 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	{
 		Request request = getComponent().getRequest();
 
-		final String type = readType(request);
-
-		final DragSource source = DragSource.get(request);
-
-		final int operation = readOperation(request) & this.getOperations()
-				& source.getOperations();
-
-		// TODO who decides the transfer
-		final Object transferData = source.getTransferData(operation, DND.ANY);
+		final String type = getType(request);
 
 		final Location location = readLocation(request);
 
 		if ("drag".equals(type))
 		{
-			onDrag(target, transferData, operation, location);
+			onDrag(target, location);
 		}
 		else
 		{
 			try
 			{
-				if (operation == 0)
-				{
-					throw new Reject();
-				}
+				final DragSource source = DragSource.get(request);
 
-				onDrop(target, transferData, operation, location);
+				final Transfer transfer = getTransfer(request, source);
+
+				source.setData(request, transfer);
+
+				onDrop(target, transfer, location);
+
+				source.onDropped(target, transfer);
 			}
 			catch (Reject reject)
 			{
 				// TODO how to indicate rejection
 				return;
 			}
-
-			source.onDropped(target, transferData, operation);
 		}
 	}
 
-	private String readType(Request request)
+	private String getType(Request request)
 	{
 		return request.getParameter("type");
 	}
 
-	private int readOperation(Request request)
+	private Transfer getTransfer(Request request, DragSource source)
 	{
-		return Integer.parseInt(request.getParameter("operation"));
+		int operation = Integer.parseInt(request.getParameter("operation")) & this.getOperations()
+				& source.getOperations();
+
+		if (operation == 0)
+		{
+			throw new Reject();
+		}
+
+		List<String> transfers = new ArrayList<String>();
+		for (String transfer : this.getTransferTypes())
+		{
+			transfers.add(transfer);
+		}
+		transfers.retainAll(Arrays.asList(source.getTransferTypes()));
+		if (transfers.size() == 0)
+		{
+			throw new Reject();
+		}
+
+		return new Transfer(transfers.get(0), operation);
 	}
 
 	private Location readLocation(Request request)
@@ -212,15 +234,10 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	 * 
 	 * @param target
 	 *            initiating request target
-	 * @param transferData
-	 *            the transferring data
-	 * @param operation
-	 *            the DND operation
 	 * @param location
 	 *            the location
 	 */
-	public void onDrag(AjaxRequestTarget target, Object transferData, int operation,
-			Location location)
+	public void onDrag(AjaxRequestTarget target, Location location)
 	{
 	}
 
@@ -231,15 +248,13 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	 * 
 	 * @param target
 	 *            initiating request target
-	 * @param transferData
-	 *            the transferred data
-	 * @param operation
-	 *            the DND operation
+	 * @param transfer
+	 *            the transfer
 	 * @param location
 	 *            the location or <code>null</code> if not available
 	 */
-	public void onDrop(AjaxRequestTarget target, Object transferData, int operation,
-			Location location) throws Reject
+	public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
+			throws Reject
 	{
 		throw new Reject();
 	}
