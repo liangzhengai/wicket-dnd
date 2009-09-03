@@ -56,6 +56,12 @@ public class Transfer
 	 */
 	public static final int LINK = 4;
 
+	/**
+	 * Transfer type indicating any type supported.
+	 * 
+	 * @see DragSource#getTransferTypes()
+	 * @see DropTarget#getTransferTypes()
+	 */
 	public static final String ANY = "";
 
 	private String type;
@@ -70,14 +76,24 @@ public class Transfer
 		this.operation = operation;
 	}
 
+	/**
+	 * Get type of transfer.
+	 * 
+	 * @return type
+	 */
 	public String getType()
 	{
 		return type;
 	}
 
 	/**
+	 * Get the operation of this transfer.
+	 * 
 	 * @see DragSource#getOperations()
 	 * @see DropTarget#getOperations()
+	 * @see #MOVE
+	 * @see #COPY
+	 * @see #LINK
 	 */
 	public int getOperation()
 	{
@@ -85,7 +101,9 @@ public class Transfer
 	}
 
 	/**
-	 * @see DragSource#setData(Component, Transfer)
+	 * Set the data of this transfer.
+	 * 
+	 * @see DragSource#beforeDrop(Component, Transfer)
 	 */
 	public void setData(Object data)
 	{
@@ -93,8 +111,10 @@ public class Transfer
 	}
 
 	/**
+	 * Get the data of this transfer.
+	 * 
 	 * @see DropTarget#onDrop(AjaxRequestTarget, Transfer, Location)
-	 * @see DragSource#onDropped(AjaxRequestTarget, Transfer)
+	 * @see DragSource#afterDrop(AjaxRequestTarget, Transfer)
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getData()
@@ -102,6 +122,9 @@ public class Transfer
 		return (T)this.data;
 	}
 
+	/**
+	 * Reject this transfer.
+	 */
 	public void reject()
 	{
 		throw new Reject();

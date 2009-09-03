@@ -2,21 +2,25 @@ div.dnd-hover-move {
 	position: absolute;
 	background: white;
 	border: 1px solid black;
+	z-index: 100;
 }
 div.dnd-hover-copy {
 	position: absolute;
 	background: white;
 	border: 1px solid black;
+	z-index: 100;
 }
 div.dnd-hover-link {
 	position: absolute;
 	background: white;
 	border: 1px solid black;
+	z-index: 100;
 }
 div.dnd-hover-none {
 	position: absolute;
 	background: white;
 	border: 1px solid black;
+	z-index: 100;
 }
 div.dnd-hover-move div.dnd-hover-cover {
 	cursor: url(move.gif), move;

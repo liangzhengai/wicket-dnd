@@ -16,35 +16,7 @@
 -->
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd" >
     <head>  
-<style>
-div.items {
-	width: 50%;
-}
-div.item {
-	font-size: 32px;
-	border: 1px dotted black;
-}
-tr.even {
-	background: #eeeeee;
-}
-div.tab-row {
-	float: left;
-}
-div.tab-row ul {
-	list-style-type: none;
-	margin: 0px;
-	padding: 0px;
-}
-div.tab-row li {
-	float: left;
-}
-div.tab-row a {
-	padding: 4px;
-}
-div.tab-panel {
-	clear: both;
-}
-</style>
+		<link href="example.css" type="text/css" rel="stylesheet"></link>
     </head>
     <body>
     	Visit our project on <a href="http://code.google.com/p/wicket-dnd/">http://code.google.com/p/wicket-dnd/</a>!
@@ -63,7 +35,7 @@ div.tab-panel {
 		<h2>ListView (link)</h2>
 		<div wicket:id="list" class="items">
 			<div wicket:id="items" class="item">
-				<a href="#">move</a> <span wicket:id="name">[name]</span>
+				<span class="initiate"></span> <span wicket:id="name">[name]</span>
 			</div>
 		</div>
 		

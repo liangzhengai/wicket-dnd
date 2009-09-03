@@ -135,7 +135,7 @@ public class ExamplePage extends WebPage
 		label.setOutputMarkupId(true);
 		container.add(label);
 
-		container.add(new DragSource(Transfer.COPY | Transfer.LINK).from("span"));
+		container.add(new DragSource(Transfer.COPY | Transfer.LINK).drag("span"));
 		container.add(new DropTarget(Transfer.COPY)
 		{
 			@Override
@@ -179,7 +179,7 @@ public class ExamplePage extends WebPage
 		{
 
 			@Override
-			public void onDropped(AjaxRequestTarget target, Transfer transfer)
+			public void afterDrop(AjaxRequestTarget target, Transfer transfer)
 			{
 				if (transfer.getOperation() == Transfer.MOVE)
 				{
@@ -188,7 +188,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.from("div.item").initiateWith("a"));
+		}.drag("div.item").initiate("span.initiate"));
 		container.add(new DropTarget(Transfer.LINK)
 		{
 			@Override
@@ -212,7 +212,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.onTopAndBottom("div.item"));
+		}.dropTopAndBottom("div.item"));
 
 		return container;
 	}
@@ -235,7 +235,7 @@ public class ExamplePage extends WebPage
 		container.add(new DragSource(Transfer.MOVE | Transfer.COPY | Transfer.LINK)
 		{
 			@Override
-			public void onDropped(AjaxRequestTarget target, Transfer transfer)
+			public void afterDrop(AjaxRequestTarget target, Transfer transfer)
 			{
 				if (transfer.getOperation() == Transfer.MOVE)
 				{
@@ -246,7 +246,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.from("tr"));
+		}.drag("tr"));
 		container.add(new DropTarget(Transfer.COPY)
 		{
 			@Override
@@ -276,7 +276,7 @@ public class ExamplePage extends WebPage
 
 				target.addComponent(container);
 			}
-		}.onTopAndBottom("tr"));
+		}.dropTopAndBottom("tr"));
 
 		return container;
 	}
@@ -297,7 +297,7 @@ public class ExamplePage extends WebPage
 		container.add(new DragSource(Transfer.MOVE | Transfer.COPY | Transfer.LINK)
 		{
 			@Override
-			public void onDropped(AjaxRequestTarget target, Transfer transfer)
+			public void afterDrop(AjaxRequestTarget target, Transfer transfer)
 			{
 				if (transfer.getOperation() == Transfer.MOVE)
 				{
@@ -308,7 +308,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.from("span.tree-content"));
+		}.drag("span.tree-content"));
 		container.add(new DropTarget(Transfer.MOVE)
 		{
 			@Override
@@ -342,7 +342,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.onCenter("span.tree-content").onTopAndBottom("div.tree-branch"));
+		}.dropCenter("span.tree-content").dropTopAndBottom("div.tree-branch"));
 
 		return container;
 	}
@@ -358,7 +358,7 @@ public class ExamplePage extends WebPage
 		container.add(new DragSource(Transfer.MOVE | Transfer.COPY | Transfer.LINK)
 		{
 			@Override
-			public void onDropped(AjaxRequestTarget target, Transfer transfer)
+			public void afterDrop(AjaxRequestTarget target, Transfer transfer)
 			{
 				if (transfer.getOperation() == Transfer.MOVE)
 				{
@@ -369,7 +369,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.from("tr").initiateWith("span.tree-content"));
+		}.drag("tr").initiate("span.tree-content"));
 		container.add(new DropTarget(Transfer.MOVE | Transfer.COPY | Transfer.LINK)
 		{
 			@Override
@@ -404,7 +404,7 @@ public class ExamplePage extends WebPage
 					target.addComponent(container);
 				}
 			}
-		}.onCenter("tr"));
+		}.dropCenter("tr"));
 
 		return container;
 	}
@@ -442,7 +442,7 @@ public class ExamplePage extends WebPage
 
 				target.addComponent(tabbed);
 			}
-		}.onCenter("a").onLeftAndRight("a"));
+		}.dropCenter("a").dropLeftAndRight("a"));
 
 		return tabbed;
 	}

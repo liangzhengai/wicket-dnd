@@ -1,0 +1,35 @@
+div.items {
+	width: 50%;
+}
+div.item {
+	font-size: 24px;
+	border: 1px dotted black;
+	background: #eeeeee;
+}
+span.initiate {
+	padding-left: 16px;
+	background: url(initiate.gif) no-repeat center center;
+}
+table {
+	border-spacing: 0px;
+}
+tr.even {
+	background: #eeeeee;
+}
+div.tab-row {
+	float: left;
+}
+div.tab-row ul {
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+div.tab-row li {
+	float: left;
+}
+div.tab-row a {
+	padding: 4px;
+}
+div.tab-panel {
+	clear: both;
+}

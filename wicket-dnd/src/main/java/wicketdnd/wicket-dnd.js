@@ -270,7 +270,11 @@ var DND = {
 		}
 
 		if (this.drop != null) {
-			this.drop.notify("drag", this.hover.operation, this.drag, this.updateDrop.bindAsEventListener(this));
+			var completion = function() {
+				this.setDrop(null);
+				this.updateDrop();
+			};
+			this.drop.notify("drag", this.hover.operation, this.drag, completion.bindAsEventListener(this));
 		}		
 	},
 
