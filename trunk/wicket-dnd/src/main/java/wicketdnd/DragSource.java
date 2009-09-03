@@ -32,8 +32,8 @@ import wicketdnd.util.StringArrayFormattable;
  * A source of drags.
  * 
  * @see #getTransferTypes()
- * @see #setData(Request, Transfer)
- * @see #onDropped(AjaxRequestTarget, Transfer)
+ * @see #beforeDrop(Request, Transfer)
+ * @see #afterDrop(AjaxRequestTarget, Transfer)
  * 
  * @author Sven Meier
  */
@@ -75,7 +75,7 @@ public class DragSource extends AbstractBehavior
 		return new String[] { Transfer.ANY };
 	}
 
-	public DragSource from(String selector)
+	public DragSource drag(String selector)
 	{
 		this.selector = selector;
 
@@ -87,7 +87,7 @@ public class DragSource extends AbstractBehavior
 		return this;
 	}
 
-	public DragSource initiateWith(String selector)
+	public DragSource initiate(String selector)
 	{
 		this.initiateSelector = selector;
 		return this;
@@ -128,11 +128,11 @@ public class DragSource extends AbstractBehavior
 		return operations;
 	}
 
-	final void setData(Request request, Transfer transfer)
+	final void beforeDrop(Request request, Transfer transfer)
 	{
 		Component drag = getDrag(request);
 
-		setData(drag, transfer);
+		beforeDrop(drag, transfer);
 	}
 
 	private Component getDrag(Request request)
@@ -143,8 +143,11 @@ public class DragSource extends AbstractBehavior
 	}
 
 	/**
-	 * Get the data to transfer from the given dragged component - the default
-	 * implementation returns the component's model object.
+	 * Notification that a drop is about to happen - any implementation shoudl
+	 * set the data on the given transfer or reject it.
+	 * 
+	 * The default implementation uses the component's model object as transfer
+	 * data.
 	 * 
 	 * @param drag
 	 *            component to get data from
@@ -152,14 +155,16 @@ public class DragSource extends AbstractBehavior
 	 *            the drag's operation
 	 * @param transfer
 	 *            the transfer
+	 * @see Transfer#setData(Object)
+	 * @see Transfer#reject()
 	 */
-	public void setData(Component drag, Transfer transfer)
+	public void beforeDrop(Component drag, Transfer transfer)
 	{
 		transfer.setData(drag.getDefaultModelObject());
 	}
 
 	/**
-	 * Notification that a drop happend of one of this source's transfer datas.
+	 * Notification that a drop happened of one of this source's transfer datas.
 	 * 
 	 * The default implementation does nothing.
 	 * 
@@ -168,7 +173,7 @@ public class DragSource extends AbstractBehavior
 	 * @param transfer
 	 *            the transfer
 	 */
-	public void onDropped(AjaxRequestTarget target, Transfer transfer)
+	public void afterDrop(AjaxRequestTarget target, Transfer transfer)
 	{
 	}
 

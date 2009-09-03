@@ -37,9 +37,11 @@ public class StringArrayFormattable implements Formattable
 			if (builder.length() > 1) {
 				builder.append(",");
 			}
-			builder.append("'");
-			builder.append(string.replace("'", "\\'"));
-			builder.append("'");
+			if (string != null) {
+				builder.append("'");
+				builder.append(string.replace("'", "\\'"));
+				builder.append("'");
+			}
 		}
 		builder.append("]");
 		

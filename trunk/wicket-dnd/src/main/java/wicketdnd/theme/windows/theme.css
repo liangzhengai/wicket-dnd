@@ -1,14 +1,18 @@
 div.dnd-hover-move {
 	position: absolute;
+	z-index: 100;
 }
 div.dnd-hover-copy {
 	position: absolute;
+	z-index: 100;
 }
 div.dnd-hover-link {
 	position: absolute;
+	z-index: 100;
 }
 div.dnd-hover-none {
 	position: absolute;
+	z-index: 100;
 }
 div.dnd-hover-move div.dnd-hover-cover {
 	cursor: url(move.cur), url(move.gif), move;

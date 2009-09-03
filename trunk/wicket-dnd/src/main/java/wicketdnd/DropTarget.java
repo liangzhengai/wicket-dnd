@@ -79,44 +79,44 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		return new String[] { Transfer.ANY };
 	}
 
-	public DropTarget onCenter(String selector)
+	public DropTarget dropCenter(String selector)
 	{
 		this.centerSelector = selector;
 		return this;
 	}
 
-	public DropTarget onTop(String selector)
+	public DropTarget dropTop(String selector)
 	{
 		this.topSelector = selector;
 		return this;
 	}
 
-	public DropTarget onRight(String selector)
+	public DropTarget dropRight(String selector)
 	{
 		this.rightSelector = selector;
 		return this;
 	}
 
-	public DropTarget onBottom(String selector)
+	public DropTarget dropBottom(String selector)
 	{
 		this.bottomSelector = selector;
 		return this;
 	}
 
-	public DropTarget onLeft(String selector)
+	public DropTarget dropLeft(String selector)
 	{
 		this.leftSelector = selector;
 		return this;
 	}
 
-	public DropTarget onTopAndBottom(String selector)
+	public DropTarget dropTopAndBottom(String selector)
 	{
 		this.topSelector = selector;
 		this.bottomSelector = selector;
 		return this;
 	}
 
-	public DropTarget onLeftAndRight(String selector)
+	public DropTarget dropLeftAndRight(String selector)
 	{
 		this.leftSelector = selector;
 		this.rightSelector = selector;
@@ -171,11 +171,11 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 				final Transfer transfer = getTransfer(request, source);
 
-				source.setData(request, transfer);
+				source.beforeDrop(request, transfer);
 
 				onDrop(target, transfer, location);
 
-				source.onDropped(target, transfer);
+				source.afterDrop(target, transfer);
 			}
 			catch (Reject reject)
 			{

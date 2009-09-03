@@ -3,24 +3,28 @@ div.dnd-hover-move {
 	background: white url(move.gif) no-repeat 0px center;
 	padding-left: 16px;
 	border: 1px solid #00ff00;
+	z-index: 100;
 }
 div.dnd-hover-copy {
 	position: absolute;
 	background: white url(copy.gif) no-repeat 0px center;
 	padding-left: 16px;
 	border: 1px solid #0000ff;
+	z-index: 100;
 }
 div.dnd-hover-link {
 	position: absolute;
 	background: white url(link.gif) no-repeat 0px center;
 	padding-left: 16px;
 	border: 1px solid #000000;
+	z-index: 100;
 }
 div.dnd-hover-none {
 	position: absolute;
 	background: white url(none.gif) no-repeat 0px center;
 	padding-left: 16px;
 	border: 1px solid #ff0000;
+	z-index: 100;
 }
 div.dnd-hover-cover {
 	position: absolute;

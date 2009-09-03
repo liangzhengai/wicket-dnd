@@ -70,12 +70,22 @@ public class Location
 		return anchor;
 	}
 
+	/**
+	 * Convenience method to get the model of this location's component.
+	 * 
+	 * @return model
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> IModel<T> getModel()
 	{
 		return (IModel<T>)component.getDefaultModel();
 	}
 
+	/**
+	 * Convenience method to get the model object of this location's component.
+	 * 
+	 * @return model
+	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getModelObject()
 	{

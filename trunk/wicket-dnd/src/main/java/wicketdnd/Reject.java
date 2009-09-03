@@ -16,6 +16,8 @@
 package wicketdnd;
 
 /**
+ * A rejection of a {@link Transfer}.
+ * 
  * @author Sven Meier
  */
 public class Reject extends RuntimeException {
