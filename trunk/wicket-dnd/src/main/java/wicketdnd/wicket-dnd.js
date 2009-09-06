@@ -94,7 +94,11 @@ var DND = {
 	
 			this.hover.draw(pointer);
 
-			this.updateDrop();
+			if (this.updateDrop()) {
+				if (this.drop != null && !(this.drop instanceof DND.Drop)) {
+					this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
+				}
+			}
 		}
 
 		Event.stop(event);
@@ -144,14 +148,14 @@ var DND = {
 
 	updateDrop: function() {
 		if (this.drag == null) {
-			return;
+			return false;
 		}
 		
 		var target = this.findTarget(this.pointer[0], this.pointer[1]);
 		if (target == null) {
-			this.setDrop(null);
+			return this.setDrop(null);
 		} else {
-			this.setDrop(target.findDrop(this.pointer[0], this.pointer[1]));
+			return this.setDrop(target.findDrop(this.pointer[0], this.pointer[1]));
 		}
 	},
 
@@ -234,10 +238,13 @@ var DND = {
 		return targets;
 	},
 
+	/**
+	 * Set a new drop and return whether the drop has actually changed.
+	 */
 	setDrop: function(drop) {
 		if (this.drop != null && drop != null) {
-			if (this.drop.id == drop.id && this.drop.element == drop.element) {
-				return;
+			if (this.drop.id == drop.id && this.drop.anchor == drop.anchor) {
+				return false;
 			}
 		}
 		
@@ -254,13 +261,11 @@ var DND = {
 		
 		if (this.drop != null) {
 			this.drop.draw();
-			
-			if (!(this.drop instanceof DND.Drop)) {
-				this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
-			}
 		}
 
-		this.hover.setOperation(this.findOperation());		
+		this.hover.setOperation(this.findOperation());
+		
+		return true;
 	},
 	
 	handleExecute: function() {
@@ -271,7 +276,9 @@ var DND = {
 
 		if (this.drop != null) {
 			var completion = function() {
+				// clear old drop to force update
 				this.setDrop(null);
+				
 				this.updateDrop();
 			};
 			this.drop.notify("drag", this.hover.operation, this.drag, completion.bindAsEventListener(this));
@@ -312,7 +319,7 @@ DND.Hover = Class.create({
 	initialize: function(drag, offset) {
 		this.offset = offset;
 	
-		this.element = DND.newElement("dnd-hover-move");
+		this.element = DND.newElement("dnd-hover-none");
 		
 		this.operation = DND.NONE;
 		
