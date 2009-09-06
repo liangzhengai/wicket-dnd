@@ -57,6 +57,14 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 	/**
 	 * Create a drop target.
+	 */
+	public DropTarget()
+	{
+		this(Transfer.NONE);
+	}
+
+	/**
+	 * Create a drop target.
 	 * 
 	 * @param operations
 	 *            allowed operations
@@ -140,7 +148,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format(
 				"new DND.DropTarget('%s','%s',%d,%s,'%s','%s','%s','%s','%s');", id,
-				getCallbackUrl(), operations, new StringArrayFormattable(getTransferTypes()),
+				getCallbackUrl(), getOperations(), new StringArrayFormattable(getTransferTypes()),
 				centerSelector, topSelector, rightSelector, bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}

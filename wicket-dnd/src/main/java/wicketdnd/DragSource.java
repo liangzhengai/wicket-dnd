@@ -52,6 +52,14 @@ public class DragSource extends AbstractBehavior
 
 	/**
 	 * Create a source of drag operations.
+	 */
+	public DragSource()
+	{
+		this(Transfer.NONE);
+	}
+
+	/**
+	 * Create a source of drag operations.
 	 * 
 	 * @param operations
 	 *            allowed operations
@@ -118,7 +126,7 @@ public class DragSource extends AbstractBehavior
 		final String path = component.getPageRelativePath();
 
 		String initJS = String.format("new DND.DragSource('%s','%s',%d,%s,'%s','%s');", id, path,
-				operations, new StringArrayFormattable(getTransferTypes()), selector,
+				getOperations(), new StringArrayFormattable(getTransferTypes()), selector,
 				initiateSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
