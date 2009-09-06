@@ -15,25 +15,23 @@
   limitations under the License.
 -->
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd" >
-    <head>  
-		<link href="example.css" type="text/css" rel="stylesheet"></link>
-    </head>
-    <body>
-    	Visit our project on <a href="http://code.google.com/p/wicket-dnd/">http://code.google.com/p/wicket-dnd/</a>!
-    	
-		<form wicket:id="form">
-			<p>
-				Theme: <select wicket:id="theme"/>
-			</p>
-			
-			<div class="controls">
-				<input type="submit" wicket:id="change" value="Change"/>
-			</div>
-			<div style="clear: both"/>
-			
-			<div wicket:id="examples">
-			</div>
-		</form>		
-    </body>
+<body>
+
+<wicket:extend>
+	<div wicket:id="vertical" class="vertical">
+		<div wicket:id="items" class="item">
+			<span class="initiate"></span> <span wicket:id="name">[name]</span>
+		</div>
+	</div>
+	
+	<div wicket:id="horizontal" class="horizontal">
+		<div wicket:id="items" class="item">
+			<span class="initiate"></span> <span wicket:id="name">[name]</span>
+		</div>
+		<div style="clear:both;"/>
+	</div>
+</wicket:extend>
+
+</body>
 </html>
 

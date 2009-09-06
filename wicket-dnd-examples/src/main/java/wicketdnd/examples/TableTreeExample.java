@@ -1,0 +1,133 @@
+/*
+ * Copyright 2009 Sven Meier
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package wicketdnd.examples;
+
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.repeater.ReuseIfModelsEqualStrategy;
+import org.apache.wicket.model.Model;
+
+import wicketdnd.DragSource;
+import wicketdnd.DropTarget;
+import wicketdnd.Location;
+import wicketdnd.Reject;
+import wicketdnd.Transfer;
+import wickettree.DefaultTableTree;
+import wickettree.TableTree;
+import wickettree.table.TreeColumn;
+
+/**
+ * @author Sven Meier
+ */
+public class TableTreeExample extends Example
+{
+	public TableTreeExample(String id)
+	{
+		super(id);
+		
+		final FooTreeProvider provider = new FooTreeProvider();
+		
+		final TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", columns(),
+				provider, Integer.MAX_VALUE);
+		// reuse items or drop following expansion will fail due to new
+		// markup ids
+		tabletree.setItemReuseStrategy(new ReuseIfModelsEqualStrategy());
+		tabletree.add(new DragSource()
+		{
+			@Override
+			public int getOperations()
+			{
+				return dragOperations();
+			}
+			
+			@Override
+			public String[] getTransferTypes()
+			{
+				return types();
+			}
+
+			@Override
+			public void afterDrop(AjaxRequestTarget target, Transfer transfer)
+			{
+				if (transfer.getOperation() == Transfer.MOVE)
+				{
+					Foo foo = transfer.getData();
+
+					provider.remove(foo);
+
+					target.addComponent(tabletree);
+				}
+			}
+		}.drag("tr").initiate("span.tree-content"));
+		tabletree.add(new DropTarget()
+		{
+			@Override
+			public int getOperations()
+			{
+				return dropOperations();
+			}
+			
+			@Override
+			public String[] getTransferTypes()
+			{
+				return types();
+			}
+
+			@Override
+			public void onDrag(AjaxRequestTarget target, Location location)
+			{
+				Foo foo = location.getModelObject();
+				tabletree.expand(foo);
+			}
+
+			@Override
+			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
+					throws Reject
+			{
+				if (location != null)
+				{
+					Foo foo = location.getModelObject();
+					switch (location.getAnchor())
+					{
+						case Location.CENTER :
+							provider.add(operate(transfer), foo);
+							break;
+						case Location.TOP :
+							provider.addBefore(operate(transfer), foo);
+							break;
+						case Location.BOTTOM :
+							provider.addAfter(operate(transfer), foo);
+							break;
+						default :
+							transfer.reject();
+					}
+
+					target.addComponent(tabletree);
+				}
+			}
+		}.dropCenter("tr"));
+		
+		add(tabletree);
+	}
+	
+	@SuppressWarnings("unchecked")
+	private IColumn<Foo>[] columns()
+	{
+		return new IColumn[] { new TreeColumn<Foo>(Model.of("Name")),
+				new PropertyColumn<Foo>(Model.of("Name"), "name") };
+	}
+}

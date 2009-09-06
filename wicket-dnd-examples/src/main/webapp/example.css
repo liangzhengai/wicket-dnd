@@ -1,10 +1,30 @@
-div.items {
+div.controls {
+	float:right;
+}
+div.labelContainer {
+	width: 64px;
+	height: 64px;
+	border: 1px dotted black;
+}
+div.vertical {
 	width: 50%;
 }
-div.item {
-	font-size: 24px;
-	border: 1px dotted black;
-	background: #eeeeee;
+div.vertical div.item {
+	padding-right: 8px;
+	border-top: 1px solid #eeeeee;
+	border-right: 1px solid #bbbbbb;
+	border-bottom: 1px solid #bbbbbb;
+	border-left: 1px solid #eeeeee;
+	background: #dddddd;
+}
+div.horizontal div.item {
+	float:left;
+	padding-right: 16px;
+	border-top: 1px solid #eeeeee;
+	border-right: 1px solid #bbbbbb;
+	border-bottom: 1px solid #bbbbbb;
+	border-left: 1px solid #eeeeee;
+	background: #dddddd;
 }
 span.initiate {
 	padding-left: 16px;
