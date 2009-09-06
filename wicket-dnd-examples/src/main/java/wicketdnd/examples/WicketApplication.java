@@ -31,6 +31,8 @@ public class WicketApplication extends WebApplication
 	@Override
 	protected void init()
 	{
+		getMarkupSettings().setStripWicketTags(true);
+		
 		try
 		{
 			new Thread().start();
