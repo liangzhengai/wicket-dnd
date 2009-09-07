@@ -1,17 +1,25 @@
 div.dnd-hover-move {
 	position: absolute;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
 	z-index: 100;
 }
 div.dnd-hover-copy {
 	position: absolute;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
 	z-index: 100;
 }
 div.dnd-hover-link {
 	position: absolute;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
 	z-index: 100;
 }
 div.dnd-hover-none {
 	position: absolute;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
 	z-index: 100;
 }
 div.dnd-hover-move div.dnd-hover-cover {

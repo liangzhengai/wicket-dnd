@@ -15,6 +15,8 @@
  */
 package wicketdnd.examples;
 
+import java.util.Set;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -26,6 +28,7 @@ import org.apache.wicket.model.PropertyModel;
 import wicketdnd.DragSource;
 import wicketdnd.DropTarget;
 import wicketdnd.Location;
+import wicketdnd.Operation;
 import wicketdnd.Transfer;
 
 /**
@@ -39,6 +42,8 @@ public class ListsExample extends Example
 
 		add(newList("vertical"));
 		add(newList("horizontal"));
+		
+		setTransferType("toolbar");
 	}
 
 	private Component newList(String id)
@@ -66,7 +71,7 @@ public class ListsExample extends Example
 		list.add(new DragSource()
 		{
 			@Override
-			public int getOperations()
+			public Set<Operation> getOperations()
 			{
 				return dragOperations();
 			}
@@ -78,9 +83,9 @@ public class ListsExample extends Example
 			}
 
 			@Override
-			public void afterDrop(AjaxRequestTarget target, Transfer transfer)
+			public void onAfterDrop(AjaxRequestTarget target, Transfer transfer)
 			{
-				if (transfer.getOperation() == Transfer.MOVE)
+				if (transfer.getOperation() == Operation.MOVE)
 				{
 					foos.remove(transfer.getData());
 
@@ -91,7 +96,7 @@ public class ListsExample extends Example
 		DropTarget dropTarget = new DropTarget()
 		{
 			@Override
-			public int getOperations()
+			public Set<Operation> getOperations()
 			{
 				return dropOperations();
 			}
@@ -110,12 +115,12 @@ public class ListsExample extends Example
 					Foo foo = location.getModelObject();
 					switch (location.getAnchor())
 					{
-						case Location.TOP :
-						case Location.LEFT :
+						case TOP :
+						case LEFT :
 							foos.addBefore(operate(transfer), foo);
 							break;
-						case Location.BOTTOM :
-						case Location.RIGHT :
+						case BOTTOM :
+						case RIGHT :
 							foos.addAfter(operate(transfer), foo);
 							break;
 						default :

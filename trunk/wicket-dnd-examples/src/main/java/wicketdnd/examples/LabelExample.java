@@ -15,6 +15,8 @@
  */
 package wicketdnd.examples;
 
+import java.util.Set;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -23,6 +25,7 @@ import org.apache.wicket.model.Model;
 import wicketdnd.DragSource;
 import wicketdnd.DropTarget;
 import wicketdnd.Location;
+import wicketdnd.Operation;
 import wicketdnd.Reject;
 import wicketdnd.Transfer;
 
@@ -43,7 +46,7 @@ public class LabelExample extends Example
 		container.add(new DragSource()
 		{
 			@Override
-			public int getOperations()
+			public Set<Operation> getOperations()
 			{
 				return dragOperations();
 			}
@@ -55,20 +58,23 @@ public class LabelExample extends Example
 			}
 
 			@Override
-			public void afterDrop(AjaxRequestTarget target, Transfer transfer)
+			public void onAfterDrop(AjaxRequestTarget target, Transfer transfer)
 			{
-				if (transfer.getOperation() == Transfer.MOVE)
+				if (transfer.getOperation() == Operation.MOVE)
 				{
-					model.setObject(null);
+					Foo foo = transfer.getData();
+					if (foo == model.getObject()) {
+						model.setObject(null);
+					}
 					
 					target.addComponent(container);
 				}
 			}
 		}.drag("span"));
-		container.add(new DropTarget(Transfer.COPY)
+		container.add(new DropTarget()
 		{
 			@Override
-			public int getOperations()
+			public Set<Operation> getOperations()
 			{
 				return dropOperations();
 			}
@@ -83,9 +89,7 @@ public class LabelExample extends Example
 			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 					throws Reject
 			{
-				Foo foo = transfer.getData();
-
-				model.setObject(foo);
+				model.setObject(operate(transfer));
 
 				target.addComponent(container);
 			}

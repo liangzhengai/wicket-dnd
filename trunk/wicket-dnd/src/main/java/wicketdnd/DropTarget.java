@@ -17,7 +17,9 @@ package wicketdnd;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
@@ -28,7 +30,7 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
 import wicketdnd.util.MarkupIdVisitor;
-import wicketdnd.util.StringArrayFormattable;
+import wicketdnd.util.CollectionFormattable;
 
 /**
  * A target of drops.
@@ -53,14 +55,14 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 	private String rightSelector = Transfer.UNDEFINED;
 
-	private int operations;
+	private Set<Operation> operations;
 
 	/**
 	 * Create a drop target.
 	 */
 	public DropTarget()
 	{
-		this(Transfer.NONE);
+		this(EnumSet.noneOf(Operation.class));
 	}
 
 	/**
@@ -68,11 +70,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	 * 
 	 * @param operations
 	 *            allowed operations
-	 * @see DND#MOVE
-	 * @see DND#COPY
-	 * @see DND#LINK
 	 */
-	public DropTarget(int operations)
+	public DropTarget(Set<Operation> operations)
 	{
 		this.operations = operations;
 	}
@@ -147,13 +146,13 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format(
-				"new DND.DropTarget('%s','%s',%d,%s,'%s','%s','%s','%s','%s');", id,
-				getCallbackUrl(), getOperations(), new StringArrayFormattable(getTransferTypes()),
+				"new DND.DropTarget('%s','%s',%s,%s,'%s','%s','%s','%s','%s');", id,
+				getCallbackUrl(), new CollectionFormattable(getOperations()), new CollectionFormattable(getTransferTypes()),
 				centerSelector, topSelector, rightSelector, bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
-	public int getOperations()
+	public Set<Operation> getOperations()
 	{
 		return operations;
 	}
@@ -163,7 +162,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	{
 		Request request = getComponent().getRequest();
 
-		final String type = getType(request);
+		final String type = readType(request);
 
 		final Location location = readLocation(request);
 
@@ -177,7 +176,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 			{
 				final DragSource source = DragSource.get(request);
 
-				final Transfer transfer = getTransfer(request, source);
+				final Transfer transfer = readTransfer(request, source);
 
 				source.beforeDrop(request, transfer);
 
@@ -187,23 +186,20 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 			}
 			catch (Reject reject)
 			{
-				// TODO how to indicate rejection
-				return;
+				onRejected(target);
 			}
 		}
 	}
 
-	private String getType(Request request)
+	private String readType(Request request)
 	{
 		return request.getParameter("type");
 	}
 
-	private Transfer getTransfer(Request request, DragSource source)
+	private Transfer readTransfer(Request request, DragSource source)
 	{
-		int operation = Integer.parseInt(request.getParameter("operation")) & this.getOperations()
-				& source.getOperations();
-
-		if (operation == 0)
+		Operation operation = Operation.valueOf(request.getParameter("operation"));
+		if (!getOperations().contains(operation) || !source.getOperations().contains(operation))
 		{
 			throw new Reject();
 		}
@@ -232,7 +228,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 		Component component = MarkupIdVisitor.getComponent((MarkupContainer)getComponent(), id);
 
-		int anchor = Integer.parseInt(request.getParameter("anchor"));
+		Anchor anchor = Anchor.valueOf(request.getParameter("anchor"));
 
 		return new Location(component, anchor);
 	}
@@ -265,5 +261,15 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 			throws Reject
 	{
 		throw new Reject();
+	}
+
+	/**
+	 * Notification that a drop was rejected.
+	 * 
+	 * @param target
+	 *            initiating request target
+	 */
+	public void onRejected(AjaxRequestTarget target)
+	{
 	}
 }
