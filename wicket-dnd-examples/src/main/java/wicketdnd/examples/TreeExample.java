@@ -15,6 +15,8 @@
  */
 package wicketdnd.examples;
 
+import java.util.Set;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.model.IModel;
@@ -22,6 +24,7 @@ import org.apache.wicket.model.IModel;
 import wicketdnd.DragSource;
 import wicketdnd.DropTarget;
 import wicketdnd.Location;
+import wicketdnd.Operation;
 import wicketdnd.Reject;
 import wicketdnd.Transfer;
 import wickettree.DefaultNestedTree;
@@ -50,7 +53,7 @@ public class TreeExample extends Example
 		tree.add(new DragSource()
 		{
 			@Override
-			public int getOperations()
+			public Set<Operation> getOperations()
 			{
 				return dragOperations();
 			}
@@ -62,9 +65,9 @@ public class TreeExample extends Example
 			}
 
 			@Override
-			public void afterDrop(AjaxRequestTarget target, Transfer transfer)
+			public void onAfterDrop(AjaxRequestTarget target, Transfer transfer)
 			{
-				if (transfer.getOperation() == Transfer.MOVE)
+				if (transfer.getOperation() == Operation.MOVE)
 				{
 					Foo foo = transfer.getData();
 
@@ -77,7 +80,7 @@ public class TreeExample extends Example
 		tree.add(new DropTarget()
 		{
 			@Override
-			public int getOperations()
+			public Set<Operation> getOperations()
 			{
 				return dropOperations();
 			}
@@ -104,13 +107,13 @@ public class TreeExample extends Example
 					Foo foo = location.getModelObject();
 					switch (location.getAnchor())
 					{
-						case Location.CENTER :
+						case CENTER :
 							provider.add(operate(transfer), foo);
 							break;
-						case Location.TOP :
+						case TOP :
 							provider.addBefore(operate(transfer), foo);
 							break;
-						case Location.BOTTOM :
+						case BOTTOM :
 							provider.addAfter(operate(transfer), foo);
 							break;
 						default :

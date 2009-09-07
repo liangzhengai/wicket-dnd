@@ -37,26 +37,6 @@ public class Transfer
 	public static final String UNDEFINED = "undefined";
 
 	/**
-	 * No operation.
-	 */
-	public static final int NONE = 0;
-
-	/**
-	 * Move operation.
-	 */
-	public static final int MOVE = 1;
-
-	/**
-	 * Copy operation.
-	 */
-	public static final int COPY = 2;
-
-	/**
-	 * Link operation.
-	 */
-	public static final int LINK = 4;
-
-	/**
 	 * Transfer type indicating any type supported.
 	 * 
 	 * @see DragSource#getTransferTypes()
@@ -66,11 +46,11 @@ public class Transfer
 
 	private String type;
 
-	private int operation;
+	private Operation operation;
 
 	private Object data;
 
-	Transfer(String type, int operation)
+	Transfer(String type, Operation operation)
 	{
 		this.type = type;
 		this.operation = operation;
@@ -91,11 +71,8 @@ public class Transfer
 	 * 
 	 * @see DragSource#getOperations()
 	 * @see DropTarget#getOperations()
-	 * @see #MOVE
-	 * @see #COPY
-	 * @see #LINK
 	 */
-	public int getOperation()
+	public Operation getOperation()
 	{
 		return operation;
 	}
@@ -103,7 +80,7 @@ public class Transfer
 	/**
 	 * Set the data of this transfer.
 	 * 
-	 * @see DragSource#beforeDrop(Component, Transfer)
+	 * @see DragSource#onBeforeDrop(Component, Transfer)
 	 */
 	public void setData(Object data)
 	{
@@ -114,7 +91,7 @@ public class Transfer
 	 * Get the data of this transfer.
 	 * 
 	 * @see DropTarget#onDrop(AjaxRequestTarget, Transfer, Location)
-	 * @see DragSource#afterDrop(AjaxRequestTarget, Transfer)
+	 * @see DragSource#onAfterDrop(AjaxRequestTarget, Transfer)
 	 */
 	@SuppressWarnings("unchecked")
 	public <T> T getData()

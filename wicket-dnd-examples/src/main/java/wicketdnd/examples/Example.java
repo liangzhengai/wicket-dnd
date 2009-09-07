@@ -16,16 +16,18 @@
 package wicketdnd.examples;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 
+import wicketdnd.Operation;
 import wicketdnd.Transfer;
 
 /**
@@ -34,65 +36,57 @@ import wicketdnd.Transfer;
 public abstract class Example extends Panel
 {
 
-	private List<Integer> operations;
+	private List<Operation> operations;
 
-	private List<Integer> dragOperations = new ArrayList<Integer>();
+	private List<Operation> dragOperations = new ArrayList<Operation>();
 
-	private List<Integer> dropOperations = new ArrayList<Integer>();
+	private List<Operation> dropOperations = new ArrayList<Operation>();
 
 	private String transferType = Transfer.ANY;
 
 	public Example(String id)
 	{
 		super(id);
-		
-		operations = new ArrayList<Integer>();
-		operations.add(Transfer.MOVE);
-		operations.add(Transfer.COPY);
-		operations.add(Transfer.LINK);
+
+		operations = new ArrayList<Operation>();
+		operations.addAll(EnumSet.allOf(Operation.class));
 
 		dragOperations.addAll(operations);
 		dropOperations.addAll(operations);
 
 		add(new Label("title", getClass().getSimpleName()));
 
-		WebMarkupContainer controls = new WebMarkupContainer("controls", new CompoundPropertyModel<Example>(this));
+		WebMarkupContainer controls = new WebMarkupContainer("controls",
+				new CompoundPropertyModel<Example>(this));
 		add(controls);
-		
-		controls.add(new CheckBoxMultipleChoice<Integer>("dragOperations", operations,
-				new OperationRenderer()).setSuffix(""));
 
-		controls.add(new CheckBoxMultipleChoice<Integer>("dropOperations", operations,
-				new OperationRenderer()).setSuffix(""));
+		controls.add(new CheckBoxMultipleChoice<Operation>("dragOperations", operations)
+				.setSuffix(""));
 
-		controls.add(new TextField<String>("transferType"));
+		controls.add(new CheckBoxMultipleChoice<Operation>("dropOperations", operations)
+				.setSuffix(""));
+
+		controls.add(new TextField<String>("transferType").setConvertEmptyInputStringToNull(false));
 	}
 
-	protected int dragOperations()
+	protected void setTransferType(String type)
 	{
-		int operations = 0;
-		for (int operation : dragOperations)
-		{
-			operations |= operation;
-		}
-
-		return operations;
+		transferType = type;
 	}
 
-	protected int dropOperations()
+	protected Set<Operation> dragOperations()
 	{
-		int operations = 0;
-		for (int operation : dropOperations)
-		{
-			operations |= operation;
-		}
+		return EnumSet.copyOf(dragOperations);
+	}
 
-		return operations;
+	protected Set<Operation> dropOperations()
+	{
+		return EnumSet.copyOf(dropOperations);
 	}
 
 	public String[] types()
 	{
-		return new String[]{transferType};
+		return new String[] { transferType };
 	}
 
 	protected Foo operate(Transfer transfer)
@@ -100,41 +94,13 @@ public abstract class Example extends Panel
 		Foo foo = transfer.getData();
 		switch (transfer.getOperation())
 		{
-			case Transfer.MOVE :
-				return foo;
-			case Transfer.COPY :
+			case MOVE :
+			case COPY :
 				return foo.copy();
-			case Transfer.LINK :
+			case LINK :
 				return foo.link();
 			default :
 				throw new IllegalArgumentException();
 		}
-	}
-
-	private class OperationRenderer implements IChoiceRenderer<Integer>
-	{
-
-		public Object getDisplayValue(Integer object)
-		{
-			switch (object)
-			{
-				case Transfer.MOVE :
-					return "move";
-				case Transfer.COPY :
-					return "copy";
-				case Transfer.LINK :
-					return "link";
-				case Transfer.NONE :
-					return "none";
-				default :
-					throw new IllegalArgumentException("" + object);
-			}
-		}
-
-		public String getIdValue(Integer object, int index)
-		{
-			return "" + object;
-		}
-
 	}
 }

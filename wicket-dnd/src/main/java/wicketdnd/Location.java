@@ -31,16 +31,10 @@ import org.apache.wicket.model.IModel;
 public class Location
 {
 
-	public static final int CENTER = 0;
-	public static final int TOP = 1;
-	public static final int RIGHT = 2;
-	public static final int BOTTOM = 3;
-	public static final int LEFT = 4;
-
-	private int anchor;
+	private Anchor anchor;
 	private Component component;
 
-	public Location(Component component, int anchor)
+	public Location(Component component, Anchor anchor)
 	{
 		this.anchor = anchor;
 		this.component = component;
@@ -58,14 +52,8 @@ public class Location
 
 	/**
 	 * Get the anchor.
-	 * 
-	 * @see #CENTER
-	 * @see #TOP
-	 * @see #RIGHT
-	 * @see #BOTTOM
-	 * @see #LEFT
 	 */
-	public int getAnchor()
+	public Anchor getAnchor()
 	{
 		return anchor;
 	}

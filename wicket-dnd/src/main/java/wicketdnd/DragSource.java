@@ -15,6 +15,9 @@
  */
 package wicketdnd;
 
+import java.util.EnumSet;
+import java.util.Set;
+
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Request;
@@ -26,14 +29,14 @@ import org.apache.wicket.protocol.http.PageExpiredException;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
 import wicketdnd.util.MarkupIdVisitor;
-import wicketdnd.util.StringArrayFormattable;
+import wicketdnd.util.CollectionFormattable;
 
 /**
  * A source of drags.
  * 
  * @see #getTransferTypes()
  * @see #beforeDrop(Request, Transfer)
- * @see #afterDrop(AjaxRequestTarget, Transfer)
+ * @see #onAfterDrop(AjaxRequestTarget, Transfer)
  * 
  * @author Sven Meier
  */
@@ -48,14 +51,14 @@ public class DragSource extends AbstractBehavior
 
 	private String initiateSelector = Transfer.UNDEFINED;
 
-	private int operations;
+	private Set<Operation> operations;
 
 	/**
 	 * Create a source of drag operations.
 	 */
 	public DragSource()
 	{
-		this(Transfer.NONE);
+		this(EnumSet.noneOf(Operation.class));
 	}
 
 	/**
@@ -63,12 +66,8 @@ public class DragSource extends AbstractBehavior
 	 * 
 	 * @param operations
 	 *            allowed operations
-	 * 
-	 * @see DND#MOVE
-	 * @see DND#COPY
-	 * @see DND#LINK
 	 */
-	public DragSource(int operations)
+	public DragSource(Set<Operation> operations)
 	{
 		this.operations = operations;
 	}
@@ -125,22 +124,22 @@ public class DragSource extends AbstractBehavior
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
 
-		String initJS = String.format("new DND.DragSource('%s','%s',%d,%s,'%s','%s');", id, path,
-				getOperations(), new StringArrayFormattable(getTransferTypes()), selector,
+		String initJS = String.format("new DND.DragSource('%s','%s',%s,%s,'%s','%s');", id, path,
+				new CollectionFormattable(getOperations()), new CollectionFormattable(getTransferTypes()), selector,
 				initiateSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
-	public int getOperations()
+	public Set<Operation> getOperations()
 	{
 		return operations;
 	}
 
-	final void beforeDrop(Request request, Transfer transfer)
+	final void beforeDrop(Request request, Transfer transfer) throws Reject
 	{
 		Component drag = getDrag(request);
 
-		beforeDrop(drag, transfer);
+		onBeforeDrop(drag, transfer);
 	}
 
 	private Component getDrag(Request request)
@@ -166,9 +165,14 @@ public class DragSource extends AbstractBehavior
 	 * @see Transfer#setData(Object)
 	 * @see Transfer#reject()
 	 */
-	public void beforeDrop(Component drag, Transfer transfer)
+	public void onBeforeDrop(Component drag, Transfer transfer) throws Reject
 	{
 		transfer.setData(drag.getDefaultModelObject());
+	}
+
+	final void afterDrop(AjaxRequestTarget target, Transfer transfer)
+	{
+		onAfterDrop(target, transfer);
 	}
 
 	/**
@@ -181,7 +185,7 @@ public class DragSource extends AbstractBehavior
 	 * @param transfer
 	 *            the transfer
 	 */
-	public void afterDrop(AjaxRequestTarget target, Transfer transfer)
+	public void onAfterDrop(AjaxRequestTarget target, Transfer transfer)
 	{
 	}
 

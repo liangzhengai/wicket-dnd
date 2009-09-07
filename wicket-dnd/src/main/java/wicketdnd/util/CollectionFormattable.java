@@ -15,31 +15,40 @@
  */
 package wicketdnd.util;
 
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Formattable;
 import java.util.Formatter;
 
 /**
  * @author Sven Meier
  */
-public class StringArrayFormattable implements Formattable
+public class CollectionFormattable implements Formattable
 {
-	private String[] strings;
+	private Collection<?> collection;
 	
-	public StringArrayFormattable(String[] strings) {
-		this.strings = strings;
+	public CollectionFormattable(Object[] array) {
+		this.collection = Arrays.asList(array);
+	}
+	
+	public CollectionFormattable(Collection<?> collection) {
+		this.collection = collection;
 	}
 	
 	public void formatTo(Formatter formatter, int flags, int width, int precision)
 	{
 		StringBuilder builder = new StringBuilder();
 		builder.append("[");
-		for (String string : strings) {
+		for (Object object : collection) {
 			if (builder.length() > 1) {
 				builder.append(",");
 			}
-			if (string != null) {
+			if (object == null) {
+			} else if (object instanceof Number) {
+				builder.append(object.toString());
+			} else {
 				builder.append("'");
-				builder.append(string.replace("'", "\\'"));
+				builder.append(object.toString().replace("'", "\\'"));
 				builder.append("'");
 			}
 		}

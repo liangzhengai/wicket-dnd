@@ -1,15 +1,5 @@
 var DND = {
 
-	NONE: 0,
-
-	MOVE: 1,
-	
-	COPY: 2,
-	
-	LINK: 4,
-	
-	OPACITY: 0.7,
-	
 	BORDER: 6,
 	
 	DELAY: 1,
@@ -54,7 +44,7 @@ var DND = {
 
 		if (this.drop != null) {
 			this.drop.clear();
-			if (this.hover.operation != this.NONE) {
+			if (this.hover.operation != null) {
 				this.drop.notify("drop", this.hover.operation, this.drag);
 			}
 			this.drop = null;
@@ -177,37 +167,35 @@ var DND = {
 		return false;
 	},
 	
+	allowsOperation: function(operation) {
+		return this.drag.source.operations.indexOf(operation) != -1 &&
+				this.drop.target.operations.indexOf(operation) != -1;
+	},
+	
 	findOperation: function() {
 		if (!this.hasTransfer()) {
-			return this.NONE;
-		}
-		
-		var operations = this.drag.source.operations;
-		if (this.drop == null) {
-			operations = 0;
-		} else {
-			operations = operations & this.drop.target.operations;
+			return null;
 		}
 		
 		if (this.shift) {
-			if ((operations & this.LINK) != 0) {
-				return this.LINK;
+			if (this.allowsOperation('LINK')) {
+				return 'LINK';
 			}
 		} else if (this.ctrl) {
-			if ((operations & this.COPY) != 0) {
-				return this.COPY;
+			if (this.allowsOperation('COPY')) {
+				return 'COPY';
 			}
 		} else {
-			if ((operations & this.MOVE) != 0) {
-				return this.MOVE;
-			} else if ((operations & this.COPY) != 0) {
-				return this.COPY;
-			} else if ((operations & this.LINK) != 0) {
-				return this.LINK;
+			if (this.allowsOperation('MOVE')) {
+				return 'MOVE';
+			} else if (this.allowsOperation('COPY')) {
+				return 'COPY';
+			} else if (this.allowsOperation('LINK')) {
+				return 'LINK';
 			}
 		}		
 		
-		return this.NONE;
+		return null;
 	},
 
 	findTarget: function(x, y) {
@@ -303,7 +291,6 @@ var DND = {
 		if (element == null) {
 			element = new Element("div");
 			element.addClassName(className);
-			element.setOpacity(this.OPACITY);
 			element.hide();
 			$(document.body).insert(element);
 			
@@ -362,11 +349,11 @@ DND.Hover = Class.create({
 		if (this.operation != operation) {
 			this.operation = operation;
 			
-			if (operation == DND.MOVE) {
+			if (operation == 'MOVE') {
 				this.element.className = "dnd-hover-move";
-			} else if (operation == DND.COPY) {
+			} else if (operation == 'COPY') {
 				this.element.className = "dnd-hover-copy";
-			} else if (operation == DND.LINK) {
+			} else if (operation == 'LINK') {
 				this.element.className = "dnd-hover-link";
 			} else {
 				this.element.className = "dnd-hover-none";
@@ -411,7 +398,7 @@ DND.DropCenter = Class.create({
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
-		this.anchor = 0;
+		this.anchor = "CENTER";
 	},
 
 	draw: function() {
@@ -436,7 +423,7 @@ DND.DropTop = Class.create({
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.id;
-		this.anchor = 1;
+		this.anchor = "TOP";
 		
 		this.element = DND.newElement("dnd-drop-top");
 	},
@@ -466,7 +453,7 @@ DND.DropBottom = Class.create({
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
-		this.anchor = 3;
+		this.anchor = "BOTTOM";
 		
 		this.element = DND.newElement("dnd-drop-bottom");
 	},
@@ -496,7 +483,7 @@ DND.DropLeft = Class.create({
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.id;
-		this.anchor = 4;
+		this.anchor = "LEFT";
 		
 		this.element = DND.newElement("dnd-drop-left");
 	},
@@ -526,7 +513,7 @@ DND.DropRight = Class.create({
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
-		this.anchor = 2;
+		this.anchor = "RIGHT";
 		
 		this.element = DND.newElement("dnd-drop-right");
 	},
