@@ -87,7 +87,7 @@ public class TableExample extends Example
 			@Override
 			public Set<Operation> getOperations()
 			{
-				return dragOperations();
+				return dropOperations();
 			}
 			
 			@Override
