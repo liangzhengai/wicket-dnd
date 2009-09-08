@@ -183,6 +183,8 @@ public class DragSource extends AbstractBehavior
 	 *            the drag's operation
 	 * @param transfer
 	 *            the transfer
+	 * @throws Reject
+	 *             may reject the drop
 	 * @see Transfer#setData(Object)
 	 * @see Transfer#reject()
 	 */

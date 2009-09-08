@@ -23,6 +23,10 @@ import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 /**
  * A drag and drop transfer.
  * 
+ * @see DragSource#onBeforeDrop(Component, Transfer)
+ * @see DragSource#onAfterDrop(AjaxRequestTarget, Transfer)
+ * @see DropTarget#onDrop(AjaxRequestTarget, Transfer, Location)
+ * 
  * @author Sven Meier
  */
 public class Transfer
@@ -58,6 +62,9 @@ public class Transfer
 
 	/**
 	 * Get type of transfer.
+	 * 
+	 * @see DragSource#getTransferTypes()
+	 * @see DropTarget#getTransferTypes()
 	 * 
 	 * @return type
 	 */

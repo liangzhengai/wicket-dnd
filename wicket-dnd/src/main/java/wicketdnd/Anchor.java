@@ -18,6 +18,8 @@ package wicketdnd;
 /**
  * An anchor on a {@link Location}.
  * 
+ * @see Location#getAnchor()
+ * 
  * @author Sven Meier
  */
 public enum Anchor {

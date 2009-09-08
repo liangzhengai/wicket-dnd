@@ -19,7 +19,7 @@ import java.util.EnumSet;
 import java.util.Set;
 
 /**
- * An operation of a transfer.
+ * An operation of a {@link Transfer}.
  * 
  * @author Sven Meier
  * 
@@ -28,9 +28,15 @@ import java.util.Set;
  * @see DropTarget#getOperations()
  */
 public enum Operation {
+	
 	MOVE, COPY, LINK;
 	
-	public static Set<Operation> of(Operation[] operations)
+	/**
+	 * Create a set of operations.
+	 * 
+	 * @param operations operations
+	 */
+	public static Set<Operation> of(Operation... operations)
 	{
 		Set<Operation> set = EnumSet.noneOf(Operation.class);
 		for (Operation operation : operations) {

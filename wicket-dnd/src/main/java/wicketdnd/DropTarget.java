@@ -274,15 +274,18 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	 *            the transfer
 	 * @param location
 	 *            the location or <code>null</code> if not available
+	 * @throws Reject
+	 *             may reject the drop
 	 */
 	public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 			throws Reject
 	{
-		throw new Reject();
+		transfer.reject();
 	}
 
 	/**
-	 * Notification that a drop was rejected.
+	 * Hook method to handle rejected drops. Default implementation does
+	 * nothing.
 	 * 
 	 * @param target
 	 *            initiating request target

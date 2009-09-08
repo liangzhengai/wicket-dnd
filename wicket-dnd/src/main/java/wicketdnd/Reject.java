@@ -24,8 +24,4 @@ public class Reject extends RuntimeException {
 
 	public Reject() {
 	}
-
-	public Reject(Throwable cause) {
-		super(cause);
-	}
 }
