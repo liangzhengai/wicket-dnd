@@ -15,12 +15,27 @@
  */
 package wicketdnd;
 
+import java.util.EnumSet;
+import java.util.Set;
 
 /**
- * An operation.
+ * An operation of a transfer.
  * 
  * @author Sven Meier
+ * 
+ * @see Transfer#getOperation()
+ * @see DragSource#getOperations()
+ * @see DropTarget#getOperations()
  */
 public enum Operation {
 	MOVE, COPY, LINK;
+	
+	public static Set<Operation> of(Operation[] operations)
+	{
+		Set<Operation> set = EnumSet.noneOf(Operation.class);
+		for (Operation operation : operations) {
+			set.add(operation);
+		}
+		return set;
+	}
 }

@@ -1,5 +1,8 @@
 div.controls {
-	float:right;
+	float: right;
+}
+div.clearer {
+	clear: both;
 }
 
 div.labelContainer {
@@ -36,6 +39,10 @@ div.horizontal div.item {
 span.initiate {
 	padding-left: 16px;
 	background: url(initiate.gif) no-repeat center center;
+}
+
+div.tree {
+	width: 50%;
 }
 
 table {

@@ -17,20 +17,20 @@ package wicketdnd;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Request;
+import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
-import wicketdnd.util.MarkupIdVisitor;
 import wicketdnd.util.CollectionFormattable;
+import wicketdnd.util.MarkupIdVisitor;
 
 /**
  * A target of drops.
@@ -60,9 +60,9 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	/**
 	 * Create a drop target.
 	 */
-	public DropTarget()
+	public DropTarget(Operation... operations)
 	{
-		this(EnumSet.noneOf(Operation.class));
+		this(Operation.of(operations));
 	}
 
 	/**
@@ -77,9 +77,10 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	/**
-	 * Get possible types of transfers.
+	 * Get possible types of transfer.
 	 * 
-	 * @return transfer types
+	 * @return transfers
+	 * @see Transfer#getType()
 	 */
 	public String[] getTransferTypes()
 	{
@@ -147,11 +148,18 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format(
 				"new DND.DropTarget('%s','%s',%s,%s,'%s','%s','%s','%s','%s');", id,
-				getCallbackUrl(), new CollectionFormattable(getOperations()), new CollectionFormattable(getTransferTypes()),
-				centerSelector, topSelector, rightSelector, bottomSelector, leftSelector);
+				getCallbackUrl(), new CollectionFormattable(getOperations()),
+				new CollectionFormattable(getTransferTypes()), centerSelector, topSelector,
+				rightSelector, bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
+	/**
+	 * Get supported operations.
+	 * 
+	 * @return operations
+	 * @see Transfer#getOperation()
+	 */
 	public Set<Operation> getOperations()
 	{
 		return operations;
@@ -170,11 +178,11 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		{
 			onDrag(target, location);
 		}
-		else
+		else if ("drop".equals(type))
 		{
 			try
 			{
-				final DragSource source = DragSource.get(request);
+				final DragSource source = DragSource.read(request);
 
 				final Transfer transfer = readTransfer(request, source);
 
@@ -189,6 +197,10 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 				onRejected(target);
 			}
 		}
+		else
+		{
+			throw new WicketRuntimeException("unkown type '" + type + "'");
+		}
 	}
 
 	private String readType(Request request)
@@ -199,7 +211,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	private Transfer readTransfer(Request request, DragSource source)
 	{
 		Operation operation = Operation.valueOf(request.getParameter("operation"));
-		if (!getOperations().contains(operation) || !source.getOperations().contains(operation))
+
+		if (!hasOperation(operation) || !source.hasOperation(operation))
 		{
 			throw new Reject();
 		}
@@ -216,6 +229,11 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		}
 
 		return new Transfer(transfers.get(0), operation);
+	}
+
+	final boolean hasOperation(Operation operation)
+	{
+		return getOperations().contains(operation);
 	}
 
 	private Location readLocation(Request request)

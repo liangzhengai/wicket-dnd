@@ -15,7 +15,6 @@
  */
 package wicketdnd;
 
-
 /**
  * An anchor on a {@link Location}.
  * 
