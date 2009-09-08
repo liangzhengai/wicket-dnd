@@ -305,10 +305,10 @@ DND.Hover = Class.create({
 
 	initialize: function(drag, offset) {
 		this.offset = offset;
+		
+		this.operation = null;
 	
 		this.element = DND.newElement("dnd-hover-none");
-		
-		this.operation = DND.NONE;
 		
 		this.element.insert(drag.clone());
 		
@@ -321,7 +321,7 @@ DND.Hover = Class.create({
 		style.left = "0px";
 		style.width = bounds.width + "px";
 		style.height = bounds.height + "px";
-		this.element.insert(cover);	
+		this.element.insert(cover);
 	},
 
 	setOperation: function(operation) {
@@ -586,11 +586,11 @@ DND.DragSource = Class.create({
 		this.selector = selector;
 		this.initiateSelector = initiateSelector;
 		
-		this.eventMouseDown = this.initDrag.bindAsEventListener(this);
+		this.eventMouseDown = this.initiateDrag.bindAsEventListener(this);
 		Event.observe(this.element, "mousedown", this.eventMouseDown);
 	},
 	
-	initDrag: function(event) {
+	initiateDrag: function(event) {
 		if (event.isLeftClick()) {
 			var element = event.element();
 			
