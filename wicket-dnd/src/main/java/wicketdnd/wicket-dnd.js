@@ -149,7 +149,7 @@ var DND = {
 		}
 	},
 
-	hasTransfer: function() {
+	canTransfer: function() {
 		if (this.drag == null || this.drop == null) {
 			return false;
 		}
@@ -173,7 +173,7 @@ var DND = {
 	},
 	
 	findOperation: function() {
-		if (!this.hasTransfer()) {
+		if (!this.canTransfer()) {
 			return null;
 		}
 		

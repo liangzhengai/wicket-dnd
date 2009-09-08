@@ -37,13 +37,13 @@ div.dnd-hover-none div.dnd-hover-cover {
 div.dnd-hover-cover {
 	position: absolute;
 	background: url(cover.gif) repeat;
+	z-index: 100;
 }
 .dnd-hover-clone {
 	margin: 0px !important;
 	display: block;
 }
 .dnd-hover-table {
-	width: 100%;
 	border-spacing: 0px;
 	border-collapse: collapse:
 }

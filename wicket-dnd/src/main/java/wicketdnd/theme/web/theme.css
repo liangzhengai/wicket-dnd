@@ -37,6 +37,7 @@ div.dnd-hover-none {
 div.dnd-hover-cover {
 	position: absolute;
 	background: url(cover.gif) repeat;
+	z-index: 100;
 	cursor: move;
 }
 .dnd-hover-clone {
@@ -44,7 +45,6 @@ div.dnd-hover-cover {
 	display: block;
 }
 .dnd-hover-table {
-	width: 100%;
 	border-spacing: 0px;
 	border-collapse: collapse:
 }

@@ -9,6 +9,7 @@ var IECursor = {
 	
 	fixStyleSheet: function(styleSheet) {
 		if (!styleSheet.rules) {
+			// not IE
 			return;
 		}
 		

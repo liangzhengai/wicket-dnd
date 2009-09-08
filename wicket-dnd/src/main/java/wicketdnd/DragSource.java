@@ -15,7 +15,6 @@
  */
 package wicketdnd;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 import org.apache.wicket.Component;
@@ -28,8 +27,8 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
-import wicketdnd.util.MarkupIdVisitor;
 import wicketdnd.util.CollectionFormattable;
+import wicketdnd.util.MarkupIdVisitor;
 
 /**
  * A source of drags.
@@ -56,9 +55,9 @@ public class DragSource extends AbstractBehavior
 	/**
 	 * Create a source of drag operations.
 	 */
-	public DragSource()
+	public DragSource(Operation... operations)
 	{
-		this(EnumSet.noneOf(Operation.class));
+		this(Operation.of(operations));
 	}
 
 	/**
@@ -73,15 +72,22 @@ public class DragSource extends AbstractBehavior
 	}
 
 	/**
-	 * Get possible transfers.
+	 * Get supported types of transfer.
 	 * 
 	 * @return transfers
+	 * @see Transfer#getType()
 	 */
 	public String[] getTransferTypes()
 	{
 		return new String[] { Transfer.ANY };
 	}
 
+	/**
+	 * Allow drag on elements matching the given selector.
+	 * 
+	 * @param selector
+	 *            element selector
+	 */
 	public DragSource drag(String selector)
 	{
 		this.selector = selector;
@@ -94,6 +100,12 @@ public class DragSource extends AbstractBehavior
 		return this;
 	}
 
+	/**
+	 * Initiate drag on elements matching the given selector.
+	 * 
+	 * @param selector
+	 *            element selector
+	 */
 	public DragSource initiate(String selector)
 	{
 		this.initiateSelector = selector;
@@ -125,14 +137,25 @@ public class DragSource extends AbstractBehavior
 		final String path = component.getPageRelativePath();
 
 		String initJS = String.format("new DND.DragSource('%s','%s',%s,%s,'%s','%s');", id, path,
-				new CollectionFormattable(getOperations()), new CollectionFormattable(getTransferTypes()), selector,
-				initiateSelector);
+				new CollectionFormattable(getOperations()), new CollectionFormattable(
+						getTransferTypes()), selector, initiateSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
+	/**
+	 * Get supported operations.
+	 * 
+	 * @return operations
+	 * @see Transfer#getOperation()
+	 */
 	public Set<Operation> getOperations()
 	{
 		return operations;
+	}
+
+	final boolean hasOperation(Operation operation)
+	{
+		return getOperations().contains(operation);
 	}
 
 	final void beforeDrop(Request request, Transfer transfer) throws Reject
@@ -142,15 +165,13 @@ public class DragSource extends AbstractBehavior
 		onBeforeDrop(drag, transfer);
 	}
 
-	private Component getDrag(Request request)
+	final void afterDrop(AjaxRequestTarget target, Transfer transfer)
 	{
-		String id = request.getParameter("drag");
-
-		return MarkupIdVisitor.getComponent((MarkupContainer)component, id);
+		onAfterDrop(target, transfer);
 	}
 
 	/**
-	 * Notification that a drop is about to happen - any implementation shoudl
+	 * Notification that a drop is about to happen - any implementation should
 	 * set the data on the given transfer or reject it.
 	 * 
 	 * The default implementation uses the component's model object as transfer
@@ -170,11 +191,6 @@ public class DragSource extends AbstractBehavior
 		transfer.setData(drag.getDefaultModelObject());
 	}
 
-	final void afterDrop(AjaxRequestTarget target, Transfer transfer)
-	{
-		onAfterDrop(target, transfer);
-	}
-
 	/**
 	 * Notification that a drop happened of one of this source's transfer datas.
 	 * 
@@ -189,6 +205,13 @@ public class DragSource extends AbstractBehavior
 	{
 	}
 
+	private Component getDrag(Request request)
+	{
+		String id = request.getParameter("drag");
+
+		return MarkupIdVisitor.getComponent((MarkupContainer)component, id);
+	}
+
 	/**
 	 * Get the drag source of the given request.
 	 * 
@@ -196,7 +219,7 @@ public class DragSource extends AbstractBehavior
 	 *            request on which a drag happened
 	 * @return drag source
 	 */
-	final static DragSource get(Request request)
+	final static DragSource read(Request request)
 	{
 		String path = request.getParameter("source");
 
