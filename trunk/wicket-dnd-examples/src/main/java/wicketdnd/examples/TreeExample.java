@@ -46,6 +46,7 @@ public class TreeExample extends Example
 			protected Component newContentComponent(String arg0, IModel<Foo> arg1)
 			{
 				Component component = super.newContentComponent(arg0, arg1);
+				component.setOutputMarkupId(true);
 				return component;
 			}
 		};
