@@ -310,28 +310,7 @@ DND.Hover = Class.create({
 		
 		this.operation = DND.NONE;
 		
-		var clone = drag.clone();
-		
-		if (clone.match("td")) {
-			var tr = new Element("tr");
-			tr.className = "dnd-hover-tr";
-			tr.insert(clone);
-			clone = tr;
-		}
-		if (clone.match("tr")) {
-			var tbody = new Element("tbody");
-			tbody.className = "dnd-hover-tbody";
-			tbody.insert(clone);
-			clone = tbody;
-		}
-		if (clone.match("tbody")) {
-			var table = new Element("table");
-			table.className = "dnd-hover-table";
-			table.insert(clone);
-			clone = table;
-		}
-
-		this.element.insert(clone);
+		this.element.insert(drag.clone());
 		
 		var bounds = DND.getBounds(this.element);	
 
@@ -557,7 +536,26 @@ DND.Drag = Class.create({
 		
 		var clone = element.cloneNode(true);
 		clone.addClassName("dnd-hover-clone");
-		
+
+		if (clone.match("td")) {
+			var tr = new Element("tr");
+			tr.className = "dnd-hover-tr";
+			tr.insert(clone);
+			clone = tr;
+		}
+		if (clone.match("tr")) {
+			var tbody = new Element("tbody");
+			tbody.className = "dnd-hover-tbody";
+			tbody.insert(clone);
+			clone = tbody;
+		}
+		if (clone.match("tbody")) {
+			var table = new Element("table");
+			table.className = "dnd-hover-table";
+			table.insert(clone);
+			clone = table;
+		}
+	
 		var bounds = DND.getBounds(element);
 		var style = clone.style;
 		style.width = bounds.width + "px";
