@@ -173,29 +173,26 @@ var DND = {
 	},
 	
 	findOperation: function() {
-		if (!this.canTransfer()) {
-			return null;
-		}
-		
-		if (this.shift) {
-			if (this.allowsOperation('LINK')) {
-				return 'LINK';
-			}
-		} else if (this.ctrl) {
-			if (this.allowsOperation('COPY')) {
-				return 'COPY';
-			}
-		} else {
-			if (this.allowsOperation('MOVE')) {
-				return 'MOVE';
-			} else if (this.allowsOperation('COPY')) {
-				return 'COPY';
-			} else if (this.allowsOperation('LINK')) {
-				return 'LINK';
-			}
+		if (this.canTransfer()) {
+			if (this.shift) {
+				if (this.allowsOperation('LINK')) {
+					return 'LINK';
+				}
+			} else if (this.ctrl) {
+				if (this.allowsOperation('COPY')) {
+					return 'COPY';
+				}
+			} else {
+				if (this.allowsOperation('MOVE')) {
+					return 'MOVE';
+				} else if (this.allowsOperation('COPY')) {
+					return 'COPY';
+				} else if (this.allowsOperation('LINK')) {
+					return 'LINK';
+				}
+			}		
 		}		
-		
-		return null;
+		return 'NONE';
 	},
 
 	findTarget: function(x, y) {
@@ -306,9 +303,9 @@ DND.Hover = Class.create({
 	initialize: function(drag, offset) {
 		this.offset = offset;
 		
-		this.operation = null;
+		this.operation = 'NONE';
 	
-		this.element = DND.newElement("dnd-hover-none");
+		this.element = DND.newElement("dnd-hover-NONE");
 		
 		this.element.insert(drag.clone());
 		
@@ -328,15 +325,7 @@ DND.Hover = Class.create({
 		if (this.operation != operation) {
 			this.operation = operation;
 			
-			if (operation == 'MOVE') {
-				this.element.className = "dnd-hover-move";
-			} else if (operation == 'COPY') {
-				this.element.className = "dnd-hover-copy";
-			} else if (operation == 'LINK') {
-				this.element.className = "dnd-hover-link";
-			} else {
-				this.element.className = "dnd-hover-none";
-			}
+			this.element.className = "dnd-hover-" + operation;
 		}
 	},
 	
