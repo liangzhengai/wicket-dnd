@@ -14,12 +14,12 @@ var IECursor = {
 		}
 		
 		var href = styleSheet.href;
-		if (href == null) {
+		if (!href) {
 			return;
 		}
 	
 		var path = this.getPath(href);
-					
+		
 		var rules = styleSheet.rules;		
 		for (var r = 0; r < rules.length; r++) {
 			this.fixStyle(rules[r].style, path);
@@ -33,9 +33,7 @@ var IECursor = {
 	},
 	
 	getPath: function(url) {
-		var from = url.indexOf("//");
-		from = url.indexOf("/", from + 2);
-		
+		var from = 0;
 		var to = url.lastIndexOf("/") + 1;
 		
 		return url.substring(from, to);
@@ -65,7 +63,7 @@ var IECursor = {
 		}
 		
 		newCursor += oldCursor.substring(index);
-		
+
 		return newCursor;
 	}
 };
