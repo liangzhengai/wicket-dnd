@@ -1,37 +1,37 @@
-div.dnd-hover-move {
+div.dnd-hover-MOVE {
 	position: absolute;
 	filter: alpha(opacity=70);
 	opacity: 0.7;
 	z-index: 100;
 }
-div.dnd-hover-copy {
+div.dnd-hover-COPY {
 	position: absolute;
 	filter: alpha(opacity=70);
 	opacity: 0.7;
 	z-index: 100;
 }
-div.dnd-hover-link {
+div.dnd-hover-LINK {
 	position: absolute;
 	filter: alpha(opacity=70);
 	opacity: 0.7;
 	z-index: 100;
 }
-div.dnd-hover-none {
+div.dnd-hover-NONE {
 	position: absolute;
 	filter: alpha(opacity=70);
 	opacity: 0.7;
 	z-index: 100;
 }
-div.dnd-hover-move div.dnd-hover-cover {
+div.dnd-hover-MOVE div.dnd-hover-cover {
 	cursor: url(move.cur), url(move.gif), move;
 }
-div.dnd-hover-copy div.dnd-hover-cover {
+div.dnd-hover-COPY div.dnd-hover-cover {
 	cursor: url(copy.cur), url(copy.gif), move;
 }
-div.dnd-hover-link  div.dnd-hover-cover {
+div.dnd-hover-LINK  div.dnd-hover-cover {
 	cursor: url(link.cur), url(link.gif), move;
 }
-div.dnd-hover-none div.dnd-hover-cover {
+div.dnd-hover-NONE div.dnd-hover-cover {
 	cursor: url(none.cur), url(none.gif), move;
 }
 div.dnd-hover-cover {

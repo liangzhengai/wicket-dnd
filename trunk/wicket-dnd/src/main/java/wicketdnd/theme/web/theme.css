@@ -1,4 +1,4 @@
-div.dnd-hover-move {
+div.dnd-hover-MOVE {
 	position: absolute;
 	background: white url(move.gif) no-repeat 0px center;
 	padding-left: 16px;
@@ -7,7 +7,7 @@ div.dnd-hover-move {
 	opacity: 0.7;
 	z-index: 100;
 }
-div.dnd-hover-copy {
+div.dnd-hover-COPY {
 	position: absolute;
 	background: white url(copy.gif) no-repeat 0px center;
 	padding-left: 16px;
@@ -16,7 +16,7 @@ div.dnd-hover-copy {
 	opacity: 0.7;
 	z-index: 100;
 }
-div.dnd-hover-link {
+div.dnd-hover-LINK {
 	position: absolute;
 	background: white url(link.gif) no-repeat 0px center;
 	padding-left: 16px;
@@ -25,7 +25,7 @@ div.dnd-hover-link {
 	opacity: 0.7;
 	z-index: 100;
 }
-div.dnd-hover-none {
+div.dnd-hover-NONE {
 	position: absolute;
 	background: white url(none.gif) no-repeat 0px center;
 	padding-left: 16px;
