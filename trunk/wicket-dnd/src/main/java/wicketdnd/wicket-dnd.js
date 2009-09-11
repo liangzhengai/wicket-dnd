@@ -632,6 +632,10 @@ DND.Gesture = Class.create({
 		Event.stopObserving(document, "mousemove", this.eventMousemove);
 		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
 	},
+
+	confirmDrag: function() {
+		new DND.Drag(this.source, this.element, this.pointer);
+	},	
 	
 	handleMousemove: function(event) {
 		var deltaX = event.pointerX() - this.pointer[0];
@@ -640,7 +644,7 @@ DND.Gesture = Class.create({
 		if (deltaX > DND.BORDER || deltaX < -DND.BORDER || 
 			deltaY > DND.BORDER || deltaY < -DND.BORDER) {
 
-			new DND.Drag(this.source, this.element, this.pointer);
+			this.confirmDrag();
 			
 			this.destroy();
 		}
