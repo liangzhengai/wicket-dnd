@@ -44,7 +44,7 @@ var DND = {
 
 		if (this.drop != null) {
 			this.drop.clear();
-			if (this.hover.operation != null) {
+			if (this.hover.operation != 'NONE') {
 				this.drop.notify("drop", this.hover.operation, this.drag);
 			}
 			this.drop = null;
@@ -319,6 +319,8 @@ DND.Hover = Class.create({
 		style.width = bounds.width + "px";
 		style.height = bounds.height + "px";
 		this.element.insert(cover);
+					
+		window.focus();
 	},
 
 	setOperation: function(operation) {
@@ -575,16 +577,16 @@ DND.DragSource = Class.create({
 		this.selector = selector;
 		this.initiateSelector = initiateSelector;
 		
-		this.eventMouseDown = this.initiateDrag.bindAsEventListener(this);
+		this.eventMouseDown = this.handleMouseDown.bindAsEventListener(this);
 		Event.observe(this.element, "mousedown", this.eventMouseDown);
 	},
 	
-	initiateDrag: function(event) {
+	handleMouseDown: function(event) {
 		if (event.isLeftClick()) {
-			var element = event.element();
+			var candidate = event.element();
 			
-			// abort on form elements, fixes a Firefox issue
-			if ((tag_name = element.tagName.toUpperCase()) && (
+			// abort on form elements
+			if ((tag_name = candidate.tagName.toUpperCase()) && (
 				tag_name=='INPUT' ||
 				tag_name=='SELECT' ||
 				tag_name=='OPTION' ||
@@ -593,26 +595,61 @@ DND.DragSource = Class.create({
 				return;
 			}
 
-			while (element != this.element && !element.match(this.initiateSelector)) {
-				element = element.up();
+			while (candidate != this.element && !candidate.match(this.initiateSelector)) {
+				candidate = candidate.up();
 			}
 			
-			if (element != this.element) {
-				if (!element.match(this.selector)) {
-					element = element.up(this.selector);
+			if (candidate != this.element) {
+				if (!candidate.match(this.selector)) {
+					candidate = candidate.up(this.selector);
 				}
 				
-				if (element != null && element.id) {
-					var pointer = [event.pointerX(), event.pointerY()];
-					
-					new DND.Drag(this, element, pointer);
+				if (candidate != null && candidate.id) {
+					new DND.Gesture(this, candidate, [event.pointerX(), event.pointerY()]);
 					
 					event.stop();
-					
-					window.focus();
 				}
 			}
 		}
+	},	
+});
+
+DND.Gesture = Class.create({
+
+	initialize: function(source, element, pointer) {
+		this.source = source;
+		this.element = element;
+		this.pointer = pointer;
+		
+		this.eventMousemove  = this.handleMousemove.bindAsEventListener(this);
+		this.eventMouseup    = this.handleMouseup.bindAsEventListener(this);
+		
+		Event.observe(document, "mousemove", this.eventMousemove);
+		Event.observe(document, "mouseup", this.eventMouseup);
+	},
+	
+	destroy: function() {
+		Event.stopObserving(document, "mousemove", this.eventMousemove);
+		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
+	},
+	
+	handleMousemove: function(event) {
+		var deltaX = event.pointerX() - this.pointer[0];
+		var deltaY = event.pointerY() - this.pointer[1];
+		
+		if (deltaX > DND.BORDER || deltaX < -DND.BORDER || 
+			deltaY > DND.BORDER || deltaY < -DND.BORDER) {
+
+			new DND.Drag(this.source, this.element, this.pointer);
+			
+			this.destroy();
+		}
+	
+		event.stop();
+	},
+	
+	handleMouseup: function(event) {
+		this.destroy();
 	}
 });
 
