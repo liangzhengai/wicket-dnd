@@ -43,7 +43,7 @@ public class ListsExample extends Example
 		add(newList("vertical"));
 		add(newList("horizontal"));
 		
-		setTransferType("toolbar");
+		setTypes(new String[]{"toolbar"});
 	}
 
 	private Component newList(String id)
