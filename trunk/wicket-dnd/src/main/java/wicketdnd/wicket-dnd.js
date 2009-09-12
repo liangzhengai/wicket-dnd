@@ -1,4 +1,4 @@
-var DND = {
+var DnD = {
 
 	BORDER: 6,
 	
@@ -17,7 +17,7 @@ var DND = {
 
 		this.drop = null;
 		
-		this.hover = new DND.Hover(drag, offset);
+		this.hover = new DnD.Hover(drag, offset);
 		
 		this.targets = this.collectTargets([], document.body);
 
@@ -87,7 +87,7 @@ var DND = {
 			this.hover.draw(pointer);
 
 			if (this.updateDrop()) {
-				if (this.drop != null && !(this.drop instanceof DND.Drop)) {
+				if (this.drop != null && !(this.drop instanceof DnD.Drop)) {
 					this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
 				}
 			}
@@ -300,18 +300,18 @@ var DND = {
 	}
 };
 
-DND.Hover = Class.create({
+DnD.Hover = Class.create({
 
 	initialize: function(drag, offset) {
 		this.offset = offset;
 		
 		this.operation = 'NONE';
 	
-		this.element = DND.newElement("dnd-hover-NONE");
+		this.element = DnD.newElement("dnd-hover-NONE");
 		
 		this.element.insert(drag.clone());
 		
-		var bounds = DND.getBounds(this.element);	
+		var bounds = DnD.getBounds(this.element);	
 
 		var cover = new Element("div");
 		cover.className = "dnd-hover-cover";
@@ -346,7 +346,7 @@ DND.Hover = Class.create({
 	}
 });
 
-DND.Drop = Class.create({
+DnD.Drop = Class.create({
 
 	initialize: function(target) {
 		this.target = target;
@@ -365,7 +365,7 @@ DND.Drop = Class.create({
 	}
 });
 
-DND.DropCenter = Class.create({
+DnD.DropCenter = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
@@ -390,22 +390,22 @@ DND.DropCenter = Class.create({
 	}
 });
 
-DND.DropTop = Class.create({
+DnD.DropTop = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.id;
 		this.anchor = "TOP";
 		
-		this.element = DND.newElement("dnd-drop-top");
+		this.element = DnD.newElement("dnd-drop-top");
 	},
 
 	draw: function() {
-		var bounds = DND.getBounds($(this.id));
+		var bounds = DnD.getBounds($(this.id));
 		
 		var style = this.element.style;
 		style.left  = bounds.left + "px";
-		style.top   = bounds.top - (DND.getBounds(this.element).height/2) + "px";
+		style.top   = bounds.top - (DnD.getBounds(this.element).height/2) + "px";
 		style.width = bounds.width + "px";
 
 		this.element.show();
@@ -420,22 +420,22 @@ DND.DropTop = Class.create({
 	}
 });
 
-DND.DropBottom = Class.create({
+DnD.DropBottom = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
 		this.anchor = "BOTTOM";
 		
-		this.element = DND.newElement("dnd-drop-bottom");
+		this.element = DnD.newElement("dnd-drop-bottom");
 	},
 
 	draw: function() {
-		var bounds = DND.getBounds($(this.id));
+		var bounds = DnD.getBounds($(this.id));
 		
 		var style = this.element.style;
 		style.left  = bounds.left + "px";
-		style.top   = bounds.top + bounds.height - (DND.getBounds(this.element).height/2) + "px";
+		style.top   = bounds.top + bounds.height - (DnD.getBounds(this.element).height/2) + "px";
 		style.width = bounds.width + "px";
 
 		this.element.show();
@@ -450,21 +450,21 @@ DND.DropBottom = Class.create({
 	}
 });
 
-DND.DropLeft = Class.create({
+DnD.DropLeft = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.id;
 		this.anchor = "LEFT";
 		
-		this.element = DND.newElement("dnd-drop-left");
+		this.element = DnD.newElement("dnd-drop-left");
 	},
 
 	draw: function() {
-		var bounds = DND.getBounds($(this.id));
+		var bounds = DnD.getBounds($(this.id));
 		
 		var style = this.element.style;
-		style.left  = bounds.left - (DND.getBounds(this.element).width/2) + "px";
+		style.left  = bounds.left - (DnD.getBounds(this.element).width/2) + "px";
 		style.top   = bounds.top + "px";
 		style.height = bounds.height + "px";
 
@@ -480,21 +480,21 @@ DND.DropLeft = Class.create({
 	}
 });
 
-DND.DropRight = Class.create({
+DnD.DropRight = Class.create({
 
 	initialize: function(target, element) {
 		this.target = target;
 		this.id = element.identify();
 		this.anchor = "RIGHT";
 		
-		this.element = DND.newElement("dnd-drop-right");
+		this.element = DnD.newElement("dnd-drop-right");
 	},
 
 	draw: function() {
-		var bounds = DND.getBounds($(this.id));
+		var bounds = DnD.getBounds($(this.id));
 		
 		var style = this.element.style;
-		style.left  = bounds.left + bounds.width - (DND.getBounds(this.element).width/2) + "px";
+		style.left  = bounds.left + bounds.width - (DnD.getBounds(this.element).width/2) + "px";
 		style.top   = bounds.top + "px";
 		style.height = bounds.height + "px";
 
@@ -510,14 +510,14 @@ DND.DropRight = Class.create({
 	}
 });
 
-DND.Drag = Class.create({
+DnD.Drag = Class.create({
 
 	initialize: function(source, element, pointer) {
 		this.source = source;
 		this.id = element.identify();
 		
-		var bounds = DND.getBounds(element);
-		DND.startDrag(pointer, this,
+		var bounds = DnD.getBounds(element);
+		DnD.startDrag(pointer, this,
 					[pointer[0] - bounds.left,
 		             pointer[1] - bounds.top]);
 		
@@ -549,7 +549,7 @@ DND.Drag = Class.create({
 			clone = table;
 		}
 	
-		var bounds = DND.getBounds(element);
+		var bounds = DnD.getBounds(element);
 		var style = clone.style;
 		style.width = bounds.width + "px";
 		style.height = bounds.height + "px";
@@ -566,7 +566,7 @@ DND.Drag = Class.create({
 	}
 });
 
-DND.DragSource = Class.create({
+DnD.DragSource = Class.create({
 
 	initialize: function(id, path, operations, transfers, selector, initiateSelector) {
 		this.element = $(id);
@@ -607,7 +607,7 @@ DND.DragSource = Class.create({
 				}
 				
 				if (candidate != null && candidate.id) {
-					new DND.Gesture(this, candidate, [event.pointerX(), event.pointerY()]);
+					new DnD.Gesture(this, candidate, [event.pointerX(), event.pointerY()]);
 					
 					event.stop();
 				}
@@ -616,7 +616,7 @@ DND.DragSource = Class.create({
 	},	
 });
 
-DND.Gesture = Class.create({
+DnD.Gesture = Class.create({
 
 	initialize: function(source, element, pointer) {
 		this.source = source;
@@ -636,14 +636,14 @@ DND.Gesture = Class.create({
 	},
 
 	confirmDrag: function() {
-		new DND.Drag(this.source, this.element, this.pointer);
+		new DnD.Drag(this.source, this.element, this.pointer);
 	},	
 	
 	handleMousemove: function(event) {
 		var deltaX = event.pointerX() - this.pointer[0];
 		var deltaY = event.pointerY() - this.pointer[1];
 		
-		if (Math.abs(deltaX) > DND.THRESHOLD || Math.abs(deltaY) > DND.THRESHOLD) {
+		if (Math.abs(deltaX) > DnD.THRESHOLD || Math.abs(deltaY) > DnD.THRESHOLD) {
 
 			this.confirmDrag();
 			
@@ -658,7 +658,7 @@ DND.Gesture = Class.create({
 	}
 });
 
-DND.DropTarget = Class.create({
+DnD.DropTarget = Class.create({
 
 	initialize: function(id, url, operations, transfers, overSelector, topSelector, rightSelector, bottomSelector, leftSelector) {
 		this.id = id;
@@ -680,7 +680,7 @@ DND.DropTarget = Class.create({
 	findDrop: function(x, y) {
 		var drop = this.findDropFor($(this.id), x, y);
 		if (drop == null) {
-			drop = new DND.Drop(this);
+			drop = new DnD.Drop(this);
 		}
 		return drop;
 	},
@@ -690,12 +690,12 @@ DND.DropTarget = Class.create({
 		
 		if (element.id) {
 			if (element.match(this.overSelector)) {
-				var bounds = DND.getBounds(element);
+				var bounds = DnD.getBounds(element);
 
 				if (x >= bounds.left && x < bounds.left + bounds.width &&
 					y >= bounds.top && y < bounds.top + bounds.height) {
 					
-					drop = new DND.DropCenter(this, element);
+					drop = new DnD.DropCenter(this, element);
 				}
 			}
 		}
@@ -715,80 +715,80 @@ DND.DropTarget = Class.create({
 		if (element.id) {
 			if (element.match(this.topSelector)) {
 				if (drop == null) {
-					var bounds = DND.getBounds(element);
+					var bounds = DnD.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height/2) {
 						
-						drop = new DND.DropTop(this, element);
+						drop = new DnD.DropTop(this, element);
 					}
-				} else if (drop instanceof DND.DropCenter) {
-					var bounds = DND.getBounds(element);
+				} else if (drop instanceof DnD.DropCenter) {
+					var bounds = DnD.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
-						y >= bounds.top && y < bounds.top + DND.BORDER) {
+						y >= bounds.top && y < bounds.top + DnD.BORDER) {
 						
-						drop = new DND.DropTop(this, element);
+						drop = new DnD.DropTop(this, element);
 					}
 				}
 			}
 			
 			if (element.match(this.bottomSelector)) {
 				if (drop == null) {
-					var bounds = DND.getBounds(element);
+					var bounds = DnD.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height/2 && y < bounds.top + bounds.height) {
 						
-						drop = new DND.DropBottom(this, element);
+						drop = new DnD.DropBottom(this, element);
 					}
-				} else if (drop instanceof DND.DropCenter) {
-					var bounds = DND.getBounds(element);
+				} else if (drop instanceof DnD.DropCenter) {
+					var bounds = DnD.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
-						y >= bounds.top + bounds.height - DND.BORDER && y < bounds.top + bounds.height) {
+						y >= bounds.top + bounds.height - DnD.BORDER && y < bounds.top + bounds.height) {
 						
-						drop = new DND.DropBottom(this, element);
+						drop = new DnD.DropBottom(this, element);
 					}
 				}
 			}
 			
 			if (element.match(this.leftSelector)) {
 				if (drop == null) {
-					var bounds = DND.getBounds(element);
+					var bounds = DnD.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width/2 &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new DND.DropLeft(this, element);
+						drop = new DnD.DropLeft(this, element);
 					}
-				} else if (drop instanceof DND.DropCenter) {
-					var bounds = DND.getBounds(element);
+				} else if (drop instanceof DnD.DropCenter) {
+					var bounds = DnD.getBounds(element);
 	
-					if (x >= bounds.left && x < bounds.left + DND.BORDER &&
+					if (x >= bounds.left && x < bounds.left + DnD.BORDER &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new DND.DropLeft(this, element);
+						drop = new DnD.DropLeft(this, element);
 					}
 				}
 			}
 			
 			if (element.match(this.rightSelector)) {
 				if (drop == null) {
-					var bounds = DND.getBounds(element);
+					var bounds = DnD.getBounds(element);
 	
 					if (x >= bounds.left + bounds.width/2  && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new DND.DropRight(this, element);
+						drop = new DnD.DropRight(this, element);
 					}
-				} else if (drop instanceof DND.DropCenter) {
-					var bounds = DND.getBounds(element);
+				} else if (drop instanceof DnD.DropCenter) {
+					var bounds = DnD.getBounds(element);
 	
-					if (x >= bounds.left + bounds.width - DND.BORDER && x < bounds.left + bounds.width &&
+					if (x >= bounds.left + bounds.width - DnD.BORDER && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new DND.DropRight(this, element);
+						drop = new DnD.DropRight(this, element);
 					}
 				}
 			}
