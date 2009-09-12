@@ -1,8 +1,8 @@
 div.dnd-hover-MOVE {
 	position: absolute;
 	background: white url(move.gif) no-repeat 0px center;
-	padding-left: 16px;
-	border: 1px solid #00ff00;
+	padding-left: 18px;
+	border: 1px solid #a1e898;
 	filter: alpha(opacity=70);
 	opacity: 0.7;
 	z-index: 100;
@@ -10,8 +10,8 @@ div.dnd-hover-MOVE {
 div.dnd-hover-COPY {
 	position: absolute;
 	background: white url(copy.gif) no-repeat 0px center;
-	padding-left: 16px;
-	border: 1px solid #0000ff;
+	padding-left: 18px;
+	border: 1px solid #6565d3;
 	filter: alpha(opacity=70);
 	opacity: 0.7;
 	z-index: 100;
@@ -19,8 +19,8 @@ div.dnd-hover-COPY {
 div.dnd-hover-LINK {
 	position: absolute;
 	background: white url(link.gif) no-repeat 0px center;
-	padding-left: 16px;
-	border: 1px solid #000000;
+	padding-left: 18px;
+	border: 1px solid #a7a7a7;
 	filter: alpha(opacity=70);
 	opacity: 0.7;
 	z-index: 100;
@@ -28,8 +28,8 @@ div.dnd-hover-LINK {
 div.dnd-hover-NONE {
 	position: absolute;
 	background: white url(none.gif) no-repeat 0px center;
-	padding-left: 16px;
-	border: 1px solid #ff0000;
+	padding-left: 18px;
+	border: 1px solid #f68f8f;
 	filter: alpha(opacity=70);
 	opacity: 0.7;
 	z-index: 100;
