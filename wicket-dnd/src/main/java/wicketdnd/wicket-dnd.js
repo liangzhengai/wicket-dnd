@@ -2,6 +2,8 @@ var DND = {
 
 	BORDER: 6,
 	
+	THRESHOLD: 3,
+	
 	DELAY: 1,
 	
 	executor: null,
@@ -641,8 +643,7 @@ DND.Gesture = Class.create({
 		var deltaX = event.pointerX() - this.pointer[0];
 		var deltaY = event.pointerY() - this.pointer[1];
 		
-		if (deltaX > DND.BORDER || deltaX < -DND.BORDER || 
-			deltaY > DND.BORDER || deltaY < -DND.BORDER) {
+		if (Math.abs(deltaX) > DND.THRESHOLD || Math.abs(deltaY) > DND.THRESHOLD) {
 
 			this.confirmDrag();
 			
