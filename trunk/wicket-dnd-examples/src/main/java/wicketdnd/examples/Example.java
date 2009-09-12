@@ -18,6 +18,7 @@ package wicketdnd.examples;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -26,6 +27,8 @@ import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.util.convert.IConverter;
+import org.apache.wicket.util.string.Strings;
 
 import wicketdnd.Operation;
 import wicketdnd.Transfer;
@@ -42,7 +45,7 @@ public abstract class Example extends Panel
 
 	private List<Operation> dropOperations = new ArrayList<Operation>();
 
-	private String transferType = Transfer.ANY;
+	private String[] types = new String[] { Transfer.ANY };
 
 	public Example(String id)
 	{
@@ -66,12 +69,26 @@ public abstract class Example extends Panel
 		controls.add(new CheckBoxMultipleChoice<Operation>("dropOperations", operations)
 				.setSuffix(""));
 
-		controls.add(new TextField<String>("transferType").setConvertEmptyInputStringToNull(false));
-	}
+		controls.add(new TextField<String[]>("types", String[].class)
+		{
+			@Override
+			public IConverter getConverter(Class<?> type)
+			{
+				return new IConverter()
+				{
 
-	protected void setTransferType(String type)
-	{
-		transferType = type;
+					public Object convertToObject(String value, Locale locale)
+					{
+						return Strings.split(value, ',');
+					}
+
+					public String convertToString(Object value, Locale locale)
+					{
+						return Strings.join(",", types);
+					}
+				};
+			}
+		});
 	}
 
 	protected Set<Operation> dragOperations()
@@ -86,7 +103,11 @@ public abstract class Example extends Panel
 
 	public String[] types()
 	{
-		return new String[] { transferType };
+		return types;
+	}
+	
+	public void setTypes(String[] types) {
+		this.types = types;
 	}
 
 	protected Foo operate(Transfer transfer)
