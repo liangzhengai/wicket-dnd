@@ -522,12 +522,17 @@ DnD.Drag = Class.create({
 		             pointer[1] - bounds.top]);
 		
 		element.addClassName("dnd-drag");
+		
+		if (Prototype.Browser.IE) {
+			// must recreate element to force cursor change
+			element.replace(element.cloneNode(true));
+		}		
 	},
 
 	clone: function() {
 		var element = $(this.id);
-		
-		var clone = element.cloneNode(false).update("TEST");
+
+		var clone = element.cloneNode(true);
 		clone.addClassName("dnd-hover-clone");
 
 		if (clone.match("td")) {
