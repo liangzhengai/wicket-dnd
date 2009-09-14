@@ -527,7 +527,7 @@ DnD.Drag = Class.create({
 	clone: function() {
 		var element = $(this.id);
 		
-		var clone = element.cloneNode(true);
+		var clone = element.cloneNode(false).update("TEST");
 		clone.addClassName("dnd-hover-clone");
 
 		if (clone.match("td")) {
@@ -644,13 +644,12 @@ DnD.Gesture = Class.create({
 		var deltaY = event.pointerY() - this.pointer[1];
 		
 		if (Math.abs(deltaX) > DnD.THRESHOLD || Math.abs(deltaY) > DnD.THRESHOLD) {
-
 			this.confirmDrag();
 			
 			this.destroy();
-		}
 	
-		event.stop();
+			event.stop();
+		}
 	},
 	
 	handleMouseup: function(event) {
