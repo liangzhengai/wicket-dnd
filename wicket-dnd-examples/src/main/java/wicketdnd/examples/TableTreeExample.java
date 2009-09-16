@@ -71,6 +71,8 @@ public class TableTreeExample extends Example
 					Foo foo = transfer.getData();
 
 					provider.remove(foo);
+					
+					foo.remove();
 
 					target.addComponent(tabletree);
 				}

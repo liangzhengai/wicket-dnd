@@ -72,6 +72,8 @@ public class TreeExample extends Example
 					Foo foo = transfer.getData();
 
 					provider.remove(foo);
+					
+					foo.remove();
 
 					target.addComponent(tree);
 				}
