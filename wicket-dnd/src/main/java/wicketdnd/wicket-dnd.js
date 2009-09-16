@@ -1,4 +1,4 @@
-var DnD = {
+var wicketdnd = {
 
 	BORDER: 6,
 	
@@ -6,18 +6,28 @@ var DnD = {
 	
 	DELAY: 1,
 	
-	executor: null,
+	getBounds: function(element) {
+		var position = element.cumulativeOffset();
+		var dimension = element.getDimensions();
 	
-	targets: [],
+		var bounds = {};
+		bounds.top  = position.top;
+		bounds.left = position.left;
+		bounds.width = dimension.width;
+		bounds.height = dimension.height;
 	
-	elements: {},
-	
-	startDrag: function(pointer, drag, offset) {
+		return bounds;
+	}
+};
+
+wicketdnd.Transfer = Class.create({
+
+	initialize: function(pointer, drag, offset) {
 		this.drag = drag;
 
-		this.drop = null;
+		this.elements = {};
 		
-		this.hover = new DnD.Hover(drag, offset);
+		this.hover = new wicketdnd.Hover(this, drag, offset);
 		
 		this.targets = this.collectTargets([], document.body);
 
@@ -38,37 +48,28 @@ var DnD = {
 		this.hover.draw(pointer);
 	},
 	
-	endDrag: function() {
-		if (this.excutor != null) {
+	destroy: function() {
+		if (this.excutor) {
 			this.executor.stop();
-			this.executor = null;
 		}
 
-		if (this.drop != null) {
+		if (this.drop) {
 			this.drop.clear();
 			if (this.hover.operation != 'NONE') {
 				this.drop.notify("drop", this.hover.operation, this.drag);
 			}
-			this.drop = null;
 		}
 
-		if (this.drag != null) {
-			this.drag.clear();
-			this.drag = null;
-		}
+		this.drag.clear();
 
 		if (this.hoover != null) {
 			this.hover.clear();
-			this.hover = null;
 		}
 		
 		for (var className in this.elements) {
 			this.elements[className].remove();
 		}
-		this.elements = {};
 		
-		this.targets = [];
-
 		Event.stopObserving(document, "mousemove", this.eventMousemove);
 		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
 		Event.stopObserving(document, "keypress" , this.eventKeypress);
@@ -87,7 +88,7 @@ var DnD = {
 			this.hover.draw(pointer);
 
 			if (this.updateDrop()) {
-				if (this.drop != null && !(this.drop instanceof DnD.Drop)) {
+				if (this.drop != null && !(this.drop instanceof wicketdnd.Drop)) {
 					this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
 				}
 			}
@@ -100,7 +101,7 @@ var DnD = {
 		if (event.keyCode == Event.KEY_ESC) {
 			this.setDrop(null);
 			
-			this.endDrag();
+			this.destroy();
 
 			Event.stop(event);
 		}
@@ -133,26 +134,22 @@ var DnD = {
 	},
 
 	handleMouseup: function(event) {
-		this.endDrag();
+		this.destroy();
 		
 		Event.stop(event);
 	},
 
 	updateDrop: function() {
-		if (this.drag == null) {
-			return false;
-		}
-		
 		var target = this.findTarget(this.pointer[0], this.pointer[1]);
 		if (target == null) {
 			return this.setDrop(null);
 		} else {
-			return this.setDrop(target.findDrop(this.pointer[0], this.pointer[1]));
+			return this.setDrop(target.findDrop(this, this.pointer[0], this.pointer[1]));
 		}
 	},
 
 	canTransfer: function() {
-		if (this.drag == null || this.drop == null) {
+		if (this.drop == null) {
 			return false;
 		}
 		
@@ -201,7 +198,7 @@ var DnD = {
 		for (var index = 0; index < this.targets.length; index++) {
 			var target = this.targets[index];
 
-			var bounds = this.getBounds($(target.id));
+			var bounds = wicketdnd.getBounds($(target.id));
 			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
 				return target;
 			}
@@ -272,19 +269,6 @@ var DnD = {
 		}		
 	},
 
-	getBounds: function(element) {
-		var position = element.cumulativeOffset();
-		var dimension = element.getDimensions();
-
-		var bounds = {};
-		bounds.top  = position.top;
-		bounds.left = position.left;
-		bounds.width = dimension.width;
-		bounds.height = dimension.height;
-
-		return bounds;
-	},
-	
 	newElement: function(className) {
 		var element = this.elements[className];
 		if (element == null) {
@@ -298,20 +282,20 @@ var DnD = {
 		
 		return element;
 	}
-};
+});
 
-DnD.Hover = Class.create({
+wicketdnd.Hover = Class.create({
 
-	initialize: function(drag, offset) {
+	initialize: function(transfer, drag, offset) {
 		this.offset = offset;
 		
 		this.operation = 'NONE';
 	
-		this.element = DnD.newElement("dnd-hover-NONE");
+		this.element = transfer.newElement("dnd-hover-NONE");
 		
 		this.element.insert(drag.clone());
 		
-		var bounds = DnD.getBounds(this.element);	
+		var bounds = wicketdnd.getBounds(this.element);	
 
 		var cover = new Element("div");
 		cover.className = "dnd-hover-cover";
@@ -346,9 +330,9 @@ DnD.Hover = Class.create({
 	}
 });
 
-DnD.Drop = Class.create({
+wicketdnd.Drop = Class.create({
 
-	initialize: function(target) {
+	initialize: function(transfer, target) {
 		this.target = target;
 	},
 
@@ -365,9 +349,9 @@ DnD.Drop = Class.create({
 	}
 });
 
-DnD.DropCenter = Class.create({
+wicketdnd.DropCenter = Class.create({
 
-	initialize: function(target, element) {
+	initialize: function(transfer, target, element) {
 		this.target = target;
 		this.id = element.identify();
 		this.anchor = "CENTER";
@@ -390,22 +374,22 @@ DnD.DropCenter = Class.create({
 	}
 });
 
-DnD.DropTop = Class.create({
+wicketdnd.DropTop = Class.create({
 
-	initialize: function(target, element) {
+	initialize: function(transfer, target, element) {
 		this.target = target;
 		this.id = element.id;
 		this.anchor = "TOP";
 		
-		this.element = DnD.newElement("dnd-drop-top");
+		this.element = transfer.newElement("dnd-drop-top");
 	},
 
 	draw: function() {
-		var bounds = DnD.getBounds($(this.id));
+		var bounds = wicketdnd.getBounds($(this.id));
 		
 		var style = this.element.style;
 		style.left  = bounds.left + "px";
-		style.top   = bounds.top - (DnD.getBounds(this.element).height/2) + "px";
+		style.top   = bounds.top - (wicketdnd.getBounds(this.element).height/2) + "px";
 		style.width = bounds.width + "px";
 
 		this.element.show();
@@ -420,22 +404,22 @@ DnD.DropTop = Class.create({
 	}
 });
 
-DnD.DropBottom = Class.create({
+wicketdnd.DropBottom = Class.create({
 
-	initialize: function(target, element) {
+	initialize: function(transfer, target, element) {
 		this.target = target;
 		this.id = element.identify();
 		this.anchor = "BOTTOM";
 		
-		this.element = DnD.newElement("dnd-drop-bottom");
+		this.element = transfer.newElement("dnd-drop-bottom");
 	},
 
 	draw: function() {
-		var bounds = DnD.getBounds($(this.id));
+		var bounds = wicketdnd.getBounds($(this.id));
 		
 		var style = this.element.style;
 		style.left  = bounds.left + "px";
-		style.top   = bounds.top + bounds.height - (DnD.getBounds(this.element).height/2) + "px";
+		style.top   = bounds.top + bounds.height - (wicketdnd.getBounds(this.element).height/2) + "px";
 		style.width = bounds.width + "px";
 
 		this.element.show();
@@ -450,21 +434,21 @@ DnD.DropBottom = Class.create({
 	}
 });
 
-DnD.DropLeft = Class.create({
+wicketdnd.DropLeft = Class.create({
 
-	initialize: function(target, element) {
+	initialize: function(transfer, target, element) {
 		this.target = target;
 		this.id = element.id;
 		this.anchor = "LEFT";
 		
-		this.element = DnD.newElement("dnd-drop-left");
+		this.element = transfer.newElement("dnd-drop-left");
 	},
 
 	draw: function() {
-		var bounds = DnD.getBounds($(this.id));
+		var bounds = wicketdnd.getBounds($(this.id));
 		
 		var style = this.element.style;
-		style.left  = bounds.left - (DnD.getBounds(this.element).width/2) + "px";
+		style.left  = bounds.left - (wicketdnd.getBounds(this.element).width/2) + "px";
 		style.top   = bounds.top + "px";
 		style.height = bounds.height + "px";
 
@@ -480,21 +464,21 @@ DnD.DropLeft = Class.create({
 	}
 });
 
-DnD.DropRight = Class.create({
+wicketdnd.DropRight = Class.create({
 
-	initialize: function(target, element) {
+	initialize: function(transfer, target, element) {
 		this.target = target;
 		this.id = element.identify();
 		this.anchor = "RIGHT";
 		
-		this.element = DnD.newElement("dnd-drop-right");
+		this.element = transfer.newElement("dnd-drop-right");
 	},
 
 	draw: function() {
-		var bounds = DnD.getBounds($(this.id));
+		var bounds = wicketdnd.getBounds($(this.id));
 		
 		var style = this.element.style;
-		style.left  = bounds.left + bounds.width - (DnD.getBounds(this.element).width/2) + "px";
+		style.left  = bounds.left + bounds.width - (wicketdnd.getBounds(this.element).width/2) + "px";
 		style.top   = bounds.top + "px";
 		style.height = bounds.height + "px";
 
@@ -510,21 +494,21 @@ DnD.DropRight = Class.create({
 	}
 });
 
-DnD.Drag = Class.create({
+wicketdnd.Drag = Class.create({
 
 	initialize: function(source, element, pointer) {
 		this.source = source;
 		this.id = element.identify();
 		
-		var bounds = DnD.getBounds(element);
-		DnD.startDrag(pointer, this,
+		var bounds = wicketdnd.getBounds(element);
+		new wicketdnd.Transfer(pointer, this,
 					[pointer[0] - bounds.left,
 		             pointer[1] - bounds.top]);
 		
 		element.addClassName("dnd-drag");
 		
 		if (Prototype.Browser.IE) {
-			// must recreate element to force cursor change
+			// recreate element to force cursor change
 			element.replace(element.cloneNode(true));
 		}		
 	},
@@ -554,7 +538,7 @@ DnD.Drag = Class.create({
 			clone = table;
 		}
 	
-		var bounds = DnD.getBounds(element);
+		var bounds = wicketdnd.getBounds(element);
 		var style = clone.style;
 		style.width = bounds.width + "px";
 		style.height = bounds.height + "px";
@@ -571,7 +555,7 @@ DnD.Drag = Class.create({
 	}
 });
 
-DnD.DragSource = Class.create({
+wicketdnd.DragSource = Class.create({
 
 	initialize: function(id, path, operations, transfers, selector, initiateSelector) {
 		this.element = $(id);
@@ -612,7 +596,7 @@ DnD.DragSource = Class.create({
 				}
 				
 				if (candidate != null && candidate.id) {
-					new DnD.Gesture(this, candidate, [event.pointerX(), event.pointerY()]);
+					new wicketdnd.Gesture(this, candidate, [event.pointerX(), event.pointerY()]);
 					
 					event.stop();
 				}
@@ -621,7 +605,7 @@ DnD.DragSource = Class.create({
 	},	
 });
 
-DnD.Gesture = Class.create({
+wicketdnd.Gesture = Class.create({
 
 	initialize: function(source, element, pointer) {
 		this.source = source;
@@ -641,14 +625,14 @@ DnD.Gesture = Class.create({
 	},
 
 	confirmDrag: function() {
-		new DnD.Drag(this.source, this.element, this.pointer);
+		new wicketdnd.Drag(this.source, this.element, this.pointer);
 	},	
 	
 	handleMousemove: function(event) {
 		var deltaX = event.pointerX() - this.pointer[0];
 		var deltaY = event.pointerY() - this.pointer[1];
 		
-		if (Math.abs(deltaX) > DnD.THRESHOLD || Math.abs(deltaY) > DnD.THRESHOLD) {
+		if (Math.abs(deltaX) > wicketdnd.THRESHOLD || Math.abs(deltaY) > wicketdnd.THRESHOLD) {
 			this.confirmDrag();
 			
 			this.destroy();
@@ -662,7 +646,7 @@ DnD.Gesture = Class.create({
 	}
 });
 
-DnD.DropTarget = Class.create({
+wicketdnd.DropTarget = Class.create({
 
 	initialize: function(id, url, operations, transfers, overSelector, topSelector, rightSelector, bottomSelector, leftSelector) {
 		this.id = id;
@@ -681,25 +665,25 @@ DnD.DropTarget = Class.create({
 		this.leftSelector   = leftSelector;
 	},
 
-	findDrop: function(x, y) {
-		var drop = this.findDropFor($(this.id), x, y);
+	findDrop: function(transfer, x, y) {
+		var drop = this.findDropFor(transfer, $(this.id), x, y);
 		if (drop == null) {
-			drop = new DnD.Drop(this);
+			drop = new wicketdnd.Drop(transfer, this);
 		}
 		return drop;
 	},
 	
-	findDropFor: function(element, x, y) {
+	findDropFor: function(transfer, element, x, y) {
 		var drop = null;
 		
 		if (element.id) {
 			if (element.match(this.overSelector)) {
-				var bounds = DnD.getBounds(element);
+				var bounds = wicketdnd.getBounds(element);
 
 				if (x >= bounds.left && x < bounds.left + bounds.width &&
 					y >= bounds.top && y < bounds.top + bounds.height) {
 					
-					drop = new DnD.DropCenter(this, element);
+					drop = new wicketdnd.DropCenter(transfer, this, element);
 				}
 			}
 		}
@@ -709,7 +693,7 @@ DnD.DropTarget = Class.create({
 			for (var index = 0; index < children.length; index++) {
 				var child = children[index];
 	
-				drop = this.findDropFor(child, x, y);
+				drop = this.findDropFor(transfer, child, x, y);
 				if (drop != null) {
 					break;
 				}
@@ -719,80 +703,80 @@ DnD.DropTarget = Class.create({
 		if (element.id) {
 			if (element.match(this.topSelector)) {
 				if (drop == null) {
-					var bounds = DnD.getBounds(element);
+					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height/2) {
 						
-						drop = new DnD.DropTop(this, element);
+						drop = new wicketdnd.DropTop(transfer, this, element);
 					}
-				} else if (drop instanceof DnD.DropCenter) {
-					var bounds = DnD.getBounds(element);
+				} else if (drop instanceof wicketdnd.DropCenter) {
+					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
-						y >= bounds.top && y < bounds.top + DnD.BORDER) {
+						y >= bounds.top && y < bounds.top + wicketdnd.BORDER) {
 						
-						drop = new DnD.DropTop(this, element);
+						drop = new wicketdnd.DropTop(transfer, this, element);
 					}
 				}
 			}
 			
 			if (element.match(this.bottomSelector)) {
 				if (drop == null) {
-					var bounds = DnD.getBounds(element);
+					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height/2 && y < bounds.top + bounds.height) {
 						
-						drop = new DnD.DropBottom(this, element);
+						drop = new wicketdnd.DropBottom(transfer, this, element);
 					}
-				} else if (drop instanceof DnD.DropCenter) {
-					var bounds = DnD.getBounds(element);
+				} else if (drop instanceof wicketdnd.DropCenter) {
+					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
-						y >= bounds.top + bounds.height - DnD.BORDER && y < bounds.top + bounds.height) {
+						y >= bounds.top + bounds.height - wicketdnd.BORDER && y < bounds.top + bounds.height) {
 						
-						drop = new DnD.DropBottom(this, element);
+						drop = new wicketdnd.DropBottom(transfer, this, element);
 					}
 				}
 			}
 			
 			if (element.match(this.leftSelector)) {
 				if (drop == null) {
-					var bounds = DnD.getBounds(element);
+					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width/2 &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new DnD.DropLeft(this, element);
+						drop = new wicketdnd.DropLeft(transfer, this, element);
 					}
-				} else if (drop instanceof DnD.DropCenter) {
-					var bounds = DnD.getBounds(element);
+				} else if (drop instanceof wicketdnd.DropCenter) {
+					var bounds = wicketdnd.getBounds(element);
 	
-					if (x >= bounds.left && x < bounds.left + DnD.BORDER &&
+					if (x >= bounds.left && x < bounds.left + wicketdnd.BORDER &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new DnD.DropLeft(this, element);
+						drop = new wicketdnd.DropLeft(transfer, this, element);
 					}
 				}
 			}
 			
 			if (element.match(this.rightSelector)) {
 				if (drop == null) {
-					var bounds = DnD.getBounds(element);
+					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left + bounds.width/2  && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new DnD.DropRight(this, element);
+						drop = new wicketdnd.DropRight(transfer, this, element);
 					}
-				} else if (drop instanceof DnD.DropCenter) {
-					var bounds = DnD.getBounds(element);
+				} else if (drop instanceof wicketdnd.DropCenter) {
+					var bounds = wicketdnd.getBounds(element);
 	
-					if (x >= bounds.left + bounds.width - DnD.BORDER && x < bounds.left + bounds.width &&
+					if (x >= bounds.left + bounds.width - wicketdnd.BORDER && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new DnD.DropRight(this, element);
+						drop = new wicketdnd.DropRight(transfer, this, element);
 					}
 				}
 			}
