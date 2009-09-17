@@ -259,7 +259,7 @@ wicketdnd.Transfer = Class.create({
 			var child = children[index];
 
 			this.collectTargets(targets, child);
-		};
+		}
 		
 		return targets;
 	},
@@ -690,10 +690,11 @@ wicketdnd.DropTarget = Class.create({
 	
 	findLocationFor: function(transfer, element, x, y) {
 		var location = null;
+		var bounds;
 		
 		if (element.id) {
 			if (element.match(this.centerSelector)) {
-				var bounds = wicketdnd.getBounds(element);
+				bounds = wicketdnd.getBounds(element);
 
 				if (x >= bounds.left && x < bounds.left + bounds.width &&
 					y >= bounds.top && y < bounds.top + bounds.height) {
@@ -712,13 +713,13 @@ wicketdnd.DropTarget = Class.create({
 				if (location) {
 					break;
 				}
-			};
+			}
 		}
 
 		if (element.id) {
 			if (element.match(this.topSelector)) {
 				if (!location) {
-					var bounds = wicketdnd.getBounds(element);
+					bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height/2) {
@@ -726,7 +727,7 @@ wicketdnd.DropTarget = Class.create({
 						location = new wicketdnd.LocationTop(transfer, this, element);
 					}
 				} else if (location instanceof wicketdnd.LocationCenter) {
-					var bounds = wicketdnd.getBounds(element);
+					bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + wicketdnd.BORDER) {
@@ -738,7 +739,7 @@ wicketdnd.DropTarget = Class.create({
 			
 			if (element.match(this.bottomSelector)) {
 				if (!location) {
-					var bounds = wicketdnd.getBounds(element);
+					bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height/2 && y < bounds.top + bounds.height) {
@@ -746,7 +747,7 @@ wicketdnd.DropTarget = Class.create({
 						location = new wicketdnd.LocationBottom(transfer, this, element);
 					}
 				} else if (location instanceof wicketdnd.LocationCenter) {
-					var bounds = wicketdnd.getBounds(element);
+					bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height - wicketdnd.BORDER && y < bounds.top + bounds.height) {
@@ -758,7 +759,7 @@ wicketdnd.DropTarget = Class.create({
 			
 			if (element.match(this.leftSelector)) {
 				if (!location) {
-					var bounds = wicketdnd.getBounds(element);
+					bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width/2 &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
@@ -766,7 +767,7 @@ wicketdnd.DropTarget = Class.create({
 						location = new wicketdnd.LocationLeft(transfer, this, element);
 					}
 				} else if (location instanceof wicketdnd.LocationCenter) {
-					var bounds = wicketdnd.getBounds(element);
+					bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + wicketdnd.BORDER &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
@@ -778,7 +779,7 @@ wicketdnd.DropTarget = Class.create({
 			
 			if (element.match(this.rightSelector)) {
 				if (!location) {
-					var bounds = wicketdnd.getBounds(element);
+					bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left + bounds.width/2  && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
@@ -786,7 +787,7 @@ wicketdnd.DropTarget = Class.create({
 						location = new wicketdnd.LocationRight(transfer, this, element);
 					}
 				} else if (location instanceof wicketdnd.LocationCenter) {
-					var bounds = wicketdnd.getBounds(element);
+					bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left + bounds.width - wicketdnd.BORDER && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
