@@ -51,9 +51,9 @@ div.dnd-hover-cover {
 	background-color: #0000ee !important;
 	color: #FFFFFF !important;
 }
-.dnd-drop  {
+.dnd-drop {
 }
-.dnd-drop-over {
+.dnd-drop-center {
 	background-color: #0000ee !important;
 	color: #FFFFFF;
 }

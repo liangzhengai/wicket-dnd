@@ -4,8 +4,11 @@ var wicketdnd = {
 	
 	THRESHOLD: 3,
 	
-	DELAY: 1,
+	DELAY: 3,
 	
+	/**
+	 * Utility method to get the bounds of an element.
+	 */
 	getBounds: function(element) {
 		var position = element.cumulativeOffset();
 		var dimension = element.getDimensions();
@@ -20,10 +23,15 @@ var wicketdnd = {
 	}
 };
 
+/**
+ * A transfer between a drag source and a drop target.
+ */
 wicketdnd.Transfer = Class.create({
 
 	initialize: function(pointer, drag, offset) {
 		this.drag = drag;
+		
+		this.operation = 'NONE';
 
 		this.elements = {};
 		
@@ -46,25 +54,30 @@ wicketdnd.Transfer = Class.create({
 		
 		this.pointer = pointer;
 		this.hover.draw(pointer);
+		
+		// request focus to be able to investigate key down/up/press
+		window.focus();
 	},
 	
+	/**
+	 * Destroy this transfer - triggers a drop notification if a location is available.
+	 */
 	destroy: function() {
 		if (this.excutor) {
 			this.executor.stop();
+			this.executor = null;
 		}
 
-		if (this.drop) {
-			this.drop.clear();
-			if (this.hover.operation != 'NONE') {
-				this.drop.notify("drop", this.hover.operation, this.drag);
+		if (this.location) {
+			this.location.clear();
+			if (this.operation != 'NONE') {
+				this.location.notify("drop", this.operation, this.drag);
 			}
 		}
 
 		this.drag.clear();
 
-		if (this.hoover != null) {
-			this.hover.clear();
-		}
+		this.hover.clear();
 		
 		for (var className in this.elements) {
 			this.elements[className].remove();
@@ -80,6 +93,11 @@ wicketdnd.Transfer = Class.create({
 	handleMousemove: function(event) {
 		var pointer = [event.pointerX(), event.pointerY()];
 
+		if (this.executor) {
+			this.executor.stop();
+			this.executor = null;
+		}
+			
 		if (this.pointer.inspect() != pointer.inspect()) {
 			this.pointer = pointer;
 			this.shift = event.shiftKey;
@@ -87,10 +105,10 @@ wicketdnd.Transfer = Class.create({
 	
 			this.hover.draw(pointer);
 
-			if (this.updateDrop()) {
-				if (this.drop != null && !(this.drop instanceof wicketdnd.Drop)) {
-					this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
-				}
+			this.updateLocation();
+			
+			if (this.location && this.location.anchor) {
+				this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
 			}
 		}
 
@@ -99,7 +117,7 @@ wicketdnd.Transfer = Class.create({
 
 	handleKeypress: function(event) {
 		if (event.keyCode == Event.KEY_ESC) {
-			this.setDrop(null);
+			this.setLocation(null);
 			
 			this.destroy();
 
@@ -115,9 +133,7 @@ wicketdnd.Transfer = Class.create({
 			this.ctrl = true;
 		}
 
-		if (this.hover != null) {
-			this.hover.setOperation(this.findOperation());
-		}
+		this.updateOperation();
 	},
 
 	handleKeyup: function(event) {
@@ -128,9 +144,7 @@ wicketdnd.Transfer = Class.create({
 			this.ctrl = false;
 		}
 
-		if (this.hover != null) {
-			this.hover.setOperation(this.findOperation());
-		}
+		this.updateOperation();
 	},
 
 	handleMouseup: function(event) {
@@ -139,59 +153,87 @@ wicketdnd.Transfer = Class.create({
 		Event.stop(event);
 	},
 
-	updateDrop: function() {
+	handleExecute: function() {
+		if (!this.executor) {
+			return;
+		}
+
+		this.executor.stop();
+		this.executor = null;
+
+		if (this.location) {
+			var completion = function() {
+				// clear old location to force update
+				this.setLocation(null);
+				
+				this.updateLocation();
+			};
+			this.location.notify("drag", this.operation, this.drag, completion.bindAsEventListener(this));
+		}		
+	},
+
+	updateLocation: function() {
 		var target = this.findTarget(this.pointer[0], this.pointer[1]);
-		if (target == null) {
-			return this.setDrop(null);
+		if (target) {
+			this.setLocation(target.findLocation(this, this.pointer[0], this.pointer[1]));
 		} else {
-			return this.setDrop(target.findDrop(this, this.pointer[0], this.pointer[1]));
+			this.setLocation(null);
 		}
 	},
 
-	canTransfer: function() {
-		if (this.drop == null) {
-			return false;
+	getType: function() {
+		if (!this.location) {
+			return null;
 		}
 		
-		var targetTransfers = this.drop.target.transfers;
-		var sourceTransfers = this.drag.source.transfers;
-		for (var index = 0; index < sourceTransfers.length; index++) {
-			var transfer = sourceTransfers[index];
+		var targetTypes = this.location.target.transferTypes;
+		var sourceTypes = this.drag.source.transferTypes;
+		for (var index = 0; index < sourceTypes.length; index++) {
+			var type = sourceTypes[index];
 			
-			if (targetTransfers.indexOf(transfer) != -1) {
-				return true;
+			if (targetTypes.indexOf(type) != -1) {
+				return type;
 			}
 		}		
 
-		return false;
+		return null;
 	},
-	
-	allowsOperation: function(operation) {
-		return this.drag.source.operations.indexOf(operation) != -1 &&
-				this.drop.target.operations.indexOf(operation) != -1;
-	},
-	
-	findOperation: function() {
-		if (this.canTransfer()) {
+
+	updateOperation: function() {
+		var operation = 'NONE';
+		
+		if (this.getType() != null) {
 			if (this.shift) {
 				if (this.allowsOperation('LINK')) {
-					return 'LINK';
+					operation = 'LINK';
 				}
 			} else if (this.ctrl) {
 				if (this.allowsOperation('COPY')) {
-					return 'COPY';
+					operation = 'COPY';
 				}
 			} else {
 				if (this.allowsOperation('MOVE')) {
-					return 'MOVE';
+					operation = 'MOVE';
 				} else if (this.allowsOperation('COPY')) {
-					return 'COPY';
+					operation = 'COPY';
 				} else if (this.allowsOperation('LINK')) {
-					return 'LINK';
+					operation = 'LINK';
 				}
 			}		
 		}		
-		return 'NONE';
+		
+		if (this.operation != operation) {
+			this.operation = operation;
+
+			if (this.hover) {
+				this.hover.onOperationChanged(operation);
+			}			
+		}	
+	},
+		
+	allowsOperation: function(operation) {
+		return this.drag.source.operations.indexOf(operation) != -1 &&
+				this.location.target.operations.indexOf(operation) != -1;
 	},
 
 	findTarget: function(x, y) {
@@ -208,7 +250,7 @@ wicketdnd.Transfer = Class.create({
 	},
 
 	collectTargets: function(targets, element) {
-		if (element.dropTarget != undefined) {
+		if (element.dropTarget) {
 			targets.push(element.dropTarget);
 		}
 
@@ -222,56 +264,32 @@ wicketdnd.Transfer = Class.create({
 		return targets;
 	},
 
-	/**
-	 * Set a new drop and return whether the drop has actually changed.
-	 */
-	setDrop: function(drop) {
-		if (this.drop != null && drop != null) {
-			if (this.drop.id == drop.id && this.drop.anchor == drop.anchor) {
-				return false;
+	setLocation: function(location) {
+		if (this.location && location) {
+			if (this.location.id == location.id && this.location.anchor == location.anchor) {
+				return;
 			}
 		}
 		
-		if (this.drop != null) {
-			this.drop.clear();
+		if (this.location) {
+			this.location.clear();
 		}
 		
-		if (this.executor != null) {
-			this.executor.stop();
-			this.executor = null;
-		}
+		this.location = location;
 		
-		this.drop = drop;
-		
-		if (this.drop != null) {
-			this.drop.draw();
+		if (this.location) {
+			this.location.draw();
 		}
 
-		this.hover.setOperation(this.findOperation());
-		
-		return true;
+		this.updateOperation();
 	},
 	
-	handleExecute: function() {
-		if (this.executor != null) {
-			this.executor.stop();
-			this.executor = null;
-		}
-
-		if (this.drop != null) {
-			var completion = function() {
-				// clear old drop to force update
-				this.setDrop(null);
-				
-				this.updateDrop();
-			};
-			this.drop.notify("drag", this.hover.operation, this.drag, completion.bindAsEventListener(this));
-		}		
-	},
-
+	/**
+	 * Create an element usable for the duration of this transfer.
+	 */
 	newElement: function(className) {
 		var element = this.elements[className];
-		if (element == null) {
+		if (!element) {
 			element = new Element("div");
 			element.addClassName(className);
 			element.hide();
@@ -284,37 +302,34 @@ wicketdnd.Transfer = Class.create({
 	}
 });
 
+/**
+ * A visual feedback of a transfers location, type and operation.
+ */
 wicketdnd.Hover = Class.create({
 
 	initialize: function(transfer, drag, offset) {
 		this.offset = offset;
 		
-		this.operation = 'NONE';
-	
 		this.element = transfer.newElement("dnd-hover-NONE");
 		
 		this.element.insert(drag.clone());
 		
-		var bounds = wicketdnd.getBounds(this.element);	
-
 		var cover = new Element("div");
 		cover.className = "dnd-hover-cover";
 		var style = cover.style;
 		style.top = "0px";
 		style.left = "0px";
+		var bounds = wicketdnd.getBounds(this.element);	
 		style.width = bounds.width + "px";
 		style.height = bounds.height + "px";
 		this.element.insert(cover);
-					
-		window.focus();
 	},
 
-	setOperation: function(operation) {
-		if (this.operation != operation) {
-			this.operation = operation;
-			
-			this.element.className = "dnd-hover-" + operation;
-		}
+	/**
+	 * Notification that the operation has changed.
+	 */
+	onOperationChanged: function(operation) {
+		this.element.className = "dnd-hover-" + operation;
 	},
 	
 	clear: function() {
@@ -330,7 +345,7 @@ wicketdnd.Hover = Class.create({
 	}
 });
 
-wicketdnd.Drop = Class.create({
+wicketdnd.LocationNone = Class.create({
 
 	initialize: function(transfer, target) {
 		this.target = target;
@@ -349,7 +364,7 @@ wicketdnd.Drop = Class.create({
 	}
 });
 
-wicketdnd.DropCenter = Class.create({
+wicketdnd.LocationCenter = Class.create({
 
 	initialize: function(transfer, target, element) {
 		this.target = target;
@@ -358,14 +373,14 @@ wicketdnd.DropCenter = Class.create({
 	},
 
 	draw: function() {
-		$(this.id).addClassName("dnd-drop-over");
+		$(this.id).addClassName("dnd-drop-center");
 	},
 	
 	clear: function() {
 		var element = $(this.id);
 		if (element) {
 			// element might no longer exist
-			$(this.id).removeClassName("dnd-drop-over");
+			$(this.id).removeClassName("dnd-drop-center");
 		}
 	},
 
@@ -374,7 +389,7 @@ wicketdnd.DropCenter = Class.create({
 	}
 });
 
-wicketdnd.DropTop = Class.create({
+wicketdnd.LocationTop = Class.create({
 
 	initialize: function(transfer, target, element) {
 		this.target = target;
@@ -404,7 +419,7 @@ wicketdnd.DropTop = Class.create({
 	}
 });
 
-wicketdnd.DropBottom = Class.create({
+wicketdnd.LocationBottom = Class.create({
 
 	initialize: function(transfer, target, element) {
 		this.target = target;
@@ -434,7 +449,7 @@ wicketdnd.DropBottom = Class.create({
 	}
 });
 
-wicketdnd.DropLeft = Class.create({
+wicketdnd.LocationLeft = Class.create({
 
 	initialize: function(transfer, target, element) {
 		this.target = target;
@@ -464,7 +479,7 @@ wicketdnd.DropLeft = Class.create({
 	}
 });
 
-wicketdnd.DropRight = Class.create({
+wicketdnd.LocationRight = Class.create({
 
 	initialize: function(transfer, target, element) {
 		this.target = target;
@@ -557,13 +572,13 @@ wicketdnd.Drag = Class.create({
 
 wicketdnd.DragSource = Class.create({
 
-	initialize: function(id, path, operations, transfers, selector, initiateSelector) {
+	initialize: function(id, path, operations, transferTypes, selector, initiateSelector) {
 		this.element = $(id);
 		
 		this.path = path;
 		
 		this.operations = operations;
-		this.transfers = transfers;
+		this.transferTypes = transferTypes;
 				
 		this.selector = selector;
 		this.initiateSelector = initiateSelector;
@@ -595,14 +610,14 @@ wicketdnd.DragSource = Class.create({
 					candidate = candidate.up(this.selector);
 				}
 				
-				if (candidate != null && candidate.id) {
+				if (candidate && candidate.id) {
 					new wicketdnd.Gesture(this, candidate, [event.pointerX(), event.pointerY()]);
 					
 					event.stop();
 				}
 			}
 		}
-	},	
+	}
 });
 
 wicketdnd.Gesture = Class.create({
@@ -626,7 +641,7 @@ wicketdnd.Gesture = Class.create({
 
 	confirmDrag: function() {
 		new wicketdnd.Drag(this.source, this.element, this.pointer);
-	},	
+	},
 	
 	handleMousemove: function(event) {
 		var deltaX = event.pointerX() - this.pointer[0];
@@ -648,7 +663,7 @@ wicketdnd.Gesture = Class.create({
 
 wicketdnd.DropTarget = Class.create({
 
-	initialize: function(id, url, operations, transfers, overSelector, topSelector, rightSelector, bottomSelector, leftSelector) {
+	initialize: function(id, url, operations, transferTypes, centerSelector, topSelector, rightSelector, bottomSelector, leftSelector) {
 		this.id = id;
 
 		$(this.id).dropTarget = this;
@@ -656,45 +671,45 @@ wicketdnd.DropTarget = Class.create({
 		this.url = url;
 		
 		this.operations = operations;
-		this.transfers = transfers;
+		this.transferTypes = transferTypes;
 				
-		this.overSelector   = overSelector;
+		this.centerSelector = centerSelector;
 		this.topSelector    = topSelector;
 		this.rightSelector  = rightSelector;
 		this.bottomSelector = bottomSelector;
 		this.leftSelector   = leftSelector;
 	},
 
-	findDrop: function(transfer, x, y) {
-		var drop = this.findDropFor(transfer, $(this.id), x, y);
-		if (drop == null) {
-			drop = new wicketdnd.Drop(transfer, this);
+	findLocation: function(transfer, x, y) {
+		var location = this.findLocationFor(transfer, $(this.id), x, y);
+		if (!location) {
+			location = new wicketdnd.LocationNone(transfer, this);
 		}
-		return drop;
+		return location;
 	},
 	
-	findDropFor: function(transfer, element, x, y) {
-		var drop = null;
+	findLocationFor: function(transfer, element, x, y) {
+		var location = null;
 		
 		if (element.id) {
-			if (element.match(this.overSelector)) {
+			if (element.match(this.centerSelector)) {
 				var bounds = wicketdnd.getBounds(element);
 
 				if (x >= bounds.left && x < bounds.left + bounds.width &&
 					y >= bounds.top && y < bounds.top + bounds.height) {
 					
-					drop = new wicketdnd.DropCenter(transfer, this, element);
+					location = new wicketdnd.LocationCenter(transfer, this, element);
 				}
 			}
 		}
 		
-		if (drop == null) {
+		if (!location) {
 			var children = element.childElements();
 			for (var index = 0; index < children.length; index++) {
 				var child = children[index];
 	
-				drop = this.findDropFor(transfer, child, x, y);
-				if (drop != null) {
+				location = this.findLocationFor(transfer, child, x, y);
+				if (location) {
 					break;
 				}
 			};
@@ -702,87 +717,87 @@ wicketdnd.DropTarget = Class.create({
 
 		if (element.id) {
 			if (element.match(this.topSelector)) {
-				if (drop == null) {
+				if (!location) {
 					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height/2) {
 						
-						drop = new wicketdnd.DropTop(transfer, this, element);
+						location = new wicketdnd.LocationTop(transfer, this, element);
 					}
-				} else if (drop instanceof wicketdnd.DropCenter) {
+				} else if (location instanceof wicketdnd.LocationCenter) {
 					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + wicketdnd.BORDER) {
 						
-						drop = new wicketdnd.DropTop(transfer, this, element);
+						location = new wicketdnd.LocationTop(transfer, this, element);
 					}
 				}
 			}
 			
 			if (element.match(this.bottomSelector)) {
-				if (drop == null) {
+				if (!location) {
 					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height/2 && y < bounds.top + bounds.height) {
 						
-						drop = new wicketdnd.DropBottom(transfer, this, element);
+						location = new wicketdnd.LocationBottom(transfer, this, element);
 					}
-				} else if (drop instanceof wicketdnd.DropCenter) {
+				} else if (location instanceof wicketdnd.LocationCenter) {
 					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width &&
 						y >= bounds.top + bounds.height - wicketdnd.BORDER && y < bounds.top + bounds.height) {
 						
-						drop = new wicketdnd.DropBottom(transfer, this, element);
+						location = new wicketdnd.LocationBottom(transfer, this, element);
 					}
 				}
 			}
 			
 			if (element.match(this.leftSelector)) {
-				if (drop == null) {
+				if (!location) {
 					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + bounds.width/2 &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new wicketdnd.DropLeft(transfer, this, element);
+						location = new wicketdnd.LocationLeft(transfer, this, element);
 					}
-				} else if (drop instanceof wicketdnd.DropCenter) {
+				} else if (location instanceof wicketdnd.LocationCenter) {
 					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left && x < bounds.left + wicketdnd.BORDER &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new wicketdnd.DropLeft(transfer, this, element);
+						location = new wicketdnd.LocationLeft(transfer, this, element);
 					}
 				}
 			}
 			
 			if (element.match(this.rightSelector)) {
-				if (drop == null) {
+				if (!location) {
 					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left + bounds.width/2  && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new wicketdnd.DropRight(transfer, this, element);
+						location = new wicketdnd.LocationRight(transfer, this, element);
 					}
-				} else if (drop instanceof wicketdnd.DropCenter) {
+				} else if (location instanceof wicketdnd.LocationCenter) {
 					var bounds = wicketdnd.getBounds(element);
 	
 					if (x >= bounds.left + bounds.width - wicketdnd.BORDER && x < bounds.left + bounds.width &&
 						y >= bounds.top && y < bounds.top + bounds.height) {
 						
-						drop = new wicketdnd.DropRight(transfer, this, element);
+						location = new wicketdnd.LocationRight(transfer, this, element);
 					}
 				}
 			}
 		}
 		
-		return drop;
+		return location;
 	},	
 	
 	notify: function(type, operation, drag, location, successHandler) {
@@ -791,7 +806,7 @@ wicketdnd.DropTarget = Class.create({
 		url += "&operation=" + operation;
 		url += "&source=" + drag.source.path;
 		url += "&drag=" + drag.id;
-		if (location != null) {
+		if (location) {
 			url += "&component=" + location.id;
 			url += "&anchor=" + location.anchor;
 		}
