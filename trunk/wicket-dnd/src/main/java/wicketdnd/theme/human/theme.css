@@ -47,12 +47,12 @@ div.dnd-hover-cover {
 	border-spacing: 0px;
 	border-collapse: collapse:
 }
-.dnd-drag  {
+.dnd-drag {
 	background-color: #fccb7f !important;
 }
-.dnd-drop  {
+.dnd-drop {
 }
-.dnd-drop-over {
+.dnd-drop-center {
 	background-color: #fccb7f !important;
 }
 .dnd-drop-top {
