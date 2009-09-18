@@ -34,7 +34,7 @@ import wicketdnd.util.MarkupIdVisitor;
  * A source of drags.
  * 
  * @see #getTypes()
- * @see #beforeDrop(Request, Transfer)
+ * @see #onBeforeDrop(Component, Transfer)
  * @see #onAfterDrop(AjaxRequestTarget, Transfer)
  * 
  * @author Sven Meier
