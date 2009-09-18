@@ -33,7 +33,7 @@ import wicketdnd.util.MarkupIdVisitor;
 /**
  * A source of drags.
  * 
- * @see #getTransferTypes()
+ * @see #getTypes()
  * @see #beforeDrop(Request, Transfer)
  * @see #onAfterDrop(AjaxRequestTarget, Transfer)
  * 
@@ -53,7 +53,11 @@ public class DragSource extends AbstractBehavior
 	private Set<Operation> operations;
 
 	/**
-	 * Create a source of drag operations.
+	 * Create a source of drags.
+	 * 
+	 * @param operations allowed operations
+	 * 
+	 * @see #getOperations()
 	 */
 	public DragSource(Operation... operations)
 	{
@@ -61,10 +65,11 @@ public class DragSource extends AbstractBehavior
 	}
 
 	/**
-	 * Create a source of drag operations.
+	 * Create a source of drags.
 	 * 
-	 * @param operations
-	 *            allowed operations
+	 * @param operations allowed operations
+	 * 
+	 * @see #getOperations()
 	 */
 	public DragSource(Set<Operation> operations)
 	{
@@ -72,12 +77,12 @@ public class DragSource extends AbstractBehavior
 	}
 
 	/**
-	 * Get supported types of transfer.
+	 * Get supported types for a transfer.
 	 * 
 	 * @return transfers
 	 * @see Transfer#getType()
 	 */
-	public String[] getTransferTypes()
+	public String[] getTypes()
 	{
 		return new String[] { Transfer.ANY };
 	}
@@ -85,8 +90,11 @@ public class DragSource extends AbstractBehavior
 	/**
 	 * Allow drag on elements matching the given selector.
 	 * 
+	 * Make sure all matching elements are configured to output their markup id.
+	 * 
 	 * @param selector
 	 *            element selector
+	 * @see Component#setOutputMarkupId(boolean)
 	 */
 	public DragSource drag(String selector)
 	{
@@ -136,9 +144,9 @@ public class DragSource extends AbstractBehavior
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
 
-		String initJS = String.format("new wicketdnd.DragSource('%s','%s',%s,%s,'%s','%s');", id, path,
-				new CollectionFormattable(getOperations()), new CollectionFormattable(
-						getTransferTypes()), selector, initiateSelector);
+		String initJS = String.format("new wicketdnd.DragSource('%s','%s',%s,%s,'%s','%s');", id,
+				path, new CollectionFormattable(getOperations()), new CollectionFormattable(
+						getTypes()), selector, initiateSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 

@@ -35,7 +35,7 @@ import wicketdnd.util.MarkupIdVisitor;
 /**
  * A target of drops.
  * 
- * @see #getTransferTypes()
+ * @see #getTypes()
  * @see #onDrag(AjaxRequestTarget, Location)
  * @see #onDrop(AjaxRequestTarget, Transfer, Location)
  * 
@@ -58,7 +58,11 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	private Set<Operation> operations;
 
 	/**
-	 * Create a drop target.
+	 * Create a target for drop.
+	 * 
+	 * @param operations allowed operations
+	 * 
+	 * @see #getOperations()
 	 */
 	public DropTarget(Operation... operations)
 	{
@@ -66,10 +70,11 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	/**
-	 * Create a drop target.
+	 * Create a target for drop.
 	 * 
-	 * @param operations
-	 *            allowed operations
+	 * @param operations allowed operations
+	 * 
+	 * @see #getOperations()
 	 */
 	public DropTarget(Set<Operation> operations)
 	{
@@ -77,46 +82,95 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	/**
-	 * Get possible types of transfer.
+	 * Get possible types for a transfer.
 	 * 
 	 * @return transfers
 	 * @see Transfer#getType()
 	 */
-	public String[] getTransferTypes()
+	public String[] getTypes()
 	{
 		return new String[] { Transfer.ANY };
 	}
 
+	/**
+	 * Allow drop on the center of elements matching the given selector.
+	 * 
+	 * Make sure all matching elements are configured to output their markup id.
+	 * 
+	 * @param selector
+	 *            element selector
+	 * @see Component#setOutputMarkupId(boolean)
+	 */
 	public DropTarget dropCenter(String selector)
 	{
 		this.centerSelector = selector;
 		return this;
 	}
 
+	/**
+	 * Allow drop on the top of elements matching the given selector.
+	 * 
+	 * Make sure all matching elements are configured to output their markup id.
+	 * 
+	 * @param selector
+	 *            element selector
+	 * @see Component#setOutputMarkupId(boolean)
+	 */
 	public DropTarget dropTop(String selector)
 	{
 		this.topSelector = selector;
 		return this;
 	}
 
+	/**
+	 * Allow drop on the right of elements matching the given selector.
+	 * 
+	 * Make sure all matching elements are configured to output their markup id.
+	 * 
+	 * @param selector
+	 *            element selector
+	 * @see Component#setOutputMarkupId(boolean)
+	 */
 	public DropTarget dropRight(String selector)
 	{
 		this.rightSelector = selector;
 		return this;
 	}
 
+	/**
+	 * Allow drop on the bottom of elements matching the given selector.
+	 * 
+	 * Make sure all matching elements are configured to output their markup id.
+	 * 
+	 * @param selector
+	 *            element selector
+	 * @see Component#setOutputMarkupId(boolean)
+	 */
 	public DropTarget dropBottom(String selector)
 	{
 		this.bottomSelector = selector;
 		return this;
 	}
 
+	/**
+	 * Allow drop on the left of elements matching the given selector.
+	 * 
+	 * Make sure all matching elements are configured to output their markup id.
+	 * 
+	 * @param selector
+	 *            element selector
+	 * @see Component#setOutputMarkupId(boolean)
+	 */
 	public DropTarget dropLeft(String selector)
 	{
 		this.leftSelector = selector;
 		return this;
 	}
 
+	/**
+	 * @see #dropTop(String)
+	 * @see #dropBottom(String)
+	 */
 	public DropTarget dropTopAndBottom(String selector)
 	{
 		this.topSelector = selector;
@@ -124,6 +178,10 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		return this;
 	}
 
+	/**
+	 * @see #dropLeft(String)
+	 * @see #dropRight(String)
+	 */
 	public DropTarget dropLeftAndRight(String selector)
 	{
 		this.leftSelector = selector;
@@ -149,7 +207,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		String initJS = String.format(
 				"new wicketdnd.DropTarget('%s','%s',%s,%s,'%s','%s','%s','%s','%s');", id,
 				getCallbackUrl(), new CollectionFormattable(getOperations()),
-				new CollectionFormattable(getTransferTypes()), centerSelector, topSelector,
+				new CollectionFormattable(getTypes()), centerSelector, topSelector,
 				rightSelector, bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
@@ -218,11 +276,11 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		}
 
 		List<String> transfers = new ArrayList<String>();
-		for (String transfer : this.getTransferTypes())
+		for (String transfer : this.getTypes())
 		{
 			transfers.add(transfer);
 		}
-		transfers.retainAll(Arrays.asList(source.getTransferTypes()));
+		transfers.retainAll(Arrays.asList(source.getTypes()));
 		if (transfers.size() == 0)
 		{
 			throw new Reject();
