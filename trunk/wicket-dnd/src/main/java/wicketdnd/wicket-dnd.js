@@ -4,7 +4,7 @@ var wicketdnd = {
 	
 	THRESHOLD: 3,
 	
-	DELAY: 3,
+	DELAY: 2,
 	
 	/**
 	 * Utility method to get the bounds of an element.
@@ -63,10 +63,7 @@ wicketdnd.Transfer = Class.create({
 	 * Destroy this transfer - triggers a drop notification if a location is available.
 	 */
 	destroy: function() {
-		if (this.excutor) {
-			this.executor.stop();
-			this.executor = null;
-		}
+		this.executor = null;
 
 		if (this.location) {
 			this.location.clear();
@@ -93,12 +90,9 @@ wicketdnd.Transfer = Class.create({
 	handleMousemove: function(event) {
 		var pointer = [event.pointerX(), event.pointerY()];
 
-		if (this.executor) {
-			this.executor.stop();
-			this.executor = null;
-		}
-			
 		if (this.pointer.inspect() != pointer.inspect()) {
+			this.executor = null;
+			
 			this.pointer = pointer;
 			this.shift = event.shiftKey;
 			this.ctrl = event.ctrlKey;			
@@ -108,7 +102,7 @@ wicketdnd.Transfer = Class.create({
 			this.updateLocation();
 			
 			if (this.location && this.location.anchor) {
-				this.executor = new PeriodicalExecuter(this.eventExecute, this.DELAY);
+				this.executor = new PeriodicalExecuter(this.eventExecute, wicketdnd.DELAY);
 			}
 		}
 
@@ -153,13 +147,12 @@ wicketdnd.Transfer = Class.create({
 		Event.stop(event);
 	},
 
-	handleExecute: function() {
-		if (!this.executor) {
+	handleExecute: function(executor) {
+		executor.stop();
+
+		if (this.executor != executor) {
 			return;
 		}
-
-		this.executor.stop();
-		this.executor = null;
 
 		if (this.location) {
 			var completion = function() {
@@ -312,8 +305,9 @@ wicketdnd.Hover = Class.create({
 		
 		this.element = transfer.newElement("dnd-hover-NONE");
 		
-		this.element.insert(drag.clone());
-		
+		var clone = drag.clone();
+		this.element.insert(clone);
+
 		var cover = new Element("div");
 		cover.className = "dnd-hover-cover";
 		var style = cover.style;
@@ -648,10 +642,10 @@ wicketdnd.Gesture = Class.create({
 		var deltaY = event.pointerY() - this.pointer[1];
 		
 		if (Math.abs(deltaX) > wicketdnd.THRESHOLD || Math.abs(deltaY) > wicketdnd.THRESHOLD) {
-			this.confirmDrag();
-			
 			this.destroy();
 	
+			this.confirmDrag();
+			
 			event.stop();
 		}
 	},
