@@ -305,8 +305,8 @@ wicketdnd.Hover = Class.create({
 		
 		this.element = transfer.newElement("dnd-hover-NONE");
 		
-		var clone = drag.clone();
-		this.element.insert(clone);
+		this.clone = drag.clone();
+		this.element.insert(this.clone);
 
 		var cover = new Element("div");
 		cover.className = "dnd-hover-cover";
@@ -331,11 +331,11 @@ wicketdnd.Hover = Class.create({
 	},
 	
 	draw: function(pointer) {
-		var style = this.element.style;
-		style.left = pointer[0] -this.offset[0] + "px";
-		style.top = pointer[1] - this.offset[1] + "px";
-		
 		this.element.show();
+		
+		var style = this.element.style;
+		style.left = pointer[0] - this.offset[0] - this.clone.offsetLeft + "px";
+		style.top  = pointer[1] - this.offset[1] - this.clone.offsetTop  + "px";
 	}
 });
 
@@ -641,7 +641,7 @@ wicketdnd.Gesture = Class.create({
 		var deltaX = event.pointerX() - this.pointer[0];
 		var deltaY = event.pointerY() - this.pointer[1];
 		
-		if (Math.abs(deltaX) > wicketdnd.THRESHOLD || Math.abs(deltaY) > wicketdnd.THRESHOLD) {
+		if (Math.abs(deltaX) >= wicketdnd.THRESHOLD || Math.abs(deltaY) >= wicketdnd.THRESHOLD) {
 			this.destroy();
 	
 			this.confirmDrag();
