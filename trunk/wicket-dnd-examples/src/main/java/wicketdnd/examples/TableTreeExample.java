@@ -58,7 +58,7 @@ public class TableTreeExample extends Example
 			}
 			
 			@Override
-			public String[] getTransferTypes()
+			public String[] getTypes()
 			{
 				return types();
 			}
@@ -87,7 +87,7 @@ public class TableTreeExample extends Example
 			}
 			
 			@Override
-			public String[] getTransferTypes()
+			public String[] getTypes()
 			{
 				return types();
 			}

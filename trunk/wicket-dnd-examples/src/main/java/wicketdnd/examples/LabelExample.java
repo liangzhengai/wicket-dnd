@@ -52,7 +52,7 @@ public class LabelExample extends Example
 			}
 
 			@Override
-			public String[] getTransferTypes()
+			public String[] getTypes()
 			{
 				return types();
 			}
@@ -80,7 +80,7 @@ public class LabelExample extends Example
 			}
 
 			@Override
-			public String[] getTransferTypes()
+			public String[] getTypes()
 			{
 				return types();
 			}

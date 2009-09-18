@@ -43,8 +43,8 @@ public class Transfer
 	/**
 	 * Transfer type indicating any type supported.
 	 * 
-	 * @see DragSource#getTransferTypes()
-	 * @see DropTarget#getTransferTypes()
+	 * @see DragSource#getTypes()
+	 * @see DropTarget#getTypes()
 	 */
 	public static final String ANY = "";
 
@@ -63,8 +63,8 @@ public class Transfer
 	/**
 	 * Get type of transfer.
 	 * 
-	 * @see DragSource#getTransferTypes()
-	 * @see DropTarget#getTransferTypes()
+	 * @see DragSource#getTypes()
+	 * @see DropTarget#getTypes()
 	 * 
 	 * @return type
 	 */
