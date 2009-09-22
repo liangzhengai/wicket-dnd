@@ -1,27 +1,55 @@
 var wicketdnd = {
 
-	BORDER: 6,
+	MARGIN: 6,
 	
 	THRESHOLD: 3,
 	
 	DELAY: 2,
-	
-	/**
-	 * Utility method to get the bounds of an element.
-	 */
-	getBounds: function(element) {
-		var position = element.cumulativeOffset();
-		var dimension = element.getDimensions();
-	
-		var bounds = {};
-		bounds.top  = position.top;
-		bounds.left = position.left;
-		bounds.width = dimension.width;
-		bounds.height = dimension.height;
-	
-		return bounds;
-	}
 };
+
+wicketdnd.Bounds = Class.create({
+	initialize: function(element) {
+		this.element = element;
+	},
+
+	getOffset: function() {
+		if (!this.offset) {
+			this.offset = this.element.cumulativeOffset();
+		}
+		return this.offset;
+	},
+
+	getDimensions: function() {
+		if (!this.dimensions) {
+			this.dimensions = this.element.getDimensions();
+		}
+		return this.dimensions;
+	},
+		
+	top: function() {
+		return this.getOffset().top;
+	},
+	
+	bottom: function() {
+		return this.top() + this.height();
+	},
+
+	left: function() {
+		return this.getOffset().left;
+	},
+
+	right: function() {
+		return this.left() + this.width();
+	},
+
+	width: function() {
+		return this.getDimensions().width;
+	},
+	
+	height: function() {
+		return this.getDimensions().height;
+	}
+});
 
 /**
  * A transfer between a drag source and a drop target.
@@ -233,8 +261,8 @@ wicketdnd.Transfer = Class.create({
 		for (var index = 0; index < this.targets.length; index++) {
 			var target = this.targets[index];
 
-			var bounds = wicketdnd.getBounds($(target.id));
-			if (x >= bounds.left && x < bounds.left + bounds.width && y >= bounds.top && y < bounds.top + bounds.height) {
+			var bounds = new wicketdnd.Bounds($(target.id));
+			if (x >= bounds.left() && x < bounds.right() && y >= bounds.top() && y < bounds.bottom()) {
 				return target;
 			}
 		}
@@ -313,9 +341,9 @@ wicketdnd.Hover = Class.create({
 		var style = cover.style;
 		style.top = "0px";
 		style.left = "0px";
-		var bounds = wicketdnd.getBounds(this.element);	
-		style.width = bounds.width + "px";
-		style.height = bounds.height + "px";
+		var bounds = new wicketdnd.Bounds(this.element);	
+		style.width = bounds.width() + "px";
+		style.height = bounds.height() + "px";
 		this.element.insert(cover);
 	},
 
@@ -394,12 +422,12 @@ wicketdnd.LocationTop = Class.create({
 	},
 
 	draw: function() {
-		var bounds = wicketdnd.getBounds($(this.id));
+		var bounds = new wicketdnd.Bounds($(this.id));
 		
 		var style = this.element.style;
-		style.left  = bounds.left + "px";
-		style.top   = bounds.top - (wicketdnd.getBounds(this.element).height/2) + "px";
-		style.width = bounds.width + "px";
+		style.left  = bounds.left() + "px";
+		style.top   = bounds.top() - (new wicketdnd.Bounds(this.element).height()/2) + "px";
+		style.width = bounds.width() + "px";
 
 		this.element.show();
 	},
@@ -424,12 +452,12 @@ wicketdnd.LocationBottom = Class.create({
 	},
 
 	draw: function() {
-		var bounds = wicketdnd.getBounds($(this.id));
+		var bounds = new wicketdnd.Bounds($(this.id));
 		
 		var style = this.element.style;
-		style.left  = bounds.left + "px";
-		style.top   = bounds.top + bounds.height - (wicketdnd.getBounds(this.element).height/2) + "px";
-		style.width = bounds.width + "px";
+		style.left  = bounds.left() + "px";
+		style.top   = bounds.bottom() - (new wicketdnd.Bounds(this.element).height()/2) + "px";
+		style.width = bounds.width() + "px";
 
 		this.element.show();
 	},
@@ -454,12 +482,12 @@ wicketdnd.LocationLeft = Class.create({
 	},
 
 	draw: function() {
-		var bounds = wicketdnd.getBounds($(this.id));
+		var bounds = new wicketdnd.Bounds($(this.id));
 		
 		var style = this.element.style;
-		style.left  = bounds.left - (wicketdnd.getBounds(this.element).width/2) + "px";
-		style.top   = bounds.top + "px";
-		style.height = bounds.height + "px";
+		style.left  = bounds.left() - (new wicketdnd.Bounds(this.element).width()/2) + "px";
+		style.top   = bounds.top() + "px";
+		style.height = bounds.height() + "px";
 
 		this.element.show();
 	},
@@ -484,12 +512,12 @@ wicketdnd.LocationRight = Class.create({
 	},
 
 	draw: function() {
-		var bounds = wicketdnd.getBounds($(this.id));
+		var bounds = new wicketdnd.Bounds($(this.id));
 		
 		var style = this.element.style;
-		style.left  = bounds.left + bounds.width - (wicketdnd.getBounds(this.element).width/2) + "px";
-		style.top   = bounds.top + "px";
-		style.height = bounds.height + "px";
+		style.left  = bounds.right() - (new wicketdnd.Bounds(this.element).width()/2) + "px";
+		style.top   = bounds.top() + "px";
+		style.height = bounds.height() + "px";
 
 		this.element.show();
 	},
@@ -509,10 +537,10 @@ wicketdnd.Drag = Class.create({
 		this.source = source;
 		this.id = element.identify();
 		
-		var bounds = wicketdnd.getBounds(element);
+		var bounds = new wicketdnd.Bounds(element);
 		new wicketdnd.Transfer(pointer, this,
-					[pointer[0] - bounds.left,
-		             pointer[1] - bounds.top]);
+					[pointer[0] - bounds.left(),
+		             pointer[1] - bounds.top()]);
 		
 		element.addClassName("dnd-drag");
 		
@@ -547,10 +575,10 @@ wicketdnd.Drag = Class.create({
 			clone = table;
 		}
 	
-		var bounds = wicketdnd.getBounds(element);
+		var bounds = new wicketdnd.Bounds(element);
 		var style = clone.style;
-		style.width = bounds.width + "px";
-		style.height = bounds.height + "px";
+		style.width = bounds.width() + "px";
+		style.height = bounds.height() + "px";
 		
 		return clone;
 	},
@@ -675,115 +703,115 @@ wicketdnd.DropTarget = Class.create({
 	},
 
 	findLocation: function(transfer, x, y) {
-		var location = this.findLocationFor(transfer, $(this.id), x, y);
+		var location = this.findLocationDown(transfer, $(this.id), x, y);
 		if (!location) {
 			location = new wicketdnd.LocationNone(transfer, this);
 		}
 		return location;
 	},
 	
-	findLocationFor: function(transfer, element, x, y) {
+	findLocationDown: function(transfer, element, x, y) {
 		var location = null;
 
-		// lazily evaluate bounds
-		var bounds = function() {
-			if (!bounds.bounds) {
-				bounds.bounds = wicketdnd.getBounds(element);
+		var children = element.childElements();
+		for (var index = 0; index < children.length; index++) {
+			var child = children[index];
+
+			location = this.findLocationDown(transfer, child, x, y);
+			if (location) {
+				break;
 			}
-			return bounds.bounds;
-		};
+		}
+
+		location = this.getLocation(transfer, location, element, x, y);
 		
-		if (element.id) {
-			if (element.match(this.centerSelector)) {
-				if (x >= bounds().left && x < bounds().left + bounds().width &&
-					y >= bounds().top && y < bounds().top + bounds().height) {
+		return location;
+	},	
+
+	getLocation: function(transfer, location, element, x, y) {
+		if (!element.id) {
+			return location;
+		}
+		
+		var bounds = new wicketdnd.Bounds(element);
+		
+		if (element.match(this.centerSelector)) {
+			if (!location) {
+				if (x >= bounds.left() && x < bounds.right() &&
+					y >= bounds.top() && y < bounds.bottom()) {
 					
 					location = new wicketdnd.LocationCenter(transfer, this, element);
 				}
 			}
 		}
 		
-		if (!location) {
-			var children = element.childElements();
-			for (var index = 0; index < children.length; index++) {
-				var child = children[index];
-	
-				location = this.findLocationFor(transfer, child, x, y);
-				if (location) {
-					break;
+		if (element.match(this.topSelector)) {
+			if (!location) {
+				if (x >= bounds.left() && x < bounds.right() &&
+					y >= bounds.top() && y < bounds.top() + bounds.height()/2) {
+					
+					location = new wicketdnd.LocationTop(transfer, this, element);
+				}
+			} else if (location instanceof wicketdnd.LocationCenter) {
+				if (x >= bounds.left() && x < bounds.right() &&
+					y >= bounds.top() && y < bounds.top() + wicketdnd.MARGIN) {
+					
+					location = new wicketdnd.LocationTop(transfer, this, element);
 				}
 			}
 		}
-
-		if (element.id) {
-			if (element.match(this.topSelector)) {
-				if (!location) {
-					if (x >= bounds().left && x < bounds().left + bounds().width &&
-						y >= bounds().top && y < bounds().top + bounds().height/2) {
-						
-						location = new wicketdnd.LocationTop(transfer, this, element);
-					}
-				} else if (location instanceof wicketdnd.LocationCenter) {
-					if (x >= bounds().left && x < bounds().left + bounds().width &&
-						y >= bounds().top && y < bounds().top + wicketdnd.BORDER) {
-						
-						location = new wicketdnd.LocationTop(transfer, this, element);
-					}
+		
+		if (element.match(this.bottomSelector)) {
+			if (!location) {
+				if (x >= bounds.left() && x < bounds.right() &&
+					y >= bounds.top() + bounds.height()/2 && y < bounds.bottom()) {
+					
+					location = new wicketdnd.LocationBottom(transfer, this, element);
+				}
+			} else if (location instanceof wicketdnd.LocationCenter) {
+				if (x >= bounds.left() && x < bounds.right() &&
+					y >= bounds.bottom() - wicketdnd.MARGIN && y < bounds.bottom()) {
+					
+					location = new wicketdnd.LocationBottom(transfer, this, element);
 				}
 			}
-			
-			if (element.match(this.bottomSelector)) {
-				if (!location) {
-					if (x >= bounds().left && x < bounds().left + bounds().width &&
-						y >= bounds().top + bounds().height/2 && y < bounds().top + bounds().height) {
-						
-						location = new wicketdnd.LocationBottom(transfer, this, element);
-					}
-				} else if (location instanceof wicketdnd.LocationCenter) {
-					if (x >= bounds().left && x < bounds().left + bounds().width &&
-						y >= bounds().top + bounds().height - wicketdnd.BORDER && y < bounds().top + bounds().height) {
-						
-						location = new wicketdnd.LocationBottom(transfer, this, element);
-					}
+		}
+		
+		if (element.match(this.leftSelector)) {
+			if (!location) {
+				if (x >= bounds.left() && x < bounds.left() + bounds.width()/2 &&
+					y >= bounds.top() && y < bounds.bottom()) {
+					
+					location = new wicketdnd.LocationLeft(transfer, this, element);
+				}
+			} else if (location instanceof wicketdnd.LocationCenter) {
+				if (x >= bounds.left() && x < bounds.left() + wicketdnd.MARGIN &&
+					y >= bounds.top() && y < bounds.bottom()) {
+					
+					location = new wicketdnd.LocationLeft(transfer, this, element);
 				}
 			}
-			
-			if (element.match(this.leftSelector)) {
-				if (!location) {
-					if (x >= bounds().left && x < bounds().left + bounds().width/2 &&
-						y >= bounds().top && y < bounds().top + bounds().height) {
-						
-						location = new wicketdnd.LocationLeft(transfer, this, element);
-					}
-				} else if (location instanceof wicketdnd.LocationCenter) {
-					if (x >= bounds().left && x < bounds().left + wicketdnd.BORDER &&
-						y >= bounds().top && y < bounds().top + bounds().height) {
-						
-						location = new wicketdnd.LocationLeft(transfer, this, element);
-					}
+		}
+		
+		if (element.match(this.rightSelector)) {
+			if (!location) {
+				if (x >= bounds.left() + bounds.width()/2  && x < bounds.right() &&
+					y >= bounds.top() && y < bounds.bottom()) {
+					
+					location = new wicketdnd.LocationRight(transfer, this, element);
 				}
-			}
-			
-			if (element.match(this.rightSelector)) {
-				if (!location) {
-					if (x >= bounds().left + bounds().width/2  && x < bounds().left + bounds().width &&
-						y >= bounds().top && y < bounds().top + bounds().height) {
-						
-						location = new wicketdnd.LocationRight(transfer, this, element);
-					}
-				} else if (location instanceof wicketdnd.LocationCenter) {
-					if (x >= bounds().left + bounds().width - wicketdnd.BORDER && x < bounds().left + bounds().width &&
-						y >= bounds().top && y < bounds().top + bounds().height) {
-						
-						location = new wicketdnd.LocationRight(transfer, this, element);
-					}
+			} else if (location instanceof wicketdnd.LocationCenter) {
+				if (x >= bounds.right() - wicketdnd.MARGIN && x < bounds.right() &&
+					y >= bounds.top() && y < bounds.bottom()) {
+					
+					location = new wicketdnd.LocationRight(transfer, this, element);
 				}
 			}
 		}
 		
 		return location;
-	},	
-	
+	},
+
 	notify: function(type, operation, drag, location, successHandler) {
 		var url = this.url;
 		url += "&type=" + type;
