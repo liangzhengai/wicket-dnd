@@ -4,6 +4,8 @@ var wicketdnd = {
 	
 	THRESHOLD: 3,
 	
+	OFFSET: 16,
+	
 	DELAY: 1
 };
 
@@ -69,8 +71,6 @@ wicketdnd.Transfer = Class.create({
 		
 		this.hover = new wicketdnd.Hover(this, drag, offset);
 		
-		this.targets = this.collectTargets([], document.body);
-
 		this.eventMousemove  = this.handleMousemove.bindAsEventListener(this);
 		this.eventMouseup    = this.handleMouseup.bindAsEventListener(this);
 		this.eventKeypress   = this.handleKeypress.bindAsEventListener(this);
@@ -86,6 +86,8 @@ wicketdnd.Transfer = Class.create({
 		
 		this.pointer = pointer;
 		this.hover.draw(pointer);
+
+		this.setOperation('NONE');
 		
 		// request focus to be able to investigate key down/up/press
 		window.focus();
@@ -111,6 +113,8 @@ wicketdnd.Transfer = Class.create({
 		for (var className in this.elements) {
 			this.elements[className].remove();
 		}
+
+		this.setOperation(null);		
 		
 		Event.stopObserving(document, "mousemove", this.eventMousemove);
 		Event.stopObserving(document, "mouseup"  , this.eventMouseup);
@@ -131,7 +135,7 @@ wicketdnd.Transfer = Class.create({
 	
 			this.hover.draw(pointer);
 
-			this.updateLocation();
+			this.updateLocation(event.element());
 			
 			if (this.location && this.location.anchor) {
 				this.executor = new PeriodicalExecuter(this.eventExecute, wicketdnd.DELAY);
@@ -188,19 +192,17 @@ wicketdnd.Transfer = Class.create({
 
 		if (this.location) {
 			var completion = function() {
-				// clear old location to force update
+				// clear old location
 				this.setLocation(null);
-				
-				this.updateLocation();
 			};
 			this.location.notify("drag", this.operation, this.drag, completion.bindAsEventListener(this));
 		}		
 	},
 
-	updateLocation: function() {
-		var target = this.findTarget(this.pointer[0], this.pointer[1]);
+	updateLocation: function(element) {
+		var target = this.findTarget(element);
 		if (target) {
-			this.setLocation(target.findLocation(this, this.pointer[0], this.pointer[1]));
+			this.setLocation(target.findLocation(this, element, this.pointer[0], this.pointer[1]));
 		} else {
 			this.setLocation(null);
 		}
@@ -247,12 +249,20 @@ wicketdnd.Transfer = Class.create({
 			}		
 		}		
 		
+		this.setOperation(operation);
+	},
+	
+	setOperation: function(operation) {
 		if (this.operation != operation) {
+			if (this.operation) {
+				$(document.body).removeClassName("dnd-" + this.operation);
+			}
+		
 			this.operation = operation;
 
-			if (this.hover) {
-				this.hover.onOperationChanged(operation);
-			}			
+			if (this.operation) {
+				$(document.body).addClassName("dnd-" + this.operation);
+			}
 		}	
 	},
 		
@@ -261,32 +271,16 @@ wicketdnd.Transfer = Class.create({
 				this.location.target.operations.indexOf(operation) != -1;
 	},
 
-	findTarget: function(x, y) {
-		for (var index = 0; index < this.targets.length; index++) {
-			var target = this.targets[index];
-
-			var bounds = new wicketdnd.Bounds($(target.id));
-			if (bounds.contains(x, y)) {
-				return target;
-			}
+	findTarget: function(element) {
+		if (element.dropTarget) {
+			return element.dropTarget;
+		}
+		
+		if (element.up && element.up()) {
+			return this.findTarget(element.up());
 		}
 		
 		return null;
-	},
-
-	collectTargets: function(targets, element) {
-		if (element.dropTarget) {
-			targets.push(element.dropTarget);
-		}
-
-		var children = element.childElements();
-		for (var index = 0; index < children.length; index++) {
-			var child = children[index];
-
-			this.collectTargets(targets, child);
-		}
-		
-		return targets;
 	},
 
 	setLocation: function(location) {
@@ -332,32 +326,13 @@ wicketdnd.Transfer = Class.create({
  */
 wicketdnd.Hover = Class.create({
 
-	initialize: function(transfer, drag, offset) {
-		this.offset = offset;
-		
-		this.element = transfer.newElement("dnd-hover-NONE");
+	initialize: function(transfer, drag) {
+		this.element = transfer.newElement("dnd-hover");
 		
 		this.clone = drag.clone();
 		this.element.insert(this.clone);
-
-		var cover = new Element("div");
-		cover.className = "dnd-hover-cover";
-		var style = cover.style;
-		style.top = "0px";
-		style.left = "0px";
-		var bounds = new wicketdnd.Bounds(this.element);	
-		style.width = bounds.width() + "px";
-		style.height = bounds.height() + "px";
-		this.element.insert(cover);
 	},
 
-	/**
-	 * Notification that the operation has changed.
-	 */
-	onOperationChanged: function(operation) {
-		this.element.className = "dnd-hover-" + operation;
-	},
-	
 	clear: function() {
 		this.element.hide();
 	},
@@ -366,8 +341,8 @@ wicketdnd.Hover = Class.create({
 		this.element.show();
 		
 		var style = this.element.style;
-		style.left = pointer[0] - this.offset[0] - this.clone.offsetLeft + "px";
-		style.top  = pointer[1] - this.offset[1] - this.clone.offsetTop  + "px";
+		style.left = pointer[0] + wicketdnd.OFFSET + "px";
+		style.top  = pointer[1] + wicketdnd.OFFSET + "px";
 	}
 });
 
@@ -394,7 +369,7 @@ wicketdnd.LocationCenter = Class.create({
 
 	initialize: function(transfer, target, element) {
 		this.target = target;
-		this.id = element.identify();
+		this.id = element.id;
 		this.anchor = "CENTER";
 	},
 
@@ -449,7 +424,7 @@ wicketdnd.LocationBottom = Class.create({
 
 	initialize: function(transfer, target, element) {
 		this.target = target;
-		this.id = element.identify();
+		this.id = element.id;
 		this.anchor = "BOTTOM";
 		
 		this.element = transfer.newElement("dnd-drop-bottom");
@@ -509,7 +484,7 @@ wicketdnd.LocationRight = Class.create({
 
 	initialize: function(transfer, target, element) {
 		this.target = target;
-		this.id = element.identify();
+		this.id = element.id;
 		this.anchor = "RIGHT";
 		
 		this.element = transfer.newElement("dnd-drop-right");
@@ -539,7 +514,7 @@ wicketdnd.Drag = Class.create({
 
 	initialize: function(source, element, pointer) {
 		this.source = source;
-		this.id = element.identify();
+		this.id = element.id;
 		
 		var bounds = new wicketdnd.Bounds(element);
 		new wicketdnd.Transfer(pointer, this,
@@ -706,30 +681,23 @@ wicketdnd.DropTarget = Class.create({
 		this.leftSelector   = leftSelector;
 	},
 
-	findLocation: function(transfer, x, y) {
-		var location = this.findLocationDown(transfer, $(this.id), x, y);
+	findLocation: function(transfer, element, x, y) {
+		var location = this.findLocationUp(transfer, element, x, y, location);
 		if (!location) {
 			location = new wicketdnd.LocationNone(transfer, this);
 		}
 		return location;
 	},
 	
-	findLocationDown: function(transfer, element, x, y) {
-		var location = null;
-
-		var children = element.childElements();
-		for (var index = 0; index < children.length; index++) {
-			var child = children[index];
-
-			location = this.findLocationDown(transfer, child, x, y);
-			if (location) {
-				break;
-			}
-		}
-
-		location = this.getLocation(transfer, element, x, y, location);
+	findLocationUp: function(transfer, element, x, y, location) {
+		var location = this.getLocation(transfer, element, x, y, location);
 		
-		return location;
+		var parent = element.up();
+		if (element.id == this.id || parent == null) {
+			return location;
+		} else {
+			return this.findLocationUp(transfer, parent, x, y, location);
+		}
 	},	
 
 	getLocation: function(transfer, element, x, y, location) {
