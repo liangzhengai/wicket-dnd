@@ -42,7 +42,13 @@ public class FooTreeProvider implements ITreeProvider<Foo>
 		Foo fooB = new Foo("B");
 		foos.add(fooB);
 		{
-			new Foo(fooB, "BA");
+			Foo fooBA = new Foo(fooB, "BA");
+			{
+				new Foo(fooBA, "BAA");
+				new Foo(fooBA, "BAB");
+				new Foo(fooBA, "BAC");
+				new Foo(fooBA, "BAD");
+			}
 			new Foo(fooB, "BB");
 		}
 		Foo fooC = new Foo("C");
@@ -82,9 +88,14 @@ public class FooTreeProvider implements ITreeProvider<Foo>
 		foos.remove(foo);
 	}
 
-	public void add(Foo drag, Foo drop)
+	public void add(Foo foo)
 	{
-		drop.add(drag);
+		foos.add(foo);
+	}
+
+	public void add(Foo drag, Foo parent)
+	{
+		parent.add(drag);
 	}
 
 	public void addBefore(Foo drag, Foo drop)
