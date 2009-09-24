@@ -1,44 +1,25 @@
-div.dnd-hover-MOVE {
+div.dnd-hover {
 	position: absolute;
+	padding-left: 18px;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
+	z-index: 100;
+}
+body.dnd-MOVE div.dnd-hover {
 	background: white url(move.gif) no-repeat 0px center;
-	padding-left: 18px;
 	border: 1px solid #a1e898;
-	filter: alpha(opacity=70);
-	opacity: 0.7;
-	z-index: 100;
 }
-div.dnd-hover-COPY {
-	position: absolute;
+body.dnd-COPY div.dnd-hover {
 	background: white url(copy.gif) no-repeat 0px center;
-	padding-left: 18px;
 	border: 1px solid #8f8fd3;
-	filter: alpha(opacity=70);
-	opacity: 0.7;
-	z-index: 100;
 }
-div.dnd-hover-LINK {
-	position: absolute;
+body.dnd-LINK div.dnd-hover {
 	background: white url(link.gif) no-repeat 0px center;
-	padding-left: 18px;
 	border: 1px solid #a7a7a7;
-	filter: alpha(opacity=70);
-	opacity: 0.7;
-	z-index: 100;
 }
-div.dnd-hover-NONE {
-	position: absolute;
+body.dnd-NONE div.dnd-hover {
 	background: white url(none.gif) no-repeat 0px center;
-	padding-left: 18px;
 	border: 1px solid #f68f8f;
-	filter: alpha(opacity=70);
-	opacity: 0.7;
-	z-index: 100;
-}
-div.dnd-hover-cover {
-	position: absolute;
-	background: url(cover.gif) repeat;
-	z-index: 100;
-	cursor: move;
 }
 .dnd-hover-clone {
 	margin: 0px !important;
