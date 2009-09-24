@@ -104,8 +104,10 @@ public class TreeExample extends Example
 			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 					throws Reject
 			{
-				if (location != null)
+				if (location == null)
 				{
+					provider.add(operate(transfer));
+				} else {
 					Foo foo = location.getModelObject();
 					switch (location.getAnchor())
 					{
@@ -121,8 +123,8 @@ public class TreeExample extends Example
 						default :
 							transfer.reject();
 					}
-					target.addComponent(tree);
 				}
+				target.addComponent(tree);
 			}
 		}.dropCenter("span.tree-content").dropTopAndBottom("div.tree-branch"));
 		
