@@ -16,7 +16,7 @@ div.dnd-hover {
 	border: 1px solid black;
 	z-index: 100;
 }
-.dnd-hover-clone {
+.dnd-clone {
 	margin: 0px !important;
 	display: block;
 }

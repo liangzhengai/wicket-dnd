@@ -1,3 +1,15 @@
+body.dnd-NONE {
+	cursor: move !important;
+}
+body.dnd-MOVE {
+	cursor: move !important;
+}
+body.dnd-COPY {
+	cursor: move !important;
+}
+body.dnd-LINK {
+	cursor: move !important;
+}
 div.dnd-hover {
 	position: absolute;
 	padding-left: 18px;
@@ -21,7 +33,7 @@ body.dnd-NONE div.dnd-hover {
 	background: white url(none.gif) no-repeat 0px center;
 	border: 1px solid #f68f8f;
 }
-.dnd-hover-clone {
+.dnd-clone {
 	margin: 0px !important;
 	display: block;
 }
