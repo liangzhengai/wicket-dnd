@@ -49,6 +49,8 @@ public class DragSource extends AbstractBehavior
 	private String selector = Transfer.UNDEFINED;
 
 	private String initiateSelector = Transfer.UNDEFINED;
+	
+	private String cloneSelector = Transfer.UNDEFINED;
 
 	private Set<Operation> operations;
 
@@ -105,6 +107,11 @@ public class DragSource extends AbstractBehavior
 			this.initiateSelector = selector;
 		}
 
+		if (this.cloneSelector.equals(Transfer.UNDEFINED))
+		{
+			this.cloneSelector = selector;
+		}
+		
 		return this;
 	}
 
@@ -117,6 +124,18 @@ public class DragSource extends AbstractBehavior
 	public DragSource initiate(String selector)
 	{
 		this.initiateSelector = selector;
+		return this;
+	}
+
+	/**
+	 * Clone drag on elements matching the given selector.
+	 * 
+	 * @param selector
+	 *            element selector
+	 */
+	public DragSource clone(String selector)
+	{
+		this.cloneSelector = selector;
 		return this;
 	}
 
@@ -144,9 +163,9 @@ public class DragSource extends AbstractBehavior
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
 
-		String initJS = String.format("new wicketdnd.DragSource('%s','%s',%s,%s,'%s','%s');", id,
+		String initJS = String.format("new wicketdnd.DragSource('%s','%s',%s,%s,'%s','%s','%s');", id,
 				path, new CollectionFormattable(getOperations()), new CollectionFormattable(
-						getTypes()), selector, initiateSelector);
+						getTypes()), selector, initiateSelector, cloneSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 

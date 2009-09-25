@@ -62,14 +62,14 @@ wicketdnd.Bounds = Class.create({
  */
 wicketdnd.Transfer = Class.create({
 
-	initialize: function(pointer, drag, offset) {
+	initialize: function(pointer, drag) {
 		this.drag = drag;
 		
-		this.operation = 'NONE';
+		this.setOperation('NONE');
 
 		this.elements = {};
 		
-		this.hover = new wicketdnd.Hover(this, drag, offset);
+		this.hover = new wicketdnd.Hover(this, drag);
 		
 		this.eventMousemove  = this.handleMousemove.bindAsEventListener(this);
 		this.eventMouseup    = this.handleMouseup.bindAsEventListener(this);
@@ -87,7 +87,7 @@ wicketdnd.Transfer = Class.create({
 		this.pointer = pointer;
 		this.hover.draw(pointer);
 
-		this.setOperation('NONE');
+		this.drag.draw();
 		
 		// request focus to be able to investigate key down/up/press
 		window.focus();
@@ -127,15 +127,15 @@ wicketdnd.Transfer = Class.create({
 		var pointer = [event.pointerX(), event.pointerY()];
 
 		if (this.pointer.inspect() != pointer.inspect()) {
-			this.executor = null;
-			
 			this.pointer = pointer;
+
+			this.executor = null;		
 			this.shift = event.shiftKey;
 			this.ctrl = event.ctrlKey;			
 	
 			this.hover.draw(pointer);
 
-			this.updateLocation(event.element());
+			this.updateLocation(event.element(), this.pointer[0], this.pointer[1]);
 			
 			if (this.location && this.location.anchor) {
 				this.executor = new PeriodicalExecuter(this.eventExecute, wicketdnd.DELAY);
@@ -192,17 +192,27 @@ wicketdnd.Transfer = Class.create({
 
 		if (this.location) {
 			var completion = function() {
-				// clear old location
-				this.setLocation(null);
+				if (this.drag) {
+					this.drag.draw();
+				}
+				if (this.location) {
+					this.location.draw();
+				}
 			};
 			this.location.notify("drag", this.operation, this.drag, completion.bindAsEventListener(this));
 		}		
 	},
 
-	updateLocation: function(element) {
+	updateLocation: function(element, x, y) {
+		for (var className in this.elements) {
+			if (element == this.elements[className]) {
+				return;
+			}
+		}
+		
 		var target = this.findTarget(element);
 		if (target) {
-			this.setLocation(target.findLocation(this, element, this.pointer[0], this.pointer[1]));
+			this.setLocation(target.findLocation(this, element, x, y));
 		} else {
 			this.setLocation(null);
 		}
@@ -331,6 +341,9 @@ wicketdnd.Hover = Class.create({
 		
 		this.clone = drag.clone();
 		this.element.insert(this.clone);
+		
+		var cover = transfer.newElement("dnd-hover-cover");
+		this.element.insert(cover);
 	},
 
 	clear: function() {
@@ -516,12 +529,7 @@ wicketdnd.Drag = Class.create({
 		this.source = source;
 		this.id = element.id;
 		
-		var bounds = new wicketdnd.Bounds(element);
-		new wicketdnd.Transfer(pointer, this,
-					[pointer[0] - bounds.left(),
-		             pointer[1] - bounds.top()]);
-		
-		element.addClassName("dnd-drag");
+		new wicketdnd.Transfer(pointer, this);
 		
 		if (Prototype.Browser.IE) {
 			// recreate element to force cursor change
@@ -532,8 +540,8 @@ wicketdnd.Drag = Class.create({
 	clone: function() {
 		var element = $(this.id);
 
-		var clone = element.cloneNode(true);
-		clone.addClassName("dnd-hover-clone");
+		var clone = this.source.clone(element);
+		clone.addClassName("dnd-clone");
 
 		if (clone.match("td")) {
 			var tr = new Element("tr");
@@ -568,12 +576,20 @@ wicketdnd.Drag = Class.create({
 		if (element) {
 			element.removeClassName("dnd-drag");
 		}
+	},
+	
+	draw: function() {
+		// element might no longer exist
+		var element = $(this.id);
+		if (element) {
+			element.addClassName("dnd-drag");
+		}
 	}
 });
 
 wicketdnd.DragSource = Class.create({
 
-	initialize: function(id, path, operations, transferTypes, selector, initiateSelector) {
+	initialize: function(id, path, operations, transferTypes, selector, initiateSelector, cloneSelector) {
 		this.element = $(id);
 		
 		this.path = path;
@@ -583,6 +599,7 @@ wicketdnd.DragSource = Class.create({
 				
 		this.selector = selector;
 		this.initiateSelector = initiateSelector;
+		this.cloneSelector = cloneSelector;
 		
 		this.eventMouseDown = this.handleMouseDown.bindAsEventListener(this);
 		Event.observe(this.element, "mousedown", this.eventMouseDown);
@@ -618,6 +635,13 @@ wicketdnd.DragSource = Class.create({
 				}
 			}
 		}
+	},
+	
+	clone: function(element) {
+		if (!element.match(this.cloneSelector)) {
+			element = element.down(this.cloneSelector);
+		}
+		return element.cloneNode(true)
 	}
 });
 
