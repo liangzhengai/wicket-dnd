@@ -106,6 +106,10 @@ public class TableTreeExample extends Example
 				if (location != null)
 				{
 					Foo foo = location.getModelObject();
+					if (foo.isAncestor(transfer.getData())) {
+						transfer.reject();
+					}
+					
 					switch (location.getAnchor())
 					{
 						case CENTER :
