@@ -93,12 +93,20 @@ public abstract class Example extends Panel
 
 	protected Set<Operation> dragOperations()
 	{
-		return EnumSet.copyOf(dragOperations);
+		if (dragOperations.isEmpty()) {
+			return EnumSet.noneOf(Operation.class);
+		} else {
+			return EnumSet.copyOf(dragOperations);
+		}
 	}
 
 	protected Set<Operation> dropOperations()
 	{
-		return EnumSet.copyOf(dropOperations);
+		if (dropOperations.isEmpty()) {
+			return EnumSet.noneOf(Operation.class);
+		} else {
+			return EnumSet.copyOf(dropOperations);
+		}
 	}
 
 	public String[] types()
