@@ -109,4 +109,17 @@ public class Foo implements Serializable
 	{
 		return children.indexOf(child);
 	}
+
+	public boolean isAncestor(Object foo)
+	{
+		if (this == foo) {
+			return true;
+		}
+		
+		if (parent == null) {
+			return false;
+		} else {
+			return parent.isAncestor(foo);
+		}
+	}
 }
