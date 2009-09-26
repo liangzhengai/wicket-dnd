@@ -1,13 +1,13 @@
-body.dnd-NONE {
+body.dnd-NONE * {
 	cursor: move !important;
 }
-body.dnd-MOVE {
+body.dnd-MOVE * {
 	cursor: move !important;
 }
-body.dnd-COPY {
+body.dnd-COPY * {
 	cursor: move !important;
 }
-body.dnd-LINK {
+body.dnd-LINK * {
 	cursor: move !important;
 }
 div.dnd-hover {
