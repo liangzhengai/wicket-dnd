@@ -22,7 +22,6 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.behavior.HeaderContributor;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -30,7 +29,6 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.protocol.http.WebRequest;
 
 import wicketdnd.IECursorFix;
 import wicketdnd.theme.HumanTheme;
@@ -52,23 +50,6 @@ public class ExamplePage extends WebPage
 	public ExamplePage()
 	{
 		add(new IECursorFix());
-
-		add(new WebMarkupContainer("performance")
-		{
-			@Override
-			public boolean isVisible()
-			{
-				try
-				{
-					return ((WebRequest)getRequest()).getHttpServletRequest().getRequestURI()
-							.contains("wicket-dnd.appspot.com");
-				}
-				catch (Exception e)
-				{
-					return false;
-				}
-			}
-		});
 
 		Form<Void> form = new Form<Void>("form");
 		form.add(new HeaderContributor(new IHeaderContributor()
