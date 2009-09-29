@@ -218,6 +218,7 @@ wicketdnd.Transfer = Class.create({
 	updateLocation: function(element, position) {
 		for (var className in this.elements) {
 			if (element == this.elements[className]) {
+				// do not step on our own feet
 				return;
 			}
 		}
@@ -343,19 +344,14 @@ wicketdnd.Transfer = Class.create({
 	}
 });
 
-/**
- * A visual feedback of a transfers location, type and operation.
- */
 wicketdnd.Hover = Class.create({
 
 	initialize: function(transfer, drag) {
 		this.element = transfer.newElement("dnd-hover");
 		
-		this.clone = drag.clone();
-		this.element.insert(this.clone);
+		this.element.insert(drag.clone());
 		
-		var cover = transfer.newElement("dnd-hover-cover");
-		this.element.insert(cover);
+		this.element.insert(transfer.newElement("dnd-hover-cover"));
 	},
 
 	clear: function() {
