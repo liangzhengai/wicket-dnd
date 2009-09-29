@@ -23,6 +23,12 @@ import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 
 /**
+ * Fix for cursors in IE. <br>
+ * IE resolves relative URLs in CSS cursor styles against the page's location
+ * instead of the CSS's location (note: this failure affects cursor images
+ * only). This javascript makes these URLs absolute by prepending the containing
+ * CSS's location.
+ * 
  * @author Sven Meier
  */
 public class IECursorFix extends AbstractBehavior
@@ -33,11 +39,12 @@ public class IECursorFix extends AbstractBehavior
 	public static final ResourceReference JS = new JavascriptResourceReference(IECursorFix.class,
 			"iecursor.js");
 
-	public final void renderHead(IHeaderResponse response) {
+	public final void renderHead(IHeaderResponse response)
+	{
 
-		WebClientInfo info = ((WebClientInfo) RequestCycle.get()
-				.getClientInfo());
-		if (info.getProperties().isBrowserInternetExplorer()) {
+		WebClientInfo info = ((WebClientInfo)RequestCycle.get().getClientInfo());
+		if (info.getProperties().isBrowserInternetExplorer())
+		{
 			response.renderJavascriptReference(JS);
 
 			String initJS = "IECursor.fix();";
