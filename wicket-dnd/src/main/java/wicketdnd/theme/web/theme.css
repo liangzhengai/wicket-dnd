@@ -17,6 +17,9 @@ div.dnd-hover {
 	opacity: 0.7;
 	z-index: 100;
 }
+div.dnd-hover-cover {
+	display: none;
+}
 body.dnd-MOVE div.dnd-hover {
 	background: white url(move.gif) no-repeat 0px center;
 	border: 1px solid #a1e898;
