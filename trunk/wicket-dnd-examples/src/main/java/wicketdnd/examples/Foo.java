@@ -112,7 +112,7 @@ public class Foo implements Serializable
 
 	public boolean isAncestor(Object foo)
 	{
-		if (this == foo) {
+		if (parent == foo) {
 			return true;
 		}
 		

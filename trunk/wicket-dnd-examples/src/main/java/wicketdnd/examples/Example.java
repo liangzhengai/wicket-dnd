@@ -26,6 +26,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.util.convert.IConverter;
 import org.apache.wicket.util.string.Strings;
@@ -57,7 +58,16 @@ public abstract class Example extends Panel
 		dragOperations.addAll(operations);
 		dropOperations.addAll(operations);
 
-		add(new Label("title", getClass().getSimpleName()));
+		add(new Label("title", new AbstractReadOnlyModel<String>()
+		{
+			@Override
+			public String getObject()
+			{
+				String name = Example.this.getClass().getSimpleName();
+
+				return name.substring(0, name.indexOf("Example"));
+			}
+		}));
 
 		WebMarkupContainer controls = new WebMarkupContainer("controls",
 				new CompoundPropertyModel<Example>(this));
@@ -93,18 +103,24 @@ public abstract class Example extends Panel
 
 	protected Set<Operation> dragOperations()
 	{
-		if (dragOperations.isEmpty()) {
+		if (dragOperations.isEmpty())
+		{
 			return EnumSet.noneOf(Operation.class);
-		} else {
+		}
+		else
+		{
 			return EnumSet.copyOf(dragOperations);
 		}
 	}
 
 	protected Set<Operation> dropOperations()
 	{
-		if (dropOperations.isEmpty()) {
+		if (dropOperations.isEmpty())
+		{
 			return EnumSet.noneOf(Operation.class);
-		} else {
+		}
+		else
+		{
 			return EnumSet.copyOf(dropOperations);
 		}
 	}
@@ -113,8 +129,9 @@ public abstract class Example extends Panel
 	{
 		return types;
 	}
-	
-	public void setTypes(String[] types) {
+
+	public void setTypes(String[] types)
+	{
 		this.types = types;
 	}
 

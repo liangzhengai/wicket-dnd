@@ -30,6 +30,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.PropertyModel;
 
+import wicketdnd.IEBackgroundImageCacheFix;
 import wicketdnd.IECursorFix;
 import wicketdnd.theme.HumanTheme;
 import wicketdnd.theme.WebTheme;
@@ -50,6 +51,7 @@ public class ExamplePage extends WebPage
 	public ExamplePage()
 	{
 		add(new IECursorFix());
+		add(new IEBackgroundImageCacheFix());
 
 		Form<Void> form = new Form<Void>("form");
 		form.add(new HeaderContributor(new IHeaderContributor()

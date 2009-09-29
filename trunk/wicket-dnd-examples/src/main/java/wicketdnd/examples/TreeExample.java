@@ -116,6 +116,9 @@ public class TreeExample extends Example
 					switch (location.getAnchor())
 					{
 						case CENTER :
+							if (foo == transfer.getData()) {
+								transfer.reject();
+							}
 							provider.add(operate(transfer), foo);
 							break;
 						case TOP :
