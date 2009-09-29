@@ -16,6 +16,9 @@ div.dnd-hover {
 	border: 1px solid black;
 	z-index: 100;
 }
+div.dnd-hover-cover {
+	display: none;
+}
 .dnd-clone {
 	margin: 0px !important;
 	display: block;
