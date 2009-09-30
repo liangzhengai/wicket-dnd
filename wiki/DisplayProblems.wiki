@@ -15,6 +15,7 @@ IE 6 might fail to reliably display cursor changes so please use a theme like [h
 
 == IE and background images ==
 IE 6 doesn't cache background images defined in CSS. This leads to excessive flickering especially when hovering with the mouse over HTML elements.
+
 wicket-dnd offers the [http://code.google.com/p/wicket-dnd/source/browse/trunk/wicket-dnd/src/main/java/wicketdnd/IEBackgroundImageCacheFix.java IEBackgroundImageCacheFix] behavior to force image caching via Javascript.
 
 == Opera and custom cursor images ==
