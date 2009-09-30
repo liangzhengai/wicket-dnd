@@ -1,5 +1,3 @@
-#fixing DnD display problems
-
 When using wicket-dnd you will encounter the following obstacles:
 
 == IE and custom cursor images ==
