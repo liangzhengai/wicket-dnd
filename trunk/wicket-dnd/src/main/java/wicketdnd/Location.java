@@ -19,7 +19,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.model.IModel;
 
 /**
- * A location inside a {@link DropTarget}.
+ * A location on a {@link DropTarget}.
  * 
  * @see DropTarget#onDrag(org.apache.wicket.ajax.AjaxRequestTarget, Location)
  * @see DropTarget#onDrop(org.apache.wicket.ajax.AjaxRequestTarget, Transfer, Location)
