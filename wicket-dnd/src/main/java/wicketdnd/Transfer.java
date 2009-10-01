@@ -109,7 +109,7 @@ public class Transfer
 	/**
 	 * Reject this transfer.
 	 */
-	public void reject()
+	public void reject() throws Reject
 	{
 		throw new Reject();
 	}
