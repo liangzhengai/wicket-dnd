@@ -120,6 +120,8 @@ public class TreeExample extends Example
 								transfer.reject();
 							}
 							provider.add(operate(transfer), foo);
+							
+							tree.expand(foo);
 							break;
 						case TOP :
 							provider.addBefore(operate(transfer), foo);
