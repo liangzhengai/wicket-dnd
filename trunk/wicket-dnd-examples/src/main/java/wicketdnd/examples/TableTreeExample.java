@@ -117,6 +117,7 @@ public class TableTreeExample extends Example
 								transfer.reject();
 							}
 							provider.add(operate(transfer), foo);
+							tabletree.expand(foo);
 							break;
 						case TOP :
 							provider.addBefore(operate(transfer), foo);
