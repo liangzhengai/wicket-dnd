@@ -1,7 +1,7 @@
 When using wicket-dnd you will encounter the following obstacles:
 
 == IE and custom cursor images ==
-IE loads custom cursor images relative to the current HTML page. This bug affects all IE versions and makes it impossible to use relative URLs inside cursor styles defined in CSS files:
+IE loads custom cursor images relative to the current HTML page. This bug affects all IE versions and normally makes it impossible to use relative URLs inside cursor styles defined in CSS files:
 
 {{{
 div.mycursor {
