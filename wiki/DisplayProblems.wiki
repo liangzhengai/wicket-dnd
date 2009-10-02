@@ -11,7 +11,7 @@ div.mycursor {
 
 wicket-dnd offers the [http://code.google.com/p/wicket-dnd/source/browse/trunk/wicket-dnd/src/main/java/wicketdnd/IECursorFix.java IECursorFix] behavior to adjust these styles on the fly via Javascript.
 
-IE 6 might fail to reliably display cursor changes so please use a theme like [http://code.google.com/p/wicket-dnd/source/browse/trunk/wicket-dnd/src/main/java/wicketdnd/theme/WebTheme.java WebTheme] which doesn't utilize cursor changes to indicate DnD operations.
+Regretfully IE 6 fails to reliably display cursor changes so it is recommended to use a theme like [http://code.google.com/p/wicket-dnd/source/browse/trunk/wicket-dnd/src/main/java/wicketdnd/theme/WebTheme.java WebTheme] which doesn't utilize cursor changes to indicate DnD operations.
 
 == IE and background images ==
 IE 6 doesn't cache background images defined in CSS. This leads to excessive flickering especially when hovering with the mouse over HTML elements.
