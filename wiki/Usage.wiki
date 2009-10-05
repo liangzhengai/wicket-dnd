@@ -1,0 +1,18 @@
+  * Maven
+{{{
+	<dependency>
+		<groupId>wicket-dnd</groupId>
+		<artifactId>wicket-dnd</artifactId>
+		<version>0.4-SNAPSHOT</version>
+	</dependency>
+
+	<repository> 
+		<id>wicket-tree</id> 
+		<name>Wicket-Tree Repository</name> 
+		<url>http://wicket-tree.googlecode.com/svn/repo</url> 
+	</repository> 
+}}}
+
+  * Otherwise
+
+	[http://code.google.com/p/wicket-dnd/source/browse/#svn/repo/wicket-dnd/wicket-dnd/0.4-SNAPSHOT]
