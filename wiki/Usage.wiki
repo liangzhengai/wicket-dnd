@@ -7,9 +7,9 @@
 	</dependency>
 
 	<repository> 
-		<id>wicket-tree</id> 
-		<name>Wicket-Tree Repository</name> 
-		<url>http://wicket-tree.googlecode.com/svn/repo</url> 
+		<id>wicket-dnd</id> 
+		<name>Wicket-dnd Repository</name> 
+		<url>http://wicket-dnd.googlecode.com/svn/repo</url> 
 	</repository> 
 }}}
 
