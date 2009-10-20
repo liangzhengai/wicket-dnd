@@ -21,11 +21,13 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 
 /**
- * A drag and drop transfer.
- * 
- * @see DragSource#onBeforeDrop(Component, Transfer)
- * @see DragSource#onAfterDrop(AjaxRequestTarget, Transfer)
- * @see DropTarget#onDrop(AjaxRequestTarget, Transfer, Location)
+ * A transfer from a {@link DragSource} to a {@link DropTarget}, only allowed when:
+ * <ul>
+ *   <li>source and target share a common transfer {@link Operation}</li>
+ *   <li>source and target share a common transfer type ({@link #getType()})</li>
+ *   <li>{@link DragSource#onBeforeDrop(Component, Transfer)} doesn't reject the drop</li>
+ *   <li>{@link DropTarget#onDrop(AjaxRequestTarget, Transfer, Location)} doesn't reject the drop</li>
+ * </ul>
  * 
  * @author Sven Meier
  */

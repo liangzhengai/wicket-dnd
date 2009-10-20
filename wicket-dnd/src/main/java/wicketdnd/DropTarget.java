@@ -33,7 +33,9 @@ import wicketdnd.util.CollectionFormattable;
 import wicketdnd.util.MarkupIdVisitor;
 
 /**
- * A target of drops.
+ * A target of drops. By default reacts to mouse operations on the whole visual
+ * boundary of the owning component, but can be configured for specific
+ * {@link Location}s via CSS selectors.
  * 
  * @see #getTypes()
  * @see #onDrag(AjaxRequestTarget, Location)
@@ -60,7 +62,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	/**
 	 * Create a target for drop.
 	 * 
-	 * @param operations allowed operations
+	 * @param operations
+	 *            allowed operations
 	 * 
 	 * @see #getOperations()
 	 */
@@ -72,7 +75,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	/**
 	 * Create a target for drop.
 	 * 
-	 * @param operations allowed operations
+	 * @param operations
+	 *            allowed operations
 	 * 
 	 * @see #getOperations()
 	 */
@@ -207,8 +211,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		String initJS = String.format(
 				"new wicketdnd.DropTarget('%s','%s',%s,%s,'%s','%s','%s','%s','%s');", id,
 				getCallbackUrl(), new CollectionFormattable(getOperations()),
-				new CollectionFormattable(getTypes()), centerSelector, topSelector,
-				rightSelector, bottomSelector, leftSelector);
+				new CollectionFormattable(getTypes()), centerSelector, topSelector, rightSelector,
+				bottomSelector, leftSelector);
 		response.renderOnDomReadyJavascript(initJS);
 	}
 
