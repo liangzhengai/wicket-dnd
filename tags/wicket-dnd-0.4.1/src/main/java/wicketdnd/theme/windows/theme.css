@@ -1,0 +1,63 @@
+body.dnd-NONE * {
+	cursor: url(none.cur), url(none.gif), move !important;
+}
+body.dnd-MOVE * {
+	cursor: url(move.cur), url(move.gif), move !important;
+}
+body.dnd-COPY * {
+	cursor: url(copy.cur), url(copy.gif), move !important;
+}
+body.dnd-LINK * {
+	cursor: url(link.cur), url(link.gif), move !important;
+}
+div.dnd-hover {
+	position: absolute;
+	filter: alpha(opacity=70);
+	opacity: 0.7;
+	z-index: 100;
+}
+div.dnd-hover-cover {
+	display: none;
+}
+.dnd-clone {
+	margin: 0px !important;
+	display: block;
+}
+.dnd-hover-table {
+	border-spacing: 0px;
+	border-collapse: collapse:
+}
+.dnd-drag  {
+	background-color: #0000ee !important;
+	color: #FFFFFF !important;
+}
+.dnd-drop {
+}
+.dnd-drop-center {
+	background-color: #0000ee !important;
+	color: #FFFFFF;
+}
+.dnd-drop-top {
+	position: absolute;
+	background: #000000;
+	height: 2px;
+	overflow: hidden;
+}
+.dnd-drop-bottom {
+	position: absolute;
+	background: #000000;
+	height: 2px;
+	overflow: hidden;
+}
+.dnd-drop-left {
+	position: absolute;
+	background: #000000;
+	width: 2px;
+	overflow: hidden;
+}
+.dnd-drop-right {
+	position: absolute;
+	background: #000000;
+	width: 2px;
+	overflow: hidden;
+}
