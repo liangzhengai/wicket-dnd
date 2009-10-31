@@ -3,7 +3,7 @@
 	<dependency>
 		<groupId>wicket-dnd</groupId>
 		<artifactId>wicket-dnd</artifactId>
-		<version>0.4-SNAPSHOT</version>
+		<version>0.4.1</version>
 	</dependency>
 
 	<repository> 
@@ -15,4 +15,4 @@
 
   * Otherwise
 
-	[http://code.google.com/p/wicket-dnd/source/browse/#svn/repo/wicket-dnd/wicket-dnd/0.4-SNAPSHOT]
+	[http://code.google.com/p/wicket-dnd/source/browse/#svn/repo/wicket-dnd/wicket-dnd/0.4.1]
