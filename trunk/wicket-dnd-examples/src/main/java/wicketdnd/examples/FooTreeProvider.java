@@ -22,16 +22,16 @@ import java.util.List;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-import wickettree.ITreeProvider;
+import wickettree.util.SortableTreeProvider;
 
 /**
  * @author Sven Meier
  */
-public class FooTreeProvider implements ITreeProvider<Foo>
+public class FooTreeProvider extends SortableTreeProvider<Foo>
 {
 
 	private List<Foo> foos = new ArrayList<Foo>();
-	
+
 	{
 		Foo fooA = new Foo("A");
 		foos.add(fooA);
@@ -101,10 +101,13 @@ public class FooTreeProvider implements ITreeProvider<Foo>
 	public void addBefore(Foo drag, Foo drop)
 	{
 		Foo parent = drop.getParent();
-		if (parent == null) {
+		if (parent == null)
+		{
 			drag.remove();
 			foos.add(foos.indexOf(drop), drag);
-		} else {
+		}
+		else
+		{
 			parent.add(drag, parent.indexOf(drop));
 		}
 	}
@@ -112,10 +115,13 @@ public class FooTreeProvider implements ITreeProvider<Foo>
 	public void addAfter(Foo drag, Foo drop)
 	{
 		Foo parent = drop.getParent();
-		if (parent == null) {
+		if (parent == null)
+		{
 			drag.remove();
 			foos.add(foos.indexOf(drop) + 1, drag);
-		} else {
+		}
+		else
+		{
 			parent.add(drag, parent.indexOf(drop) + 1);
 		}
 	}
