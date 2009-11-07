@@ -17,6 +17,14 @@ wicketdnd.Bounds = Class.create({
 	getOffset: function() {
 		if (!this.offset) {
 			this.offset = this.element.cumulativeOffset();
+			
+			var scrollOffset = this.element.cumulativeScrollOffset();
+			this.offset.top -= scrollOffset.top;
+			this.offset.left -= scrollOffset.left;
+			
+			scrollOffset = $(document.body).cumulativeScrollOffset();
+			this.offset.top += scrollOffset.top;
+			this.offset.left += scrollOffset.left;
 		}
 		return this.offset;
 	},
