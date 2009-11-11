@@ -97,7 +97,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	/**
-	 * Allow drop on the center of elements matching the given selector.
+	 * Allow drop on the {@link Anchor#CENTER} of elements matching the given
+	 * selector.
 	 * 
 	 * Make sure all matching elements are configured to output their markup id.
 	 * 
@@ -112,7 +113,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	/**
-	 * Allow drop on the top of elements matching the given selector.
+	 * Allow drop on the {@link Anchor#TOP} of elements matching the given
+	 * selector.
 	 * 
 	 * Make sure all matching elements are configured to output their markup id.
 	 * 
@@ -127,7 +129,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	/**
-	 * Allow drop on the right of elements matching the given selector.
+	 * Allow drop on the {@link Anchor#RIGHT} of elements matching the given
+	 * selector.
 	 * 
 	 * Make sure all matching elements are configured to output their markup id.
 	 * 
@@ -142,7 +145,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	/**
-	 * Allow drop on the bottom of elements matching the given selector.
+	 * Allow drop on the {@link Anchor#BOTTOM} of elements matching the given
+	 * selector.
 	 * 
 	 * Make sure all matching elements are configured to output their markup id.
 	 * 
@@ -157,7 +161,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	/**
-	 * Allow drop on the left of elements matching the given selector.
+	 * Allow drop on the {@link Anchor#LEFT} of elements matching the given
+	 * selector.
 	 * 
 	 * Make sure all matching elements are configured to output their markup id.
 	 * 
