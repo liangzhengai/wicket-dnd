@@ -218,8 +218,8 @@ wicketdnd.Transfer = Class.create({
 				if (this.location) {
 					this.location.draw();
 				}
-			};
-			this.location.notify("drag", this.operation, this.drag, completion.bindAsEventListener(this));
+			}.bind(this);
+			this.location.notify("drag", this.operation, this.drag, completion);
 		}		
 	},
 
