@@ -53,6 +53,10 @@ public class ExamplePage extends WebPage
 		add(new IECursorFix());
 		add(new IEBackgroundImageCacheFix());
 
+		// for a static theme use the following:
+		// form.add(CSSPackageResource.getHeaderContribution(new WebTheme()));
+
+		// dynamic theme selection
 		Form<Void> form = new Form<Void>("form");
 		form.add(new HeaderContributor(new IHeaderContributor()
 		{
