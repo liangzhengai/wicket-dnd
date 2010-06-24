@@ -5,7 +5,7 @@
 	<groupId>wicket-dnd</groupId>
 	<artifactId>wicket-dnd</artifactId>
 	<packaging>jar</packaging>
-	<version>0.4.2</version>
+	<version>0.4-SNAPSHOT</version>
 	<name>Wicket Drag and Drop</name>
 	<description>Drag and Drop for Wicket.</description>
 	<licenses>
