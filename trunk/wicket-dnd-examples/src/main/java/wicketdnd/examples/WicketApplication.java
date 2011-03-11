@@ -15,9 +15,7 @@
  */
 package wicketdnd.examples;
 
-import org.apache.wicket.protocol.http.HttpSessionStore;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.session.ISessionStore;
 
 /**
  * @author Sven Meier
@@ -46,12 +44,5 @@ public class WicketApplication extends WebApplication
 	public Class<ExamplePage> getHomePage()
 	{
 		return ExamplePage.class;
-	}
-
-	@Override
-	protected ISessionStore newSessionStore()
-	{
-		// assume no disk present
-		return new HttpSessionStore(this);
 	}
 }

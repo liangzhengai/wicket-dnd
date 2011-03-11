@@ -75,7 +75,7 @@ public class TreeExample extends Example
 					
 					foo.remove();
 
-					target.addComponent(tree);
+					target.add(tree);
 				}
 			}
 		}.drag("span.tree-content"));
@@ -133,7 +133,7 @@ public class TreeExample extends Example
 							transfer.reject();
 					}
 				}
-				target.addComponent(tree);
+				target.add(tree);
 			}
 		}.dropCenter("span.tree-content").dropTopAndBottom("div.tree-branch"));
 		

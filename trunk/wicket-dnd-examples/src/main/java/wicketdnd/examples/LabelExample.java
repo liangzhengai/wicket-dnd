@@ -67,7 +67,7 @@ public class LabelExample extends Example
 						model.setObject(null);
 					}
 					
-					target.addComponent(container);
+					target.add(container);
 				}
 			}
 		}.drag("span"));
@@ -91,7 +91,7 @@ public class LabelExample extends Example
 			{
 				model.setObject(operate(transfer));
 
-				target.addComponent(container);
+				target.add(container);
 			}
 		});
 		

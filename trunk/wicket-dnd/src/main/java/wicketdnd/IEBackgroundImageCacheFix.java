@@ -15,10 +15,10 @@
  */
 package wicketdnd;
 
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
+import org.apache.wicket.request.cycle.RequestCycle;
 
 /**
  * Fix for caching of background images in IE.
@@ -28,18 +28,18 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
  * 
  * @author Sven Meier
  */
-public class IEBackgroundImageCacheFix extends AbstractBehavior
+public class IEBackgroundImageCacheFix extends Behavior
 {
 
 	private static final long serialVersionUID = 1L;
 
 	public final void renderHead(IHeaderResponse response)
 	{
-		WebClientInfo info = ((WebClientInfo)RequestCycle.get().getClientInfo());
+		WebClientInfo info = new WebClientInfo(RequestCycle.get());
 		if (info.getProperties().isBrowserInternetExplorer())
 		{
 			String initJS = "try { document.execCommand('BackgroundImageCache', false, true); } catch (e) {};";
-			response.renderOnDomReadyJavascript(initJS);
+			response.renderOnDomReadyJavaScript(initJS);
 		}
 	}
 }

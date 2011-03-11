@@ -23,6 +23,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.PropertyModel;
 
 import wicketdnd.DragSource;
@@ -42,8 +43,8 @@ public class ListsExample extends Example
 
 		add(newList("vertical"));
 		add(newList("horizontal"));
-		
-		setTypes(new String[]{"toolbar"});
+
+		setTypes(new String[] { "toolbar" });
 	}
 
 	private Component newList(String id)
@@ -54,9 +55,9 @@ public class ListsExample extends Example
 		final ListView<Foo> items = new ListView<Foo>("items", foos)
 		{
 			@Override
-			protected ListItem<Foo> newItem(int index)
+			protected ListItem<Foo> newItem(int index, IModel<Foo> model)
 			{
-				ListItem<Foo> item = super.newItem(index);
+				ListItem<Foo> item = super.newItem(index, model);
 				item.setOutputMarkupId(true);
 				return item;
 			}
@@ -75,7 +76,7 @@ public class ListsExample extends Example
 			{
 				return dragOperations();
 			}
-			
+
 			@Override
 			public String[] getTypes()
 			{
@@ -89,7 +90,7 @@ public class ListsExample extends Example
 				{
 					foos.remove(transfer.getData());
 
-					target.addComponent(list);
+					target.add(list);
 				}
 			}
 		}.drag("div.item").initiate("span.initiate"));
@@ -113,7 +114,9 @@ public class ListsExample extends Example
 				if (location == null)
 				{
 					foos.add(operate(transfer));
-				} else {
+				}
+				else
+				{
 					Foo foo = location.getModelObject();
 					switch (location.getAnchor())
 					{
@@ -129,7 +132,7 @@ public class ListsExample extends Example
 							transfer.reject();
 					}
 
-					target.addComponent(list);
+					target.add(list);
 				}
 			}
 		};
