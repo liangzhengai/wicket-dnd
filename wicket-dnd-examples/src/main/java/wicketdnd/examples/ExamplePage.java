@@ -18,9 +18,6 @@ package wicketdnd.examples;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.wicket.ResourceReference;
-import org.apache.wicket.behavior.HeaderContributor;
-import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Button;
@@ -29,6 +26,7 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.request.resource.ResourceReference;
 
 import wicketdnd.IEBackgroundImageCacheFix;
 import wicketdnd.IECursorFix;
@@ -58,15 +56,6 @@ public class ExamplePage extends WebPage
 
 		// dynamic theme selection
 		Form<Void> form = new Form<Void>("form");
-		form.add(new HeaderContributor(new IHeaderContributor()
-		{
-			private static final long serialVersionUID = 1L;
-
-			public void renderHead(IHeaderResponse response)
-			{
-				response.renderCSSReference(theme);
-			}
-		}));
 		add(form);
 
 		form.add(new DropDownChoice<ResourceReference>("theme",
@@ -92,7 +81,14 @@ public class ExamplePage extends WebPage
 		examples.add(new TableTreeExample(examples.newChildId()));
 		form.add(examples);
 	}
-
+	
+	@Override
+	public void renderHead(IHeaderResponse response)
+	{
+		super.renderHead(response);
+		response.renderCSSReference(theme);
+	}
+	
 	private List<ResourceReference> initThemes()
 	{
 		themes = new ArrayList<ResourceReference>();

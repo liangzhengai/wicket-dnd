@@ -17,15 +17,16 @@ package wicketdnd.util;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.Component.IVisitor;
 import org.apache.wicket.protocol.http.PageExpiredException;
+import org.apache.wicket.util.visit.IVisit;
+import org.apache.wicket.util.visit.IVisitor;
 
 /**
  * Find a child component by it's markup id.
  * 
  * @author Sven Meier
  */
-public class MarkupIdVisitor implements IVisitor<Component> {
+public class MarkupIdVisitor implements IVisitor<Component,Component> {
 
 	private final String id;
 
@@ -36,11 +37,10 @@ public class MarkupIdVisitor implements IVisitor<Component> {
 		this.id = id;
 	}
 
-	public Object component(Component component) {
+	public void component(Component component, final IVisit<Component> visit) {
 		if (id.equals(component.getMarkupId(false))) {
-			return component;
+			visit.stop(component);
 		}
-		return IVisitor.CONTINUE_TRAVERSAL;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class MarkupIdVisitor implements IVisitor<Component> {
 	 *             if no descendent has the given markup id
 	 */
 	public static Component getComponent(MarkupContainer container, String id) {
-		Component component = (Component) container
+		Component component = container
 				.visitChildren(new MarkupIdVisitor(id));
 
 		if (component == null) {

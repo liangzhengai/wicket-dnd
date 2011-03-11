@@ -16,9 +16,9 @@
 package wicketdnd;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
+import org.apache.wicket.request.resource.JavaScriptResourceReference;
+import org.apache.wicket.request.resource.ResourceReference;
 
 /**
  * A transfer from a {@link DragSource} to a {@link DropTarget}, only allowed when:
@@ -34,7 +34,7 @@ import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 public class Transfer
 {
 
-	public static final ResourceReference JS = new JavascriptResourceReference(Transfer.class,
+	public static final ResourceReference JS = new JavaScriptResourceReference(Transfer.class,
 			"wicket-dnd.js");
 
 	/**

@@ -5,7 +5,7 @@
 	<groupId>wicket-dnd</groupId>
 	<artifactId>wicket-dnd</artifactId>
 	<packaging>jar</packaging>
-	<version>0.4-SNAPSHOT</version>
+	<version>0.5-SNAPSHOT</version>
 	<name>Wicket Drag and Drop</name>
 	<description>Drag and Drop for Wicket.</description>
 	<licenses>
@@ -17,13 +17,13 @@
 	</licenses>
 
 	<properties>
-		<wicket.version>1.4.1</wicket.version>
+		<wicket.version>1.5-rc2</wicket.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
-			<artifactId>wicket</artifactId>
+			<artifactId>wicket-core</artifactId>
 			<version>${wicket.version}</version>
 		</dependency>
 		<dependency>

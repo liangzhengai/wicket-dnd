@@ -82,17 +82,17 @@ public abstract class Example extends Panel
 		controls.add(new TextField<String[]>("types", String[].class)
 		{
 			@Override
-			public IConverter getConverter(Class<?> type)
+			public <C> IConverter<C> getConverter(Class<C> type)
 			{
-				return new IConverter()
+				return new IConverter<C>()
 				{
-
-					public Object convertToObject(String value, Locale locale)
+					@SuppressWarnings("unchecked")
+					public C convertToObject(String value, Locale locale)
 					{
-						return Strings.split(value, ',');
+						return (C)Strings.split(value, ',');
 					}
 
-					public String convertToString(Object value, Locale locale)
+					public String convertToString(C value, Locale locale)
 					{
 						return Strings.join(",", types);
 					}

@@ -19,12 +19,12 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.Request;
+import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.AbstractBehavior;
-import org.apache.wicket.behavior.IBehavior;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.protocol.http.PageExpiredException;
+import org.apache.wicket.request.Request;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
 import wicketdnd.util.CollectionFormattable;
@@ -39,7 +39,7 @@ import wicketdnd.util.MarkupIdVisitor;
  * 
  * @author Sven Meier
  */
-public class DragSource extends AbstractBehavior
+public class DragSource extends Behavior
 {
 
 	private static final long serialVersionUID = 1L;
@@ -147,18 +147,18 @@ public class DragSource extends AbstractBehavior
 	}
 
 	@Override
-	public final void renderHead(IHeaderResponse response)
+	public final void renderHead(Component c, IHeaderResponse response)
 	{
-		super.renderHead(response);
+		super.renderHead(c,response);
 
-		response.renderJavascriptReference(PrototypeResourceReference.INSTANCE);
+		response.renderJavaScriptReference(PrototypeResourceReference.INSTANCE);
 
 		renderDragHead(response);
 	}
 
 	private void renderDragHead(IHeaderResponse response)
 	{
-		response.renderJavascriptReference(Transfer.JS);
+		response.renderJavaScriptReference(Transfer.JS);
 
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
@@ -166,7 +166,7 @@ public class DragSource extends AbstractBehavior
 		String initJS = String.format("new wicketdnd.DragSource('%s','%s',%s,%s,'%s','%s','%s');", id,
 				path, new CollectionFormattable(getOperations()), new CollectionFormattable(
 						getTypes()), selector, initiateSelector, cloneSelector);
-		response.renderOnDomReadyJavascript(initJS);
+		response.renderOnDomReadyJavaScript(initJS);
 	}
 
 	/**
@@ -236,7 +236,7 @@ public class DragSource extends AbstractBehavior
 
 	private Component getDrag(Request request)
 	{
-		String id = request.getParameter("drag");
+		String id = request.getRequestParameters().getParameterValue("drag").toString();
 
 		return MarkupIdVisitor.getComponent((MarkupContainer)component, id);
 	}
@@ -248,15 +248,15 @@ public class DragSource extends AbstractBehavior
 	 *            request on which a drag happened
 	 * @return drag source
 	 */
-	final static DragSource read(Request request)
+	final static DragSource read(Page page, Request request)
 	{
-		String path = request.getParameter("source");
+		String path = request.getRequestParameters().getParameterValue("source").toString();
 
-		Component component = request.getPage().get(path);
+		Component component = page.get(path);
 
 		if (component != null)
 		{
-			for (IBehavior behavior : component.getBehaviors())
+			for (Behavior behavior : component.getBehaviors())
 			{
 				if (behavior instanceof DragSource)
 				{

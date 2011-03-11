@@ -4,7 +4,7 @@
 	<groupId>wicket-dnd</groupId>
 	<artifactId>wicket-dnd-examples</artifactId>
 	<packaging>war</packaging>
-	<version>0.4-SNAPSHOT</version>
+	<version>0.5-SNAPSHOT</version>
 	<name>Wicket Drag and Drop Examples</name>
 	<description>Drag and Drop for Wicket.</description>
 	<licenses>
@@ -18,18 +18,24 @@
 		<dependency>
 			<groupId>wicket-dnd</groupId>
 			<artifactId>wicket-dnd</artifactId>
-			<version>0.4-SNAPSHOT</version>
+			<version>0.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>wicket-tree</groupId>
 			<artifactId>wicket-tree</artifactId>
-			<version>0.4-SNAPSHOT</version>
+			<version>0.5-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>wicket</artifactId>
+					<groupId>org.apache.wicket</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!--  WICKET DEPENDENCIES -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
-			<artifactId>wicket</artifactId>
+			<artifactId>wicket-core</artifactId>
 			<version>${wicket.version}</version>
 		</dependency>
 		<dependency>
@@ -47,12 +53,12 @@
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
-			<version>1.4.2</version>
+			<version>1.6.1</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.14</version>
+			<version>1.2.16</version>
 		</dependency>
 
 		<!--  JUNIT DEPENDENCY FOR TESTING -->
@@ -138,7 +144,7 @@
 		</plugins>
 	</build>
 	<properties>
-		<wicket.version>1.4.1</wicket.version>
+		<wicket.version>1.5-rc2</wicket.version>
 		<jetty.version>6.1.4</jetty.version>
 	</properties>
 	<repositories> 

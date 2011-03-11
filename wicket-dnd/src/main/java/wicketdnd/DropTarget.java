@@ -22,11 +22,11 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
-import org.apache.wicket.Request;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.request.Request;
 import org.wicketstuff.prototype.PrototypeResourceReference;
 
 import wicketdnd.util.CollectionFormattable;
@@ -199,18 +199,18 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	}
 
 	@Override
-	public final void renderHead(IHeaderResponse response)
+	public final void renderHead(Component component, IHeaderResponse response)
 	{
-		super.renderHead(response);
+		super.renderHead(component, response);
 
-		response.renderJavascriptReference(PrototypeResourceReference.INSTANCE);
+		response.renderJavaScriptReference(PrototypeResourceReference.INSTANCE);
 
 		renderDropHead(response);
 	}
 
 	private void renderDropHead(IHeaderResponse response)
 	{
-		response.renderJavascriptReference(Transfer.JS);
+		response.renderJavaScriptReference(Transfer.JS);
 
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format(
@@ -218,7 +218,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 				getCallbackUrl(), new CollectionFormattable(getOperations()),
 				new CollectionFormattable(getTypes()), centerSelector, topSelector, rightSelector,
 				bottomSelector, leftSelector);
-		response.renderOnDomReadyJavascript(initJS);
+		response.renderOnDomReadyJavaScript(initJS);
 	}
 
 	/**
@@ -249,7 +249,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		{
 			try
 			{
-				final DragSource source = DragSource.read(request);
+				final DragSource source = DragSource.read(getComponent().getPage(), request);
 
 				final Transfer transfer = readTransfer(request, source);
 
@@ -272,12 +272,13 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 	private String readType(Request request)
 	{
-		return request.getParameter("type");
+		return request.getRequestParameters().getParameterValue("type").toString();
 	}
 
 	private Transfer readTransfer(Request request, DragSource source)
 	{
-		Operation operation = Operation.valueOf(request.getParameter("operation"));
+		Operation operation = Operation.valueOf(request.getRequestParameters().getParameterValue(
+				"operation").toString());
 
 		if (!hasOperation(operation) || !source.hasOperation(operation))
 		{
@@ -305,7 +306,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 	private Location readLocation(Request request)
 	{
-		String id = getComponent().getRequest().getParameter("component");
+		String id = getComponent().getRequest().getRequestParameters().getParameterValue(
+				"component").toString();
 		if (id == null)
 		{
 			return null;
@@ -313,7 +315,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 
 		Component component = MarkupIdVisitor.getComponent((MarkupContainer)getComponent(), id);
 
-		Anchor anchor = Anchor.valueOf(request.getParameter("anchor"));
+		Anchor anchor = Anchor.valueOf(request.getRequestParameters().getParameterValue("anchor")
+				.toString());
 
 		return new Location(component, anchor);
 	}

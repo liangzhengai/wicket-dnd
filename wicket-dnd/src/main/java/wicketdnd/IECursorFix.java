@@ -15,12 +15,12 @@
  */
 package wicketdnd;
 
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.ResourceReference;
-import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
-import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.resource.JavaScriptResourceReference;
+import org.apache.wicket.request.resource.ResourceReference;
 
 /**
  * Fix for cursors in IE. <br>
@@ -31,24 +31,24 @@ import org.apache.wicket.protocol.http.request.WebClientInfo;
  * 
  * @author Sven Meier
  */
-public class IECursorFix extends AbstractBehavior
+public class IECursorFix extends Behavior
 {
 
 	private static final long serialVersionUID = 1L;
 
-	public static final ResourceReference JS = new JavascriptResourceReference(IECursorFix.class,
+	public static final ResourceReference JS = new JavaScriptResourceReference(IECursorFix.class,
 			"iecursor.js");
 
 	public final void renderHead(IHeaderResponse response)
 	{
 
-		WebClientInfo info = ((WebClientInfo)RequestCycle.get().getClientInfo());
+		WebClientInfo info = new WebClientInfo(RequestCycle.get());
 		if (info.getProperties().isBrowserInternetExplorer())
 		{
-			response.renderJavascriptReference(JS);
+			response.renderJavaScriptReference(JS);
 
 			String initJS = "IECursor.fix();";
-			response.renderOnDomReadyJavascript(initJS);
+			response.renderOnDomReadyJavaScript(initJS);
 		}
 	}
 }

@@ -15,6 +15,8 @@
  */
 package wicketdnd.examples;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -78,7 +80,7 @@ public class TableExample extends Example
 
 					provider.remove(foo);
 
-					target.addComponent(table);
+					target.add(table);
 				}
 			}
 		}.drag("tr"));
@@ -121,17 +123,17 @@ public class TableExample extends Example
 
 				}
 
-				target.addComponent(table);
+				target.add(table);
 			}
 		}.dropTopAndBottom("tr"));
 		
 		add(table);
 	}
 
-
-	@SuppressWarnings("unchecked")
-	private IColumn<Foo>[] columns()
+	private List<IColumn<Foo>> columns()
 	{
-		return new IColumn[] { new PropertyColumn<Foo>(Model.of("Name"), "name") };
+		List<IColumn<Foo>> columns = new ArrayList<IColumn<Foo>>();
+		columns.add( new PropertyColumn<Foo>(Model.of("Name"), "name"));
+		return columns;
 	}
 }
