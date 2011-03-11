@@ -316,7 +316,7 @@ wicketdnd.Transfer = Class.create({
 
 	setLocation: function(location) {
 		if (this.location && location) {
-			if (this.location.id == location.id && this.location.anchor == location.anchor) {
+			if (this.location.target == location.target && this.location.id == location.id && this.location.anchor == location.anchor) {
 				return;
 			}
 		}
