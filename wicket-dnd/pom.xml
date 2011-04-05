@@ -17,7 +17,7 @@
 	</licenses>
 
 	<properties>
-		<wicket.version>1.5-rc2</wicket.version>
+		<wicket.version>1.5-RC3</wicket.version>
 	</properties>
 
 	<dependencies>
