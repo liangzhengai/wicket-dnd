@@ -375,25 +375,6 @@ wicketdnd.Hover = Class.create({
 	}
 });
 
-wicketdnd.LocationNone = Class.create({
-
-	initialize: function(transfer, target) {
-		this.target = target;
-	},
-
-	draw: function() {
-		$(this.target.id).addClassName("dnd-drop");
-	},
-	
-	clear: function() {
-		$(this.target.id).removeClassName("dnd-drop");
-	},
-
-	notify: function(type, operation, drag, successHandler) {
-		this.target.notify(type, operation, drag, null, successHandler);
-	}
-});
-
 wicketdnd.LocationCenter = Class.create({
 
 	initialize: function(transfer, target, element) {
@@ -721,11 +702,7 @@ wicketdnd.DropTarget = Class.create({
 	},
 
 	findLocation: function(transfer, element, position) {
-		var location = this.findLocationUp(transfer, element, position, null);
-		if (!location) {
-			location = new wicketdnd.LocationNone(transfer, this);
-		}
-		return location;
+		return this.findLocationUp(transfer, element, position, null);
 	},
 	
 	findLocationUp: function(transfer, element, position, location) {
@@ -813,10 +790,8 @@ wicketdnd.DropTarget = Class.create({
 		url += "&operation=" + operation;
 		url += "&source=" + drag.source.path;
 		url += "&drag=" + drag.id;
-		if (location) {
-			url += "&component=" + location.id;
-			url += "&anchor=" + location.anchor;
-		}
+		url += "&component=" + location.id;
+		url += "&anchor=" + location.anchor;
 		
 		wicketAjaxGet(url, successHandler);
 	}

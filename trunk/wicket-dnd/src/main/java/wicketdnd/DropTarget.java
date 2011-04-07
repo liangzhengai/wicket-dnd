@@ -33,8 +33,7 @@ import wicketdnd.util.CollectionFormattable;
 import wicketdnd.util.MarkupIdVisitor;
 
 /**
- * A target of drops. By default reacts to mouse operations on the whole visual
- * boundary of the owning component, but can be configured for specific
+ * A target of drops. Can be configured for specific
  * {@link Location}s via CSS selectors.
  * 
  * @see #getTypes()
@@ -308,10 +307,6 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	{
 		String id = getComponent().getRequest().getRequestParameters().getParameterValue(
 				"component").toString();
-		if (id == null)
-		{
-			return null;
-		}
 
 		Component component = MarkupIdVisitor.getComponent((MarkupContainer)getComponent(), id);
 
@@ -343,7 +338,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	 * @param transfer
 	 *            the transfer
 	 * @param location
-	 *            the location or <code>null</code> if not available
+	 *            the location
 	 * @throws Reject
 	 *             may reject the drop
 	 */
