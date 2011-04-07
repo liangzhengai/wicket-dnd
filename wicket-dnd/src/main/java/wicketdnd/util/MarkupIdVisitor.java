@@ -55,6 +55,10 @@ public class MarkupIdVisitor implements IVisitor<Component,Component> {
 	 *             if no descendent has the given markup id
 	 */
 	public static Component getComponent(MarkupContainer container, String id) {
+		if (id.equals(container.getMarkupId(false))) {
+			return container;
+		}
+		
 		Component component = container
 				.visitChildren(new MarkupIdVisitor(id));
 
