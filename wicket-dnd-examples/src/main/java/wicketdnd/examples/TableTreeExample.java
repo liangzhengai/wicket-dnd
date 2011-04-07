@@ -105,7 +105,7 @@ public class TableTreeExample extends Example
 			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 					throws Reject
 			{
-				if (location != null)
+				if (location.getComponent() == tabletree)
 				{
 					Foo foo = location.getModelObject();
 					if (foo.isAncestor(transfer.getData())) {

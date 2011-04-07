@@ -111,7 +111,7 @@ public class ListsExample extends Example
 			@Override
 			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 			{
-				if (location == null)
+				if (location.getComponent() == list)
 				{
 					foos.add(operate(transfer));
 				}
