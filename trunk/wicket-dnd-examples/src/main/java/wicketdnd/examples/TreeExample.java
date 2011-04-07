@@ -104,7 +104,7 @@ public class TreeExample extends Example
 			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 					throws Reject
 			{
-				if (location == null)
+				if (location.getComponent() == tree)
 				{
 					provider.add(operate(transfer));
 				} else {

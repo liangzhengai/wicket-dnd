@@ -102,7 +102,7 @@ public class TableExample extends Example
 			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 					throws Reject
 			{
-				if (location == null)
+				if (location.getComponent() == table)
 				{
 					provider.add(operate(transfer));
 				}
@@ -120,12 +120,11 @@ public class TableExample extends Example
 						default :
 							transfer.reject();
 					}
-
 				}
 
 				target.add(table);
 			}
-		}.dropTopAndBottom("tr"));
+		}.dropTopAndBottom("tr").dropCenter("table"));
 		
 		add(table);
 	}

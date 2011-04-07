@@ -93,7 +93,7 @@ public class LabelExample extends Example
 
 				target.add(container);
 			}
-		});
+		}.dropCenter(".labelContainer"));
 		
 		final Label label = new Label("label", model)
 		{
@@ -105,6 +105,5 @@ public class LabelExample extends Example
 		};
 		label.setOutputMarkupId(true);
 		container.add(label);
-
 	}
 }
