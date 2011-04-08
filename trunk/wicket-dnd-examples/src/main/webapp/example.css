@@ -55,8 +55,10 @@ span.initiate {
 	background: url(initiate.gif) no-repeat center center;
 }
 
-div.tree {
+.treeContainer {
+	min-height: 10px;
 	width: 50%;
+	border: 1px dotted black;
 }
 
 table {

@@ -38,7 +38,7 @@ public class TreeExample extends Example
 	public TreeExample(String id)
 	{
 		super(id);
-		
+
 		final FooTreeProvider provider = new FooTreeProvider();
 		final NestedTree<Foo> tree = new DefaultNestedTree<Foo>("tree", provider)
 		{
@@ -57,7 +57,7 @@ public class TreeExample extends Example
 			{
 				return dragOperations();
 			}
-			
+
 			@Override
 			public String[] getTypes()
 			{
@@ -72,7 +72,7 @@ public class TreeExample extends Example
 					Foo foo = transfer.getData();
 
 					provider.remove(foo);
-					
+
 					foo.remove();
 
 					target.add(tree);
@@ -96,8 +96,11 @@ public class TreeExample extends Example
 			@Override
 			public void onDrag(AjaxRequestTarget target, Location location)
 			{
-				Foo foo = location.getModelObject();
-				tree.expand(foo);
+				if (location.getComponent() != tree)
+				{
+					Foo foo = location.getModelObject();
+					tree.expand(foo);
+				}
 			}
 
 			@Override
@@ -107,20 +110,24 @@ public class TreeExample extends Example
 				if (location.getComponent() == tree)
 				{
 					provider.add(operate(transfer));
-				} else {
+				}
+				else
+				{
 					Foo foo = location.getModelObject();
-					if (foo.isAncestor(transfer.getData())) {
+					if (foo.isAncestor(transfer.getData()))
+					{
 						transfer.reject();
 					}
-					
+
 					switch (location.getAnchor())
 					{
 						case CENTER :
-							if (foo == transfer.getData()) {
+							if (foo == transfer.getData())
+							{
 								transfer.reject();
 							}
 							provider.add(operate(transfer), foo);
-							
+
 							tree.expand(foo);
 							break;
 						case TOP :
@@ -135,8 +142,9 @@ public class TreeExample extends Example
 				}
 				target.add(tree);
 			}
-		}.dropCenter("span.tree-content").dropTopAndBottom("div.tree-branch"));
-		
+		}.dropCenter("span.tree-content, div.treeContainer").dropTopAndBottom("div.tree-branch"));
+		// Note: CSS selector 'or' (comma) doesn't work with prototype < 1.7
+		tree.setOutputMarkupId(true);
 		add(tree);
 	}
 }
