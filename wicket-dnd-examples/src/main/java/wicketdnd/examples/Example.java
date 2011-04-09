@@ -98,7 +98,7 @@ public abstract class Example extends Panel
 					}
 				};
 			}
-		});
+		}.setConvertEmptyInputStringToNull(false));
 	}
 
 	protected Set<Operation> dragOperations()
