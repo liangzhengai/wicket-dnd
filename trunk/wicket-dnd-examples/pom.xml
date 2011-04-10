@@ -43,11 +43,6 @@
 			<artifactId>wicket-extensions</artifactId>
 			<version>${wicket.version}</version>
 		</dependency>
-		<dependency>
-			<groupId>org.wicketstuff</groupId>
-			<artifactId>prototype</artifactId>
-			<version>${wicket.version}</version>
-		</dependency>
 
 		<!-- LOGGING DEPENDENCIES - LOG4J -->
 		<dependency>
@@ -144,7 +139,7 @@
 		</plugins>
 	</build>
 	<properties>
-		<wicket.version>1.5-RC3</wicket.version>
+		<wicket.version>1.5-SNAPSHOT</wicket.version>
 		<jetty.version>6.1.4</jetty.version>
 	</properties>
 	<repositories> 
