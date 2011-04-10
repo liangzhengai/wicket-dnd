@@ -27,14 +27,16 @@ import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.request.Request;
-import org.wicketstuff.prototype.PrototypeResourceReference;
+import org.wicketstuff.jslibraries.JSLib;
+import org.wicketstuff.jslibraries.Library;
+import org.wicketstuff.jslibraries.VersionDescriptor;
 
 import wicketdnd.util.CollectionFormattable;
 import wicketdnd.util.MarkupIdVisitor;
 
 /**
- * A target of drops. Can be configured for specific
- * {@link Location}s via CSS selectors.
+ * A target of drops. Can be configured for specific {@link Location}s via CSS
+ * selectors.
  * 
  * @see #getTypes()
  * @see #onDrag(AjaxRequestTarget, Location)
@@ -202,7 +204,8 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	{
 		super.renderHead(component, response);
 
-		response.renderJavaScriptReference(PrototypeResourceReference.INSTANCE);
+		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(
+				response);
 
 		renderDropHead(response);
 	}

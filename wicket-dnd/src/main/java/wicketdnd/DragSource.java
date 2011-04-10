@@ -25,7 +25,9 @@ import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.request.Request;
-import org.wicketstuff.prototype.PrototypeResourceReference;
+import org.wicketstuff.jslibraries.JSLib;
+import org.wicketstuff.jslibraries.Library;
+import org.wicketstuff.jslibraries.VersionDescriptor;
 
 import wicketdnd.util.CollectionFormattable;
 import wicketdnd.util.MarkupIdVisitor;
@@ -151,7 +153,8 @@ public class DragSource extends Behavior
 	{
 		super.renderHead(c,response);
 
-		response.renderJavaScriptReference(PrototypeResourceReference.INSTANCE);
+		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(
+				response);
 
 		renderDragHead(response);
 	}
