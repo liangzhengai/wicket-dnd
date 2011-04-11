@@ -82,21 +82,10 @@ public abstract class Example extends Panel
 		controls.add(new TextField<String[]>("types", String[].class)
 		{
 			@Override
+			@SuppressWarnings("unchecked")
 			public <C> IConverter<C> getConverter(Class<C> type)
 			{
-				return new IConverter<C>()
-				{
-					@SuppressWarnings("unchecked")
-					public C convertToObject(String value, Locale locale)
-					{
-						return (C)Strings.split(value, ',');
-					}
-
-					public String convertToString(C value, Locale locale)
-					{
-						return Strings.join(",", types);
-					}
-				};
+				return (IConverter<C>)new StringArrayConverter();
 			}
 		}.setConvertEmptyInputStringToNull(false));
 	}
@@ -147,6 +136,19 @@ public abstract class Example extends Panel
 				return foo.link();
 			default :
 				throw new IllegalArgumentException();
+		}
+	}
+
+	private class StringArrayConverter implements IConverter<String[]>
+	{
+		public String[] convertToObject(String value, Locale locale)
+		{
+			return Strings.split(value, ',');
+		}
+
+		public String convertToString(String[] value, Locale locale)
+		{
+			return Strings.join(",", (String[])value);
 		}
 	}
 }
