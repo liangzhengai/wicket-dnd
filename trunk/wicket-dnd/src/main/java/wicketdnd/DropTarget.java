@@ -204,7 +204,7 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	{
 		super.renderHead(component, response);
 
-		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(
+		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(component, 
 				response);
 
 		renderDropHead(response);

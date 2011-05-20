@@ -15,12 +15,12 @@
  */
 package wicketdnd.theme;
 
-import org.apache.wicket.request.resource.CompressedResourceReference;
+import org.apache.wicket.request.resource.CssResourceReference;
 
 /**
  * @author Sven Meier
  */
-public class WebTheme extends CompressedResourceReference
+public class WebTheme extends CssResourceReference
 {
 	private static final long serialVersionUID = 1L;
 

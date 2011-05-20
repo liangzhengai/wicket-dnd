@@ -153,7 +153,7 @@ public class DragSource extends Behavior
 	{
 		super.renderHead(c,response);
 
-		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(
+		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(c,
 				response);
 
 		renderDragHead(response);
