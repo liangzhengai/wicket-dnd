@@ -144,11 +144,6 @@
 	</properties>
 	<repositories> 
 	    <repository> 
-	        <id>org.wicketstuff</id> 
-	        <name>Wicket Stuff Repository</name> 
-	        <url>http://wicketstuff.org/maven/repository</url> 
-	    </repository> 
-	    <repository> 
 	        <id>wicket-tree</id> 
 	        <name>Wicket-Tree Repository</name> 
 	        <url>http://wicket-tree.googlecode.com/svn/repo</url> 
