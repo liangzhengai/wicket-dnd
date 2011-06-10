@@ -138,15 +138,10 @@
 		</plugins>
 	</build>
 	<properties>
-		<wicket.version>1.4.1</wicket.version>
+		<wicket.version>1.4.17</wicket.version>
 		<jetty.version>6.1.4</jetty.version>
 	</properties>
 	<repositories> 
-	    <repository> 
-	        <id>org.wicketstuff</id> 
-	        <name>Wicket Stuff Repository</name> 
-	        <url>http://wicketstuff.org/maven/repository</url> 
-	    </repository> 
 	    <repository> 
 	        <id>wicket-tree</id> 
 	        <name>Wicket-Tree Repository</name> 
