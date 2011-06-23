@@ -2,58 +2,19 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>wicket-dnd</groupId>
+        <artifactId>wicket-dnd-parent</artifactId>
+        <version>0.5-SNAPSHOT</version>
+    </parent>
+
 	<groupId>wicket-dnd</groupId>
 	<artifactId>wicket-dnd</artifactId>
 	<packaging>jar</packaging>
-	<version>0.5-SNAPSHOT</version>
-	<name>Wicket Drag and Drop</name>
-	<description>Drag and Drop for Wicket.</description>
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version 2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+    <name>Wicket Drag and Drop</name>
 
-	<properties>
-		<wicket.version>1.5-RC4.2</wicket.version>
-	</properties>
-
-	<dependencies>
-		<dependency>
-			<groupId>org.apache.wicket</groupId>
-			<artifactId>wicket-core</artifactId>
-			<version>${wicket.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.wicket</groupId>
-			<artifactId>wicket-extensions</artifactId>
-			<version>${wicket.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.wicketstuff</groupId>
-			<artifactId>jslibraries</artifactId>
-			<version>${wicket.version}</version>
-		</dependency>
-
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.2</version>
-			<scope>test</scope>
-		</dependency>
-	</dependencies>
-	
 	<build>
-		<extensions>
-			<extension>
-				<groupId>org.jvnet.wagon-svn</groupId>
-				<artifactId>wagon-svn</artifactId>
-				<version>1.8</version>
-			</extension>
-		</extensions>
-
 		<resources>
 			<resource>
 				<filtering>false</filtering>
@@ -82,67 +43,5 @@
 				</excludes>
 			</testResource>
 		</testResources>
-
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.5</source>
-					<target>1.5</target>
-					<optimize>true</optimize>
-					<debug>true</debug>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.1</version>
-				<configuration>
-					<descriptorRefs>
-						<descriptorRef>jar-with-dependencies</descriptorRef>
-					</descriptorRefs>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<configuration>
-					<downloadSources>true</downloadSources>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<executions>
-					<execution>
-						<goals>
-							<goal>jar</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
 	</build>
-	
-	<repositories> 
-	    <repository> 
-	        <id>org.wicketstuff</id> 
-	        <name>Wicket Stuff Repository</name> 
-	        <url>http://wicketstuff.org/maven/repository</url> 
-	    </repository> 
-		<repository>
-		  <id>maven2-repository.dev.java.net</id>
-		  <name>Java.net Repository for Maven</name>
-		  <url>http://download.java.net/maven/2/</url>
-		</repository>        
-	</repositories> 
-	
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>wicket-dnd-repo</id>
-            <url>svn:https://wicket-dnd.googlecode.com/svn/repo</url>
-        </repository>
-    </distributionManagement>
 </project>
