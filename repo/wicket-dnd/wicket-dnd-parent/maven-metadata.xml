@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>wicket-dnd</groupId>
+  <artifactId>wicket-dnd-parent</artifactId>
+  <version>0.5-SNAPSHOT</version>
+  <versioning>
+    <versions>
+      <version>0.5-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20110623183709</lastUpdated>
+  </versioning>
+</metadata>
