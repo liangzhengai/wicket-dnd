@@ -51,7 +51,7 @@ public class DragSource extends Behavior
 	private String selector = Transfer.UNDEFINED;
 
 	private String initiateSelector = Transfer.UNDEFINED;
-	
+
 	private String cloneSelector = Transfer.UNDEFINED;
 
 	private Set<Operation> operations;
@@ -59,7 +59,8 @@ public class DragSource extends Behavior
 	/**
 	 * Create a source of drags.
 	 * 
-	 * @param operations allowed operations
+	 * @param operations
+	 *            allowed operations
 	 * 
 	 * @see #getOperations()
 	 */
@@ -71,7 +72,8 @@ public class DragSource extends Behavior
 	/**
 	 * Create a source of drags.
 	 * 
-	 * @param operations allowed operations
+	 * @param operations
+	 *            allowed operations
 	 * 
 	 * @see #getOperations()
 	 */
@@ -113,7 +115,7 @@ public class DragSource extends Behavior
 		{
 			this.cloneSelector = selector;
 		}
-		
+
 		return this;
 	}
 
@@ -151,9 +153,9 @@ public class DragSource extends Behavior
 	@Override
 	public final void renderHead(Component c, IHeaderResponse response)
 	{
-		super.renderHead(c,response);
+		super.renderHead(c, response);
 
-		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(c,
+		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(
 				response);
 
 		renderDragHead(response);
@@ -166,8 +168,8 @@ public class DragSource extends Behavior
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
 
-		String initJS = String.format("new wicketdnd.DragSource('%s','%s',%s,%s,'%s','%s','%s');", id,
-				path, new CollectionFormattable(getOperations()), new CollectionFormattable(
+		String initJS = String.format("new wicketdnd.DragSource('%s','%s',%s,%s,'%s','%s','%s');",
+				id, path, new CollectionFormattable(getOperations()), new CollectionFormattable(
 						getTypes()), selector, initiateSelector, cloneSelector);
 		response.renderOnDomReadyJavaScript(initJS);
 	}
