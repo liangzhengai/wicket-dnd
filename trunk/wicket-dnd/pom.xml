@@ -6,7 +6,7 @@
     <parent>
         <groupId>wicket-dnd</groupId>
         <artifactId>wicket-dnd-parent</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5.0</version>
     </parent>
 
 	<groupId>wicket-dnd</groupId>

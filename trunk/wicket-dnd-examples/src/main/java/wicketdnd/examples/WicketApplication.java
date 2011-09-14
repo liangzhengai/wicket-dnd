@@ -30,15 +30,6 @@ public class WicketApplication extends WebApplication
 	protected void init()
 	{
 		getMarkupSettings().setStripWicketTags(true);
-		
-		try
-		{
-			new Thread().start();
-		}
-		catch (Exception threadsNotAllowed)
-		{
-			getResourceSettings().setResourcePollFrequency(null);
-		}
 	}
 
 	public Class<ExamplePage> getHomePage()
