@@ -6,7 +6,7 @@
     <parent>
         <groupId>wicket-dnd</groupId>
         <artifactId>wicket-dnd-parent</artifactId>
-        <version>0.5-SNAPSHOT</version>
+        <version>0.5.0</version>
     </parent>
 	
     <groupId>wicket-dnd</groupId>
@@ -29,6 +29,11 @@
 			<artifactId>wicket-extensions</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.wicketstuff</groupId>
+			<artifactId>wicketstuff-gae-initializer</artifactId>
+			<version>${wicket.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
 		</dependency>
@@ -37,16 +42,8 @@
 			<artifactId>log4j</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>jetty</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>jetty-util</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.mortbay.jetty</groupId>
-			<artifactId>jetty-management</artifactId>
+			<groupId>org.eclipse.jetty.aggregate</groupId>
+			<artifactId>jetty-all-server</artifactId>
 		</dependency>
 	</dependencies>
 
@@ -79,6 +76,12 @@
 				</excludes>
 			</testResource>
 		</testResources>
+		<plugins>
+			<plugin>
+				<groupId>org.mortbay.jetty</groupId>
+				<artifactId>jetty-maven-plugin</artifactId>
+			</plugin>
+		</plugins>
 	</build>
 
 	<repositories> 
