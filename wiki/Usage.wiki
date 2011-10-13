@@ -26,7 +26,7 @@
 	<dependency>
 		<groupId>wicket-dnd</groupId>
 		<artifactId>wicket-dnd</artifactId>
-		<version>0.5-SNAPSHOT</version>
+		<version>0.5.0</version>
 	</dependency>
 
 	<repository> 
@@ -38,4 +38,4 @@
 
   * Otherwise
 
-	[http://code.google.com/p/wicket-dnd/source/browse/#svn/repo/wicket-dnd/wicket-dnd/0.5-SNAPSHOT]
+	[http://code.google.com/p/wicket-dnd/source/browse/#svn/repo/wicket-dnd/wicket-dnd/0.5.0]
