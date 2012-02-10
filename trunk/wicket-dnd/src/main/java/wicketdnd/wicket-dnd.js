@@ -786,7 +786,11 @@ wicketdnd.DropTarget = Class.create({
 
 	notify: function(type, operation, drag, location, successHandler) {
 		var url = this.url;
-		url += "&type=" + type;
+		if (url.indexOf('?') == -1) {
+			url += "?type=" + type;
+		} else {
+			url += "&type=" + type;
+		}
 		url += "&operation=" + operation;
 		url += "&source=" + drag.source.path;
 		url += "&drag=" + drag.id;
