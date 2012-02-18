@@ -625,10 +625,14 @@ wicketdnd.DragSource = Class.create({
 					candidate = candidate.up(this.selector);
 				}
 				
-				if (candidate && candidate.id) {
-					new wicketdnd.Gesture(this, candidate, new wicketdnd.Position(event));
-					
-					event.stop();
+				if (candidate) {
+					if (candidate.id) {
+						new wicketdnd.Gesture(this, candidate, new wicketdnd.Position(event));
+						
+						event.stop();
+					} else {
+						Wicket.Log.error("wicket-dnd: element matched source selector but does not have markup id");
+					}
 				}
 			}
 		}
@@ -702,7 +706,14 @@ wicketdnd.DropTarget = Class.create({
 	},
 
 	findLocation: function(transfer, element, position) {
-		return this.findLocationUp(transfer, element, position, null);
+		var location = this.findLocationUp(transfer, element, position, null);
+
+		if (!location.id) {
+			Wicket.Log.error("wicket-dnd: element matched target selector but does not have markup id");
+			location = null;
+		}
+		
+		return location;
 	},
 	
 	findLocationUp: function(transfer, element, position, location) {
@@ -717,10 +728,6 @@ wicketdnd.DropTarget = Class.create({
 	},	
 
 	getLocation: function(transfer, element, position, location) {
-		if (!element.id) {
-			return location;
-		}
-		
 		var bounds = new wicketdnd.Bounds(element);
 		
 		// center location never replaces other location
