@@ -22,12 +22,11 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.protocol.http.PageExpiredException;
 import org.apache.wicket.request.Request;
-import org.wicketstuff.jslibraries.JSLib;
-import org.wicketstuff.jslibraries.Library;
-import org.wicketstuff.jslibraries.VersionDescriptor;
 
 import wicketdnd.util.CollectionFormattable;
 import wicketdnd.util.MarkupIdVisitor;
@@ -155,23 +154,20 @@ public class DragSource extends Behavior
 	{
 		super.renderHead(c, response);
 
-		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(
-				response);
-
 		renderDragHead(response);
 	}
 
 	private void renderDragHead(IHeaderResponse response)
 	{
-		response.renderJavaScriptReference(Transfer.JS);
+		response.render(JavaScriptHeaderItem.forReference(Transfer.JS));
 
 		final String id = component.getMarkupId();
 		final String path = component.getPageRelativePath();
 
-		String initJS = String.format("new wicketdnd.DragSource('%s','%s',%s,%s,'%s','%s','%s');",
+		String initJS = String.format("wicketdnd.dragSource('%s','%s',%s,%s,{'select':'%s','initiate':'%s','clone':'%s'});",
 				id, path, new CollectionFormattable(getOperations()), new CollectionFormattable(
 						getTypes()), selector, initiateSelector, cloneSelector);
-		response.renderOnDomReadyJavaScript(initJS);
+		response.render(OnDomReadyHeaderItem.forScript(initJS));
 	}
 
 	/**

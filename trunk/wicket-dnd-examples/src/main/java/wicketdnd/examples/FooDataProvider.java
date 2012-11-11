@@ -28,7 +28,7 @@ import org.apache.wicket.model.Model;
 /**
  * @author Sven Meier
  */
-public class FooDataProvider implements ISortableDataProvider<Foo>
+public class FooDataProvider implements ISortableDataProvider<Foo, String>
 {
 
 	private List<Foo> foos = new ArrayList<Foo>();
@@ -39,12 +39,12 @@ public class FooDataProvider implements ISortableDataProvider<Foo>
 		foos.add(new Foo("C"));
 	}
 
-	public int size()
+	public long size()
 	{
 		return foos.size();
 	}
 
-	public Iterator<? extends Foo> iterator(int first, int count)
+	public Iterator<? extends Foo> iterator(long first, long count)
 	{
 		return foos.iterator();
 	}
@@ -54,12 +54,12 @@ public class FooDataProvider implements ISortableDataProvider<Foo>
 		return Model.of(foo);
 	}
 
-	public ISortState getSortState()
+	public ISortState<String> getSortState()
 	{
-		return new SingleSortState();
+		return new SingleSortState<String>();
 	}
 
-	public void setSortState(ISortState state)
+	public void setSortState(ISortState<String> state)
 	{
 	}
 

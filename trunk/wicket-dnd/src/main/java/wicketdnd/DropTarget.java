@@ -25,11 +25,10 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.request.Request;
-import org.wicketstuff.jslibraries.JSLib;
-import org.wicketstuff.jslibraries.Library;
-import org.wicketstuff.jslibraries.VersionDescriptor;
 
 import wicketdnd.util.CollectionFormattable;
 import wicketdnd.util.MarkupIdVisitor;
@@ -204,23 +203,20 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	{
 		super.renderHead(component, response);
 
-		JSLib.getHeaderContribution(VersionDescriptor.alwaysLatest(Library.PROTOTYPE)).renderHead(
-				response);
-
 		renderDropHead(response);
 	}
 
 	private void renderDropHead(IHeaderResponse response)
 	{
-		response.renderJavaScriptReference(Transfer.JS);
+		response.render(JavaScriptHeaderItem.forReference(Transfer.JS));
 
 		final String id = getComponent().getMarkupId();
 		String initJS = String.format(
-				"new wicketdnd.DropTarget('%s','%s',%s,%s,'%s','%s','%s','%s','%s');", id,
+				"new wicketdnd.dropTarget('%s','%s',%s,%s,{'center':'%s','top':'%s','right':'%s','bottom':'%s','left':'%s'});", id,
 				getCallbackUrl(), new CollectionFormattable(getOperations()),
 				new CollectionFormattable(getTypes()), centerSelector, topSelector, rightSelector,
 				bottomSelector, leftSelector);
-		response.renderOnDomReadyJavaScript(initJS);
+		response.render(OnDomReadyHeaderItem.forScript(initJS));
 	}
 
 	/**
@@ -239,15 +235,15 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 	{
 		Request request = getComponent().getRequest();
 
-		final String type = readType(request);
+		final String phase = readPhase(request);
 
 		final Location location = readLocation(request);
 
-		if ("drag".equals(type))
+		if ("drag".equals(phase))
 		{
 			onDrag(target, location);
 		}
-		else if ("drop".equals(type))
+		else if ("drop".equals(phase))
 		{
 			try
 			{
@@ -268,13 +264,13 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		}
 		else
 		{
-			throw new WicketRuntimeException("unkown type '" + type + "'");
+			throw new WicketRuntimeException("unkown type '" + phase + "'");
 		}
 	}
 
-	private String readType(Request request)
+	private String readPhase(Request request)
 	{
-		return request.getRequestParameters().getParameterValue("type").toString();
+		return request.getRequestParameters().getParameterValue("phase").toString();
 	}
 
 	private Transfer readTransfer(Request request, DragSource source)

@@ -19,15 +19,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.extensions.markup.html.repeater.util.SortableTreeProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-
-import wickettree.util.SortableTreeProvider;
 
 /**
  * @author Sven Meier
  */
-public class FooTreeProvider extends SortableTreeProvider<Foo>
+public class FooTreeProvider extends SortableTreeProvider<Foo, String>
 {
 
 	private List<Foo> foos = new ArrayList<Foo>();

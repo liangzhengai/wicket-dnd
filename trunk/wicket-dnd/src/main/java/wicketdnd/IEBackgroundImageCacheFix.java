@@ -16,7 +16,8 @@
 package wicketdnd;
 
 import org.apache.wicket.behavior.Behavior;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.protocol.http.request.WebClientInfo;
 import org.apache.wicket.request.cycle.RequestCycle;
 
@@ -39,7 +40,7 @@ public class IEBackgroundImageCacheFix extends Behavior
 		if (info.getProperties().isBrowserInternetExplorer())
 		{
 			String initJS = "try { document.execCommand('BackgroundImageCache', false, true); } catch (e) {};";
-			response.renderOnDomReadyJavaScript(initJS);
+			response.render(OnDomReadyHeaderItem.forScript(initJS));
 		}
 	}
 }

@@ -18,7 +18,8 @@ package wicketdnd.examples;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.CssReferenceHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -86,7 +87,7 @@ public class ExamplePage extends WebPage
 	public void renderHead(IHeaderResponse response)
 	{
 		super.renderHead(response);
-		response.renderCSSReference(theme);
+		response.render(CssReferenceHeaderItem.forReference(theme));
 	}
 	
 	private List<ResourceReference> initThemes()

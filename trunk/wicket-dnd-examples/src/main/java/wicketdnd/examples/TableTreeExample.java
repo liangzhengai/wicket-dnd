@@ -22,6 +22,9 @@ import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.repeater.tree.DefaultTableTree;
+import org.apache.wicket.extensions.markup.html.repeater.tree.TableTree;
+import org.apache.wicket.extensions.markup.html.repeater.tree.table.TreeColumn;
 import org.apache.wicket.markup.repeater.ReuseIfModelsEqualStrategy;
 import org.apache.wicket.model.Model;
 
@@ -31,9 +34,6 @@ import wicketdnd.Location;
 import wicketdnd.Operation;
 import wicketdnd.Reject;
 import wicketdnd.Transfer;
-import wickettree.DefaultTableTree;
-import wickettree.TableTree;
-import wickettree.table.TreeColumn;
 
 /**
  * @author Sven Meier
@@ -46,7 +46,7 @@ public class TableTreeExample extends Example
 		
 		final FooTreeProvider provider = new FooTreeProvider();
 		
-		final TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", columns(),
+		final TableTree<Foo,String> tabletree = new DefaultTableTree<Foo,String>("tabletree", columns(),
 				provider, Integer.MAX_VALUE);
 		// reuse items or drop following expansion will fail due to new
 		// markup ids
@@ -105,8 +105,6 @@ public class TableTreeExample extends Example
 			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 					throws Reject
 			{
-				if (location.getComponent() == tabletree)
-				{
 					Foo foo = location.getModelObject();
 					if (foo.isAncestor(transfer.getData())) {
 						transfer.reject();
@@ -132,19 +130,18 @@ public class TableTreeExample extends Example
 					}
 
 					target.add(tabletree);
-				}
 			}
-		}.dropCenter("tr"));
+		}.dropCenter("tbody tr"));
 		
 		add(tabletree);
 	}
 	
-	private List<IColumn<Foo>> columns()
+	private List<IColumn<Foo,String>> columns()
 	{
-		List<IColumn<Foo>> columns = new ArrayList<IColumn<Foo>>();
+		List<IColumn<Foo,String>> columns = new ArrayList<IColumn<Foo,String>>();
 		
-		columns.add(new TreeColumn<Foo>(Model.of("Name")));
-		columns.add(new PropertyColumn<Foo>(Model.of("Name"), "name"));
+		columns.add(new TreeColumn<Foo,String>(Model.of("Name")));
+		columns.add(new PropertyColumn<Foo,String>(Model.of("Name"), "name"));
 		
 		return columns;
 	}

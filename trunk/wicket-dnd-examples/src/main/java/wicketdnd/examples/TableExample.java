@@ -46,7 +46,7 @@ public class TableExample extends Example
 
 		final FooDataProvider provider = new FooDataProvider();
 
-		final DataTable<Foo> table = new DefaultDataTable<Foo>("table", columns(), provider,
+		final DataTable<Foo, String> table = new DefaultDataTable<Foo,String>("table", columns(), provider,
 				Integer.MAX_VALUE)
 		{
 			@Override
@@ -129,10 +129,10 @@ public class TableExample extends Example
 		add(table);
 	}
 
-	private List<IColumn<Foo>> columns()
+	private List<IColumn<Foo,String>> columns()
 	{
-		List<IColumn<Foo>> columns = new ArrayList<IColumn<Foo>>();
-		columns.add( new PropertyColumn<Foo>(Model.of("Name"), "name"));
+		List<IColumn<Foo,String>> columns = new ArrayList<IColumn<Foo,String>>();
+		columns.add( new PropertyColumn<Foo,String>(Model.of("Name"), "name"));
 		return columns;
 	}
 }
