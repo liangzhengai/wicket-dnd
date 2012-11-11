@@ -2,12 +2,12 @@
 <metadata>
   <groupId>wicket-dnd</groupId>
   <artifactId>wicket-dnd-parent</artifactId>
-  <version>0.5-SNAPSHOT</version>
   <versioning>
     <versions>
       <version>0.5-SNAPSHOT</version>
       <version>0.5.0</version>
+      <version>0.6-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20120218194932</lastUpdated>
+    <lastUpdated>20121111222132</lastUpdated>
   </versioning>
 </metadata>
