@@ -26,7 +26,7 @@
 		<dependency>
 			<groupId>org.wicketstuff</groupId>
 			<artifactId>wicketstuff-gae-initializer</artifactId>
-			<version>${wicket.version}</version>
+			<version>${wicketstuff.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
