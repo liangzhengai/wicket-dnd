@@ -143,7 +143,11 @@ public abstract class Example extends Panel
 	{
 		public String[] convertToObject(String value, Locale locale)
 		{
-			return Strings.split(value, ',');
+			String[] strings = Strings.split(value, ',');
+			if (strings.length == 0) {
+				strings = new String[]{""};
+			}
+			return strings;
 		}
 
 		public String convertToString(String[] value, Locale locale)
