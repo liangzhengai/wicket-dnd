@@ -28,7 +28,7 @@
 
 						gesture(closest, wicketdnd.position(event));
 					} else {
-						Wicket.Log.error("wicket-dnd: element matched selector but does not have markup id");
+						Wicket.Log.error('wicket-dnd: drag matched selector but does not have markup id');
 					}
 				});
 
@@ -51,7 +51,7 @@
 					var shift = false;
 					var ctrl = false;
 
-					var hover = wicketdnd.createHover(element);
+					var hover = createHover($(element));
 					$('body').append(hover);
 
 					var target = undefined;
@@ -67,13 +67,15 @@
 					$(document).on('mousemove.wicketdnd', function(event) {
 						hover.css({'left' : (event.pageX + wicketdnd.OFFSET) + 'px', 'top' : (event.pageY + wicketdnd.OFFSET) + 'px'});
 						
-						target = wicketdnd.findTarget(event);
+						if (!$(event.target).hasClass('dnd')) {
+							target = wicketdnd.findTarget(event);
 
-						updateLocation(target, event);
+							updateLocation(target, event);
 
-						type = wicketdnd.findType(types, location.types);
+							type = wicketdnd.findType(types, location.types);
 
-						updateOperation();
+							updateOperation();
+						}
 					});
 
 					$(document).on('mouseup.wicketdnd', function(event) {
@@ -89,13 +91,10 @@
 
 						location.unmark();
 
-						if (location !== wicketdnd.locationNone) {
+						if (operation.name != 'NONE') {
 							target.notify('drop', operation, componentPath, element, location, undefined);
 							target = undefined;
 						}
-					});
-
-					$(document).on('keypress.wicketdnd', function(event) {
 					});
 
 					var keyUpOrDown = function(event) {
@@ -123,11 +122,6 @@
 							newLocation = wicketdnd.locationNone;
 						} else {
 							newLocation = target.findLocation(event);
-
-							if (newLocation != wicketdnd.locationNone && !newLocation.id) {
-								Wicket.Log.error("wicket-dnd: element matched selector but does not have markup id");
-								newLocation = wicketdnd.locationNone;
-							}
 						}
 						if (newLocation != location) {
 							location.unmark();
@@ -152,6 +146,46 @@
 					$(document).on('keydown.wicketdnd', true, keyUpOrDown);
 					$(document).on('keyup.wicketdnd', false, keyUpOrDown);
 				};
+
+				function createHover(original) {
+					if (!original.is(selectors.clone)) {
+						original = original.find(selectors.clone);
+					}
+
+					var clone = original.clone();
+					clone.addClass('dnd-clone');
+
+					if (clone.is('td')) {
+						var tr = $('<tr>');
+						tr.addClass('dnd dnd-hover-tr');
+						tr.append(clone);
+						clone = tr;
+					}
+					if (clone.is('tr')) {
+						var tbody = $('<tbody>');
+						tbody.addClass('dnd dnd-hover-tbody');
+						tbody.append(clone);
+						clone = tbody;
+					}
+					if (clone.is('tbody')) {
+						var table = $('<table>');
+						table.addClass('dnd dnd-hover-table');
+						table.append(clone);
+						clone = table;
+					}
+
+					clone.css({ 'width' : original.outerWidth() + 'px', 'height' : original.outerHeight() + 'px' });
+
+					var hover = $('<div>');
+					hover.addClass('dnd dnd-hover');
+					hover.append(clone);		
+
+					var cover = $('<div>');
+					cover.addClass('dnd dnd-hover-cover');
+					hover.append(cover);
+		
+					return hover;
+				};
 			},
 		
 			dropTarget: function(id, callbackUrl, operations, types, selectors) {
@@ -164,20 +198,29 @@
 					'selectors' : selectors,
 					'findLocation' : function(event) {
 						var candidate = event.target;
+						var position = wicketdnd.position(event);
+						var location = wicketdnd.locationNone;
 
 						do {
-							if ($(candidate).is(selectors.center)) {
-								return locationCenter(candidate.id);
+							location = findLocation(position, candidate, location);
+
+							if (location != wicketdnd.locationNone && location.anchor != 'CENTER') {
+								break;
 							}
 
 							if (candidate == element) {
 								break;
 							}
-
 							candidate = candidate.parentNode;
 						} while (candidate);
 
-						return wicketdnd.locationNone;
+
+						if (location != wicketdnd.locationNone && !location.id) {
+							Wicket.Log.error('wicket-dnd: drop ' + location.anchor + ' matched selector but does not have markup id');
+							location = wicketdnd.locationNone;
+						}
+
+						return location;
 					},
 					'notify' : function(phase, operation, componentPath, element, location, success) {
 						var attrs = {
@@ -194,57 +237,105 @@
 						Wicket.Ajax.ajax(attrs);
 					}
 				});
+
+				function findLocation(position, candidate, location) {
+					
+					if (location == wicketdnd.locationNone && $(candidate).is(selectors.center)) {
+						location = {
+							'id' : candidate.id,
+							'operations' : operations,
+							'types' : types,
+							'anchor' : 'CENTER',
+							'mark' : function() {
+								$('#' + candidate.id).addClass('dnd-drop-center');
+							},
+							'unmark' : function() {
+								$('#' + candidate.id).removeClass('dnd-drop-center');
+							}
+						};
+					}
+
+					var topMargin = wicketdnd.MARGIN;
+					var bottomMargin = wicketdnd.MARGIN;
+					var leftMargin = wicketdnd.MARGIN;
+					var rightMargin = wicketdnd.MARGIN;
+
+					var offset = $(candidate).offset();
+					var width = $(candidate).outerWidth();
+					var height = $(candidate).outerHeight();
+
+					if (location == wicketdnd.locationNone) {
+						// no location yet thus using full bounds
+						topMargin = height / 2;
+						bottomMargin = height / 2;
+						leftMargin = width / 2;
+						rightMargin = width / 2;
+					}
 			
-				function locationCenter(id) {
-					return {
-						'id' : id,
-						'operations' : operations,
-						'types' : types,
-						'anchor' : 'CENTER',
-						'mark' : function() {
-							$('#' + id).addClass('dnd-drop-center');
-						},
-						'unmark' : function() {
-							$('#' + id).removeClass('dnd-drop-center');
-						}
-					};
+					if ($(candidate).is(selectors.top) && (position.top <= offset.top + topMargin)) {
+						var _div = $('<div>').addClass('dnd dnd-drop-top');
+						location = {
+							'id' : candidate.id,
+							'operations' : operations,
+							'types' : types,
+							'anchor' : 'TOP',
+							'mark' : function() {
+								$('body').append(_div);
+								_div.css({ 'left' : offset.left + 'px', 'top' : (offset.top - _div.outerHeight()/2) + 'px', 'width' : width + 'px'});
+							},
+							'unmark' : function() {
+								_div.remove();
+							}
+						};
+					} else if ($(candidate).is(selectors.bottom) && (position.top >= offset.top + height - bottomMargin)) {
+						var _div = $('<div>').addClass('dnd dnd-drop-bottom');
+						location = {
+							'id' : candidate.id,
+							'operations' : operations,
+							'types' : types,
+							'anchor' : 'BOTTOM',
+							'mark' : function() {
+								$('body').append(_div);
+								_div.css({ 'left' : offset.left + 'px', 'top' : (offset.top + height - _div.outerHeight()/2) + 'px', 'width' : width + 'px'});
+							},
+							'unmark' : function() {
+								_div.remove();
+							}
+						};
+					} else if ($(candidate).is(selectors.left) && (position.left <= offset.left + leftMargin)) {
+						var _div = $('<div>').addClass('dnd dnd-drop-left');
+						location = {
+							'id' : candidate.id,
+							'operations' : operations,
+							'types' : types,
+							'anchor' : 'LEFT',
+							'mark' : function() {
+								$('body').append(_div);
+								_div.css({ 'left' : (offset.left - _div.outerWidth()/2) + 'px', 'top' : offset.top + 'px', 'height' : height + 'px'});
+							},
+							'unmark' : function() {
+								_div.remove();
+							}
+						};
+					} else if ($(candidate).is(selectors.right) && (position.left >= offset.left + width - rightMargin)) {
+						var _div = $('<div>').addClass('dnd dnd-drop-right');
+						location = {
+							'id' : candidate.id,
+							'operations' : operations,
+							'types' : types,
+							'anchor' : 'RIGHT',
+							'mark' : function() {
+								$('body').append(_div);
+								_div.css({ 'left' : (offset.left + width - _div.outerWidth()/2) + 'px', 'top' : offset.top + 'px', 'height' : height + 'px'});
+							},
+							'unmark' : function() {
+								_div.remove();
+							}
+						};
+					}
+					
+					return location;
 				};
-			},
-
-			createHover: function(element) {
-				var clone = $(element).clone();
-				clone.addClass('dnd-clone');
-
-				if (clone.is('td')) {
-					var tr = $('<tr>');
-					tr.addClass('dnd-hover-tr');
-					tr.append(clone);
-					clone = tr;
-				}
-				if (clone.is('tr')) {
-					var tbody = $('<tbody>');
-					tbody.addClass('dnd-hover-tbody');
-					tbody.append(clone);
-					clone = tbody;
-				}
-				if (clone.is('tbody')) {
-					var table = $('<table>');
-					table.addClass('dnd-hover-table');
-					table.append(clone);
-					clone = table;
-				}
-
-				clone.css({ 'width' : $(element).width() + 'px', 'height' : $(element).height() + 'px' });
-
-				var hover = $('<div>');
-				hover.addClass('dnd-hover');
-				hover.append(clone);		
-
-				var cover = $('<div>');
-				cover.addClass('dnd-hover-cover');
-				hover.append(cover);
-		
-				return hover;
 			},
 
 			findTarget: function(event) {
@@ -263,10 +354,6 @@
 
 			position: function(event) {
 				return {'left': event.pageX, 'top': event.pageY}
-			},
-
-			offset: function(position1, position2) {
-				return {'left': (position1.left - position2.left), 'top': (position1.top - position2.top)};
 			},
 
 			distance: function(position1, position2) {

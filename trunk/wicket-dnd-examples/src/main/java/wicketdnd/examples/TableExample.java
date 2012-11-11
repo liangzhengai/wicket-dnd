@@ -124,7 +124,7 @@ public class TableExample extends Example
 
 				target.add(table);
 			}
-		}.dropTopAndBottom("tr").dropCenter("table"));
+		}.dropTopAndBottom("tbody tr").dropCenter("table"));
 		
 		add(table);
 	}
