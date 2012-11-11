@@ -43,9 +43,9 @@ public class TableTreeExample extends Example
 	public TableTreeExample(String id)
 	{
 		super(id);
-		
+
 		final FooTreeProvider provider = new FooTreeProvider();
-		
+
 		final TableTree<Foo> tabletree = new DefaultTableTree<Foo>("tabletree", columns(),
 				provider, Integer.MAX_VALUE);
 		// reuse items or drop following expansion will fail due to new
@@ -58,7 +58,7 @@ public class TableTreeExample extends Example
 			{
 				return dragOperations();
 			}
-			
+
 			@Override
 			public String[] getTypes()
 			{
@@ -73,7 +73,7 @@ public class TableTreeExample extends Example
 					Foo foo = transfer.getData();
 
 					provider.remove(foo);
-					
+
 					foo.remove();
 
 					target.add(tabletree);
@@ -87,7 +87,7 @@ public class TableTreeExample extends Example
 			{
 				return dropOperations();
 			}
-			
+
 			@Override
 			public String[] getTypes()
 			{
@@ -105,47 +105,46 @@ public class TableTreeExample extends Example
 			public void onDrop(AjaxRequestTarget target, Transfer transfer, Location location)
 					throws Reject
 			{
-				if (location.getComponent() == tabletree)
+				Foo foo = location.getModelObject();
+				if (foo.isAncestor(transfer.getData()))
 				{
-					Foo foo = location.getModelObject();
-					if (foo.isAncestor(transfer.getData())) {
-						transfer.reject();
-					}
-					
-					switch (location.getAnchor())
-					{
-						case CENTER :
-							if (foo == transfer.getData()) {
-								transfer.reject();
-							}
-							provider.add(operate(transfer), foo);
-							tabletree.expand(foo);
-							break;
-						case TOP :
-							provider.addBefore(operate(transfer), foo);
-							break;
-						case BOTTOM :
-							provider.addAfter(operate(transfer), foo);
-							break;
-						default :
-							transfer.reject();
-					}
-
-					target.add(tabletree);
+					transfer.reject();
 				}
+
+				switch (location.getAnchor())
+				{
+					case CENTER :
+						if (foo == transfer.getData())
+						{
+							transfer.reject();
+						}
+						provider.add(operate(transfer), foo);
+						tabletree.expand(foo);
+						break;
+					case TOP :
+						provider.addBefore(operate(transfer), foo);
+						break;
+					case BOTTOM :
+						provider.addAfter(operate(transfer), foo);
+						break;
+					default :
+						transfer.reject();
+				}
+
+				target.add(tabletree);
 			}
 		}.dropCenter("tr"));
-		
+
 		add(tabletree);
 	}
-	
+
 	private List<IColumn<Foo>> columns()
 	{
 		List<IColumn<Foo>> columns = new ArrayList<IColumn<Foo>>();
-		
+
 		columns.add(new TreeColumn<Foo>(Model.of("Name")));
 		columns.add(new PropertyColumn<Foo>(Model.of("Name"), "name"));
-		
+
 		return columns;
 	}
 }
