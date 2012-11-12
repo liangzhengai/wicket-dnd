@@ -27,6 +27,7 @@ import wicketdnd.Location;
 import wicketdnd.Operation;
 import wicketdnd.Reject;
 import wicketdnd.Transfer;
+import wickettree.AbstractTree.State;
 import wickettree.DefaultNestedTree;
 import wickettree.NestedTree;
 
@@ -99,7 +100,9 @@ public class TreeExample extends Example
 				if (location.getComponent() != tree)
 				{
 					Foo foo = location.getModelObject();
-					tree.expand(foo);
+					if (tree.getState(foo) == State.COLLAPSED) {
+						tree.expand(foo);
+					}
 				}
 			}
 

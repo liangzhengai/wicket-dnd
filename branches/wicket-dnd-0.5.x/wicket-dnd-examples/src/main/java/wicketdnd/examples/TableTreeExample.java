@@ -31,6 +31,7 @@ import wicketdnd.Location;
 import wicketdnd.Operation;
 import wicketdnd.Reject;
 import wicketdnd.Transfer;
+import wickettree.AbstractTree.State;
 import wickettree.DefaultTableTree;
 import wickettree.TableTree;
 import wickettree.table.TreeColumn;
@@ -98,7 +99,9 @@ public class TableTreeExample extends Example
 			public void onDrag(AjaxRequestTarget target, Location location)
 			{
 				Foo foo = location.getModelObject();
-				tabletree.expand(foo);
+				if (tabletree.getState(foo) == State.COLLAPSED) {
+					tabletree.expand(foo);
+				}
 			}
 
 			@Override
