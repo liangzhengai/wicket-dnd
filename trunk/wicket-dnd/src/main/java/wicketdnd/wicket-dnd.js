@@ -123,7 +123,9 @@
 						} else {
 							newLocation = target.findLocation(event);
 						}
-						if (newLocation != location) {
+						if (newLocation.id != location.id || newLocation.anchor != location.anchor) {
+							Wicket.Log.info('wicket-dnd: switching location');
+
 							location.unmark();
 							location = newLocation;
 							location.mark();
