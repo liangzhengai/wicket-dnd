@@ -22,6 +22,7 @@ import java.util.Set;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.extensions.markup.html.repeater.tree.AbstractTree.State;
 import org.apache.wicket.extensions.markup.html.repeater.tree.DefaultTableTree;
 import org.apache.wicket.extensions.markup.html.repeater.tree.TableTree;
 import org.apache.wicket.extensions.markup.html.repeater.tree.table.TreeColumn;
@@ -98,7 +99,9 @@ public class TableTreeExample extends Example
 			public void onDrag(AjaxRequestTarget target, Location location)
 			{
 				Foo foo = location.getModelObject();
-				tabletree.expand(foo);
+				if (tabletree.getState(foo) == State.COLLAPSED) {
+					tabletree.expand(foo);
+				}
 			}
 
 			@Override

@@ -19,6 +19,7 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.extensions.markup.html.repeater.tree.AbstractTree.State;
 import org.apache.wicket.extensions.markup.html.repeater.tree.DefaultNestedTree;
 import org.apache.wicket.extensions.markup.html.repeater.tree.NestedTree;
 import org.apache.wicket.model.IModel;
@@ -99,7 +100,9 @@ public class TreeExample extends Example
 				if (location.getComponent() != tree)
 				{
 					Foo foo = location.getModelObject();
-					tree.expand(foo);
+					if (tree.getState(foo) == State.COLLAPSED) {
+						tree.expand(foo);
+					}
 				}
 			}
 
