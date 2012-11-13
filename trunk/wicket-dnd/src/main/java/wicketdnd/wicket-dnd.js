@@ -54,13 +54,13 @@
 				};
 
 				function transfer(id) {
-					mark(id);
-					
 					var shift = false;
 					var ctrl = false;
 
 					var hover = createHover(id);
 					$('body').append(hover);
+
+					mark(id);
 
 					var target = undefined;
 					var location = wicketdnd.locationNone;
