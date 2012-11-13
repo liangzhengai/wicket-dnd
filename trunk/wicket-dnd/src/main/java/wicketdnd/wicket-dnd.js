@@ -14,9 +14,7 @@
 			DELAY: 1000,
 		
 			dragSource: function(id, componentPath, operations, types, selectors) {
-				var element = Wicket.$(id);
-
-				$(element).on('mousedown', selectors.initiate, function(event) {
+				$('#' + id).on('mousedown', selectors.initiate, function(event) {
 					if ($(event.target).is('input,select,option,button,textarea')) {
 						return;
 					}
@@ -26,19 +24,19 @@
 						event.preventDefault();
 						event.stopPropagation();
 
-						gesture(closest, wicketdnd.position(event));
+						gesture(closest.id, wicketdnd.position(event));
 					} else {
 						Wicket.Log.error('wicket-dnd: drag matched selector but does not have markup id');
 					}
 				});
 
-				function gesture(element, startPosition) {
+				function gesture(id, startPosition) {
 					$(document).on('mousemove.wicketdnd', function(event) {
 						var distance = wicketdnd.distance(wicketdnd.position(event), startPosition);
 						if (distance >= wicketdnd.THRESHOLD) {
 							$(document).off('.wicketdnd');
 	
-							transfer(element);
+							transfer(id);
 						}
 					});
 
@@ -47,11 +45,21 @@
 					});
 				};
 
-				function transfer(element) {
+				function mark(id) {
+					$('#' + id).addClass("dnd-drag");
+				};
+
+				function unmark(id) {
+					$('#' + id).removeClass("dnd-drag");
+				};
+
+				function transfer(id) {
+					mark(id);
+					
 					var shift = false;
 					var ctrl = false;
 
-					var hover = createHover($(element));
+					var hover = createHover(id);
 					$('body').append(hover);
 
 					var target = undefined;
@@ -62,8 +70,6 @@
 
 					var notifier = undefined;
 					
-					$(element).addClass("dnd-drag");
-
 					$(document).on('mousemove.wicketdnd', function(event) {
 						hover.css({'left' : (event.pageX + wicketdnd.OFFSET) + 'px', 'top' : (event.pageY + wicketdnd.OFFSET) + 'px'});
 						
@@ -81,7 +87,7 @@
 					$(document).on('mouseup.wicketdnd', function(event) {
 						hover.remove();
 
-						$(element).removeClass("dnd-drag");
+						unmark(id);
 
 						$(document).off('.wicketdnd');
 
@@ -92,7 +98,7 @@
 						location.unmark();
 
 						if (operation.name != 'NONE') {
-							target.notify('drop', operation, componentPath, element, location, undefined);
+							target.notify('drop', operation, componentPath, id, location, undefined);
 							target = undefined;
 						}
 					});
@@ -131,10 +137,11 @@
 							if (newLocation != wicketdnd.locationNone) {
 								var newNotifier = function() {
 									if (notifier === newNotifier && location !== wicketdnd.locationNone) {
-										target.notify('drag', operation, componentPath, element, location, success);
+										target.notify('drag', operation, componentPath, id, location, success);
 									}
 								};
 								var success = function() {
+									mark(id);
 									location.mark();
 								};
 								notifier = newNotifier;
@@ -147,7 +154,8 @@
 					$(document).on('keyup.wicketdnd', false, keyUpOrDown);
 				};
 
-				function createHover(original) {
+				function createHover(id) {
+					var original = $('#' + id);
 					if (!original.is(selectors.clone)) {
 						original = original.find(selectors.clone);
 					}
@@ -222,7 +230,7 @@
 
 						return location;
 					},
-					'notify' : function(phase, operation, componentPath, element, location, success) {
+					'notify' : function(phase, operation, componentPath, id, location, success) {
 						var attrs = {
 							'u': callbackUrl,
 							'ep': {},
@@ -231,7 +239,7 @@
 						attrs.ep['phase'] = phase;
 						attrs.ep['operation'] = operation.name;
 						attrs.ep['source'] = componentPath;
-						attrs.ep['drag'] = element.id;
+						attrs.ep['drag'] = id;
 						attrs.ep['component'] = location.id;
 						attrs.ep['anchor'] = location.anchor;
 						Wicket.Ajax.ajax(attrs);
