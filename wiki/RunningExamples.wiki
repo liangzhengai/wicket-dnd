@@ -3,11 +3,12 @@
 To run wicket-dnd-examples, do the following:
 
   * svn checkout http://wicket-dnd.googlecode.com/svn/trunk/ wicket-dnd
-  * cd wicket-dnd/wicket-dnd-examples/
-  * mvn package
+  * cd wicket-dnd/
+  * mvn clean install
+  * cd wicket-dnd-examples/
   * mvn jetty:run
 
-Then open http://localhost:8080/wicket-dnd-examples/ in your browser.
+Then open http://localhost:8080/ in your browser.
 
 To edit the examples in Eclipse:
 
