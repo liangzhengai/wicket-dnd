@@ -158,6 +158,12 @@
         </repository>
     </distributionManagement>
 
+    <scm>
+        <connection>scm:svn:https://wicket-dnd.googlecode.com/svn/trunk</connection>
+        <developerConnection>scm:svn:https://wicket-dnd.googlecode.com/svn/trunk/</developerConnection>
+        <url>https://wicket-dnd.googlecode.com/svn/trunk</url>
+    </scm> 
+
     <modules>
         <module>wicket-dnd</module>
         <module>wicket-dnd-examples</module>
