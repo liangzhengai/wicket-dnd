@@ -93,14 +93,16 @@
 
 						operation.unmark();
 
-						notifier = undefined;
-
 						location.unmark();
 
 						if (operation.name != 'NONE') {
 							target.notify('drop', operation, componentPath, id, location, undefined);
 							target = undefined;
 						}
+
+						id = undefined;
+						location = wicketdnd.locationNone;
+						notifier = undefined;
 					});
 
 					var keyUpOrDown = function(event) {
