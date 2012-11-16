@@ -67,3 +67,13 @@ table {
 tr.even {
 	background: #eeeeee;
 }
+
+div.scroller {
+	height: 240px;
+	width: 240px;
+	overflow: scroll;
+}
+
+div.scroller table {
+	width: 480px;
+}

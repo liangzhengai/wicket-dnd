@@ -73,15 +73,21 @@
 					$(document).on('mousemove.wicketdnd', function(event) {
 						hover.css({'left' : (event.pageX + wicketdnd.OFFSET) + 'px', 'top' : (event.pageY + wicketdnd.OFFSET) + 'px'});
 						
-						if (!$(event.target).hasClass('dnd')) {
-							target = wicketdnd.findTarget(event);
-
-							updateLocation(target, event);
-
-							type = wicketdnd.findType(types, location.types);
-
-							updateOperation();
+						if ($(event.target).hasClass('dnd-hover-cover') ||
+						    $(event.target).hasClass('dnd-drop-top') ||
+						    $(event.target).hasClass('dnd-drop-bottom') ||
+						    $(event.target).hasClass('dnd-drop-left') ||
+						    $(event.target).hasClass('dnd-drop-right')) {
+							return;
 						}
+
+						target = wicketdnd.findTarget(event);
+
+						updateLocation(target, event);
+
+						type = wicketdnd.findType(types, location.types);
+
+						updateOperation();
 					});
 
 					$(document).on('mouseup.wicketdnd', function(event) {
@@ -167,19 +173,19 @@
 
 					if (clone.is('td')) {
 						var tr = $('<tr>');
-						tr.addClass('dnd dnd-hover-tr');
+						tr.addClass('dnd-hover-tr');
 						tr.append(clone);
 						clone = tr;
 					}
 					if (clone.is('tr')) {
 						var tbody = $('<tbody>');
-						tbody.addClass('dnd dnd-hover-tbody');
+						tbody.addClass('dnd-hover-tbody');
 						tbody.append(clone);
 						clone = tbody;
 					}
 					if (clone.is('tbody')) {
 						var table = $('<table>');
-						table.addClass('dnd dnd-hover-table');
+						table.addClass('dnd-hover-table');
 						table.append(clone);
 						clone = table;
 					}
@@ -187,13 +193,13 @@
 					clone.css({ 'width' : original.outerWidth() + 'px', 'height' : original.outerHeight() + 'px' });
 
 					var hover = $('<div>');
-					hover.addClass('dnd dnd-hover');
+					hover.addClass('dnd-hover');
 					hover.append(clone);		
 
 					var cover = $('<div>');
-					cover.addClass('dnd dnd-hover-cover');
+					cover.addClass('dnd-hover-cover');
 					hover.append(cover);
-		
+
 					return hover;
 				};
 			},
@@ -201,7 +207,7 @@
 			dropTarget: function(id, callbackUrl, operations, types, selectors) {
 				var element = Wicket.$(id);
 
-				$(element).data('wicketdnd', {
+				$(element).data('drop-target', {
 					'callbackUrl' : callbackUrl,
 					'operations' : operations,
 					'types' : types,
@@ -270,6 +276,7 @@
 					var leftMargin = wicketdnd.MARGIN;
 					var rightMargin = wicketdnd.MARGIN;
 
+					var base = $(element).offset();
 					var offset = $(candidate).offset();
 					var width = $(candidate).outerWidth();
 					var height = $(candidate).outerHeight();
@@ -283,60 +290,60 @@
 					}
 			
 					if ($(candidate).is(selectors.top) && (position.top <= offset.top + topMargin)) {
-						var _div = $('<div>').addClass('dnd dnd-drop-top');
+						var _div = $('<div>').addClass('dnd-drop-top');
 						location = {
 							'id' : candidate.id,
 							'operations' : operations,
 							'types' : types,
 							'anchor' : 'TOP',
 							'mark' : function() {
-								$('body').append(_div);
-								_div.css({ 'left' : offset.left + 'px', 'top' : (offset.top - _div.outerHeight()/2) + 'px', 'width' : width + 'px'});
+								$(element).append(_div);
+								_div.css({ 'left' : (offset.left - base.left) + 'px', 'top' : (offset.top - base.top - _div.outerHeight()/2) + 'px', 'width' : width + 'px'});
 							},
 							'unmark' : function() {
 								_div.remove();
 							}
 						};
 					} else if ($(candidate).is(selectors.bottom) && (position.top >= offset.top + height - bottomMargin)) {
-						var _div = $('<div>').addClass('dnd dnd-drop-bottom');
+						var _div = $('<div>').addClass('dnd-drop-bottom');
 						location = {
 							'id' : candidate.id,
 							'operations' : operations,
 							'types' : types,
 							'anchor' : 'BOTTOM',
 							'mark' : function() {
-								$('body').append(_div);
-								_div.css({ 'left' : offset.left + 'px', 'top' : (offset.top + height - _div.outerHeight()/2) + 'px', 'width' : width + 'px'});
+								$(element).append(_div);
+								_div.css({ 'left' : (offset.left - base.left)  + 'px', 'top' : (offset.top - base.top + height - _div.outerHeight()/2) + 'px', 'width' : width + 'px'});
 							},
 							'unmark' : function() {
 								_div.remove();
 							}
 						};
 					} else if ($(candidate).is(selectors.left) && (position.left <= offset.left + leftMargin)) {
-						var _div = $('<div>').addClass('dnd dnd-drop-left');
+						var _div = $('<div>').addClass('dnd-drop-left');
 						location = {
 							'id' : candidate.id,
 							'operations' : operations,
 							'types' : types,
 							'anchor' : 'LEFT',
 							'mark' : function() {
-								$('body').append(_div);
-								_div.css({ 'left' : (offset.left - _div.outerWidth()/2) + 'px', 'top' : offset.top + 'px', 'height' : height + 'px'});
+								$(element).append(_div);
+								_div.css({ 'left' : (offset.left - base.left - _div.outerWidth()/2) + 'px', 'top' : (offset.top - base.top) + 'px', 'height' : height + 'px'});
 							},
 							'unmark' : function() {
 								_div.remove();
 							}
 						};
 					} else if ($(candidate).is(selectors.right) && (position.left >= offset.left + width - rightMargin)) {
-						var _div = $('<div>').addClass('dnd dnd-drop-right');
+						var _div = $('<div>').addClass('dnd-drop-right');
 						location = {
 							'id' : candidate.id,
 							'operations' : operations,
 							'types' : types,
 							'anchor' : 'RIGHT',
 							'mark' : function() {
-								$('body').append(_div);
-								_div.css({ 'left' : (offset.left + width - _div.outerWidth()/2) + 'px', 'top' : offset.top + 'px', 'height' : height + 'px'});
+								$(element).append(_div);
+								_div.css({ 'left' : (offset.left - base.left + width - _div.outerWidth()/2) + 'px', 'top' : (offset.top - base.top)  + 'px', 'height' : height + 'px'});
 							},
 							'unmark' : function() {
 								_div.remove();
@@ -351,7 +358,7 @@
 			findTarget: function(event) {
 				var candidate = event.target;
 				while (candidate) {
-					var data = $(candidate).data('wicketdnd');
+					var data = $(candidate).data('drop-target');
 					if (data) {
 						return data;
 					}

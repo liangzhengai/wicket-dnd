@@ -133,6 +133,7 @@ public class TableExample extends Example
 	{
 		List<IColumn<Foo,String>> columns = new ArrayList<IColumn<Foo,String>>();
 		columns.add( new PropertyColumn<Foo,String>(Model.of("Name"), "name"));
+		columns.add( new PropertyColumn<Foo,String>(Model.of("Name"), "name"));
 		return columns;
 	}
 }

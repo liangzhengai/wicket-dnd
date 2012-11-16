@@ -25,6 +25,7 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.WicketRuntimeException;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -219,6 +220,14 @@ public class DropTarget extends AbstractDefaultAjaxBehavior
 		response.render(OnDomReadyHeaderItem.forScript(initJS));
 	}
 
+	@Override
+	protected void onComponentTag(ComponentTag tag)
+	{
+		super.onComponentTag(tag);
+		
+		tag.append("class", "dnd-drop-target", " ");
+	}
+	
 	/**
 	 * Get supported operations.
 	 * 

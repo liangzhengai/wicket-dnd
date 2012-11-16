@@ -27,10 +27,13 @@ div.dnd-hover-cover {
 	border-spacing: 0px;
 	border-collapse: collapse:
 }
+.dnd-drag-source {
+}
 .dnd-drag {
 	background-color: #fccb7f !important;
 }
-.dnd-drop {
+.dnd-drop-target {
+	position: relative;
 }
 .dnd-drop-center {
 	background-color: #fccb7f !important;
@@ -40,22 +43,26 @@ div.dnd-hover-cover {
 	background: #000000;
 	height: 2px;
 	overflow: hidden;
+	z-index: 1000;
 }
 .dnd-drop-bottom {
 	position: absolute;
 	background: #000000;
 	height: 2px;
 	overflow: hidden;
+	z-index: 1000;
 }
 .dnd-drop-left {
 	position: absolute;
 	background: #000000;
 	width: 2px;
 	overflow: hidden;
+	z-index: 1000;
 }
 .dnd-drop-right {
 	position: absolute;
 	background: #000000;
 	width: 2px;
 	overflow: hidden;
+	z-index: 1000;
 }

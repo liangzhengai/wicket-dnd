@@ -22,6 +22,7 @@ import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.Page;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -168,6 +169,14 @@ public class DragSource extends Behavior
 				id, path, new CollectionFormattable(getOperations()), new CollectionFormattable(
 						getTypes()), selector, initiateSelector, cloneSelector);
 		response.render(OnDomReadyHeaderItem.forScript(initJS));
+	}
+
+	@Override
+	public void onComponentTag(Component component, ComponentTag tag)
+	{
+		super.onComponentTag(component, tag);
+		
+		tag.append("class", "dnd-drag-source", " ");
 	}
 
 	/**
