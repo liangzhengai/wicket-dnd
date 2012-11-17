@@ -63,7 +63,9 @@ span.initiate {
 
 table {
 	border-spacing: 0px;
+	border-collapse:collapse;
 }
+
 tr.even {
 	background: #eeeeee;
 }
@@ -72,6 +74,8 @@ div.scroller {
 	height: 240px;
 	width: 240px;
 	overflow: scroll;
+	/* must be relative too or nested table's overflow will not be hidden on IE8 */
+	position: relative;
 }
 
 div.scroller table {
