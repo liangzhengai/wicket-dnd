@@ -41,7 +41,7 @@ public class FooDataProvider implements ISortableDataProvider<Foo, String>
 		foos.add(new Foo("E"));
 		foos.add(new Foo("F"));
 		foos.add(new Foo("G"));
-		foos.add(new Foo("G"));
+		foos.add(new Foo("H"));
 		foos.add(new Foo("I"));
 		foos.add(new Foo("J"));
 	}
