@@ -32,6 +32,9 @@
 
 				function gesture(id, startPosition) {
 					$(document).on('mousemove.wicketdnd', function(event) {
+						event.preventDefault();
+						event.stopPropagation();
+
 						var distance = wicketdnd.distance(wicketdnd.position(event), startPosition);
 						if (distance >= wicketdnd.THRESHOLD) {
 							$(document).off('.wicketdnd');
@@ -71,6 +74,9 @@
 					var notifier = undefined;
 					
 					$(document).on('mousemove.wicketdnd', function(event) {
+						event.preventDefault();
+						event.stopPropagation();
+
 						hover.css({'left' : (event.pageX + wicketdnd.OFFSET) + 'px', 'top' : (event.pageY + wicketdnd.OFFSET) + 'px'});
 						
 						if ($(event.target).hasClass('dnd-hover-cover') ||
@@ -91,6 +97,9 @@
 					});
 
 					$(document).on('mouseup.wicketdnd', function(event) {
+						event.preventDefault();
+						event.stopPropagation();
+
 						hover.remove();
 
 						unmark(id);
@@ -405,7 +414,7 @@
 				for (var index = 0; index < sourceTypes.length; index++) {
 					var type = sourceTypes[index];
 			
-					if (targetTypes.indexOf(type) != -1) {
+					if ($.inArray(type, targetTypes) != -1) {
 						return type;
 					}
 				}
@@ -416,8 +425,8 @@
 
 				if (type != undefined) {
 					var allowed = function(operation) {
-						return sourceOperations.indexOf(operation) != -1 && 
-							targetOperations.indexOf(operation) != -1;
+						return $.inArray(operation, sourceOperations) != -1 && 
+						       $.inArray(operation, targetOperations) != -1;
 					};
 
 					if (shift) {
