@@ -12,6 +12,10 @@
 			OFFSET: 16,
 		
 			DELAY: 1000,
+
+			LINK : 16,
+
+			COPY : 17,
 		
 			dragSource: function(id, componentPath, operations, types, selectors) {
 				$('#' + id).on('mousedown', selectors.initiate, function(event) {
@@ -57,8 +61,8 @@
 				};
 
 				function transfer(id) {
-					var shift = false;
-					var ctrl = false;
+					var link = false;
+					var copy = false;
 
 					var hover = createHover(id);
 					$('body').append(hover);
@@ -121,17 +125,17 @@
 					});
 
 					var keyUpOrDown = function(event) {
-						if (event.which == 16) {
-							shift = event.data;
+						if (event.which == wicketdnd.LINK) {
+							link = event.data;
 						}
-						if (event.which == 17) {
-							ctrl = event.data;
+						if (event.which == wicketdnd.COPY) {
+							copy = event.data;
 						}
 						updateOperation();
 					};
 
 					var updateOperation = function() {
-						var newOperation = wicketdnd.findOperation(shift, ctrl, type, operations, location.operations);
+						var newOperation = wicketdnd.findOperation(link, copy, type, operations, location.operations);
 						if (newOperation.name != operation.name) {
 							operation.unmark();
 							operation = newOperation;
@@ -421,7 +425,7 @@
 				return undefined;
 			},
 
-			findOperation: function(shift, ctrl, type, sourceOperations, targetOperations) {
+			findOperation: function(link, copy, type, sourceOperations, targetOperations) {
 
 				if (type != undefined) {
 					var allowed = function(operation) {
@@ -429,11 +433,11 @@
 						       $.inArray(operation, targetOperations) != -1;
 					};
 
-					if (shift) {
+					if (link) {
 						if (allowed('LINK')) {
 							return wicketdnd.operation('LINK');
 						}
-					} else if (ctrl) {
+					} else if (copy) {
 						if (allowed('COPY')) {
 							return wicketdnd.operation('COPY');
 						}
