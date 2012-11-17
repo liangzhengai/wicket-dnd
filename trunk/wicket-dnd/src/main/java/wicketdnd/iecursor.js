@@ -54,7 +54,7 @@ var IECursor = {
 			newCursor += oldCursor.substring(index, from);
 				
 			var url = oldCursor.substring(from, to);
-			if (!url.startsWith("/")) {
+			if (!url.indexOf("/") == 0) {
 				newCursor += path;
 			}
 			newCursor += url;
