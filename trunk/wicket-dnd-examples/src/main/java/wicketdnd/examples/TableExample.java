@@ -83,7 +83,7 @@ public class TableExample extends Example
 					target.add(table);
 				}
 			}
-		}.drag("tr"));
+		}.drag("tbody tr"));
 		table.add(new DropTarget()
 		{
 			@Override
