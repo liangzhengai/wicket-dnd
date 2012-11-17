@@ -15,6 +15,7 @@
  */
 package wicketdnd;
 
+import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
@@ -34,7 +35,8 @@ public class IEBackgroundImageCacheFix extends Behavior
 
 	private static final long serialVersionUID = 1L;
 
-	public final void renderHead(IHeaderResponse response)
+	@Override
+	public void renderHead(Component component, IHeaderResponse response)
 	{
 		WebClientInfo info = new WebClientInfo(RequestCycle.get());
 		if (info.getProperties().isBrowserInternetExplorer())
