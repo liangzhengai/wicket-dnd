@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormChoiceComponentUpdatingBehavior;
+import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBoxMultipleChoice;
@@ -48,9 +51,15 @@ public abstract class Example extends Panel
 
 	private String[] types = new String[] { Transfer.ANY };
 
+	protected WebMarkupContainer content;
+
 	public Example(String id)
 	{
 		super(id);
+
+		content = new WebMarkupContainer("content");
+		content.setOutputMarkupId(true);
+		add(content);
 
 		operations = new ArrayList<Operation>();
 		operations.addAll(EnumSet.allOf(Operation.class));
@@ -69,15 +78,29 @@ public abstract class Example extends Panel
 			}
 		}));
 
-		WebMarkupContainer controls = new WebMarkupContainer("controls",
+		final WebMarkupContainer controls = new WebMarkupContainer("controls",
 				new CompoundPropertyModel<Example>(this));
 		add(controls);
 
-		controls.add(new CheckBoxMultipleChoice<Operation>("dragOperations", operations)
-				.setSuffix(""));
+		controls.add(new CheckBoxMultipleChoice<Operation>("dragOperations", operations).setSuffix(
+				"").add(new AjaxFormChoiceComponentUpdatingBehavior()
+		{
+			@Override
+			protected void onUpdate(AjaxRequestTarget target)
+			{
+				target.add(content);
+			}
+		}));
 
-		controls.add(new CheckBoxMultipleChoice<Operation>("dropOperations", operations)
-				.setSuffix(""));
+		controls.add(new CheckBoxMultipleChoice<Operation>("dropOperations", operations).setSuffix(
+				"").add(new AjaxFormChoiceComponentUpdatingBehavior()
+		{
+			@Override
+			protected void onUpdate(AjaxRequestTarget target)
+			{
+				target.add(content);
+			}
+		}));
 
 		controls.add(new TextField<String[]>("types", String[].class)
 		{
@@ -87,7 +110,14 @@ public abstract class Example extends Panel
 			{
 				return (IConverter<C>)new StringArrayConverter();
 			}
-		}.setConvertEmptyInputStringToNull(false));
+		}.setConvertEmptyInputStringToNull(false).add(new OnChangeAjaxBehavior()
+		{
+			@Override
+			protected void onUpdate(AjaxRequestTarget target)
+			{
+				target.add(content);
+			}
+		}));
 	}
 
 	protected Set<Operation> dragOperations()
@@ -144,8 +174,9 @@ public abstract class Example extends Panel
 		public String[] convertToObject(String value, Locale locale)
 		{
 			String[] strings = Strings.split(value, ',');
-			if (strings.length == 0) {
-				strings = new String[]{""};
+			if (strings.length == 0)
+			{
+				strings = new String[] { "" };
 			}
 			return strings;
 		}

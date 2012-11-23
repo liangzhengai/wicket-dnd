@@ -146,8 +146,7 @@ public class TreeExample extends Example
 				target.add(tree);
 			}
 		}.dropCenter("span.tree-content, div.treeContainer").dropTopAndBottom("div.tree-branch"));
-		// Note: CSS selector 'or' (comma) doesn't work with prototype < 1.7
 		tree.setOutputMarkupId(true);
-		add(tree);
+		content.add(tree);
 	}
 }

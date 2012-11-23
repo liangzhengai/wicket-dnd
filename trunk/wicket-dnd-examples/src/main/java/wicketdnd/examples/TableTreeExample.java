@@ -80,7 +80,7 @@ public class TableTreeExample extends Example
 					target.add(tabletree);
 				}
 			}
-		}.drag("tr").initiate("span.tree-content"));
+		}.drag("tr").initiate("span.tree-content").clone("span.tree-content"));
 		tabletree.add(new DropTarget()
 		{
 			@Override
@@ -135,8 +135,7 @@ public class TableTreeExample extends Example
 					target.add(tabletree);
 			}
 		}.dropCenter("tbody tr"));
-		
-		add(tabletree);
+		content.add(tabletree);
 	}
 	
 	private List<IColumn<Foo,String>> columns()

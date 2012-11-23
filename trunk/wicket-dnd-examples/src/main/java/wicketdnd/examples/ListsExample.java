@@ -19,8 +19,9 @@ import java.util.Set;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.OnChangeAjaxBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.IModel;
@@ -41,8 +42,8 @@ public class ListsExample extends Example
 	{
 		super(id);
 
-		add(newList("vertical"));
-		add(newList("horizontal"));
+		content.add(newList("vertical"));
+		content.add(newList("horizontal"));
 
 		setTypes(new String[] { "toolbar" });
 	}
@@ -65,7 +66,14 @@ public class ListsExample extends Example
 			@Override
 			protected void populateItem(ListItem<Foo> item)
 			{
-				item.add(new Label("name", new PropertyModel<String>(item.getModel(), "name")));
+				item.add(new TextField<String>("name", new PropertyModel<String>(item.getModel(),
+						"name")).add(new OnChangeAjaxBehavior()
+				{
+					@Override
+					protected void onUpdate(AjaxRequestTarget target)
+					{
+					}
+				}));
 			}
 		};
 		list.add(items);

@@ -41,6 +41,9 @@ div.vertical div.item {
 	border-left: 1px solid #eeeeee;
 	background: #dddddd;
 }
+div.horizontal {
+	width: 50%;
+}
 div.horizontal div.item {
 	float:left;
 	padding-right: 16px;

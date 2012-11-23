@@ -72,8 +72,6 @@ public class ExamplePage extends WebPage
 			}
 		});
 
-		form.add(new Button("change"));
-
 		RepeatingView examples = new RepeatingView("examples");
 		examples.add(new LabelExample(examples.newChildId()));
 		examples.add(new ListsExample(examples.newChildId()));

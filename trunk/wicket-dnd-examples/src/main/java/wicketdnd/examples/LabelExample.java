@@ -42,7 +42,6 @@ public class LabelExample extends Example
 		super(id);
 
 		final WebMarkupContainer container = new WebMarkupContainer("container");
-		add(container);
 		container.add(new DragSource()
 		{
 			@Override
@@ -94,6 +93,7 @@ public class LabelExample extends Example
 				target.add(container);
 			}
 		}.dropCenter(".labelContainer"));
+		content.add(container);
 		
 		final Label label = new Label("label", model)
 		{

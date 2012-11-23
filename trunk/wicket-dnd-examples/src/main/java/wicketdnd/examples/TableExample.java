@@ -83,7 +83,7 @@ public class TableExample extends Example
 					target.add(table);
 				}
 			}
-		}.drag("tbody tr"));
+		}.drag("tbody tr").clone("td:first"));
 		table.add(new DropTarget()
 		{
 			@Override
@@ -125,8 +125,7 @@ public class TableExample extends Example
 				target.add(table);
 			}
 		}.dropTopAndBottom("tbody tr").dropCenter("table"));
-		
-		add(table);
+		content.add(table);
 	}
 
 	private List<IColumn<Foo,String>> columns()
