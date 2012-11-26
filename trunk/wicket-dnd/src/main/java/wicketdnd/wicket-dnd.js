@@ -75,7 +75,7 @@
 					var operation = wicketdnd.operation('NONE');
 					operation.mark();
 
-					var notifier = undefined;
+					var timeout = undefined;
 					
 					$(document).on('mousemove.wicketdnd', function(event) {
 						event.preventDefault();
@@ -112,16 +112,14 @@
 
 						operation.unmark();
 
-						location.unmark();
-
 						if (operation.name != 'NONE') {
 							target.notify('drop', operation, componentPath, id, location, undefined);
 							target = undefined;
 						}
 
 						id = undefined;
-						location = wicketdnd.locationNone;
-						notifier = undefined;
+
+						setLocation(wicketdnd.locationNone);
 					});
 
 					var keyUpOrDown = function(event) {
@@ -151,23 +149,37 @@
 							newLocation = target.findLocation(event);
 						}
 						if (newLocation.id != location.id || newLocation.anchor != location.anchor) {
-							location.unmark();
-							location = newLocation;
-							location.mark();
+							setLocation(newLocation);
+						}
+					};
 
-							if (newLocation != wicketdnd.locationNone) {
-								var newNotifier = function() {
-									if (notifier === newNotifier && location !== wicketdnd.locationNone) {
-										target.notify('drag', operation, componentPath, id, location, success);
-									}
-								};
-								var success = function() {
-									mark(id);
-									location.mark();
-								};
-								notifier = newNotifier;
-								setTimeout(notifier, wicketdnd.DELAY);
-							}
+					var setLocation = function(newLocation) {
+						location.unmark();
+						location = newLocation;
+						location.mark();
+
+						if (timeout) {
+							clearTimeout(timeout);
+						}
+						timeout = undefined;
+						if (newLocation != wicketdnd.locationNone) {
+							timeout = setTimeout(
+								function() {
+									target.notify(
+										'drag',
+										operation,
+										componentPath,
+										id,
+										location,
+										function() {
+											mark(id);
+											location.mark();
+										}
+									);
+									timeout = undefined;
+								},
+								wicketdnd.DELAY
+							);
 						}
 					};
 
