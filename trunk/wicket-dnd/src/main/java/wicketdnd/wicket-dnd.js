@@ -122,7 +122,7 @@
 						setLocation(wicketdnd.locationNone);
 					});
 
-					var keyUpOrDown = function(event) {
+					function keyUpOrDown(event) {
 						if (event.which == wicketdnd.LINK) {
 							link = event.data;
 						}
@@ -132,7 +132,7 @@
 						updateOperation();
 					};
 
-					var updateOperation = function() {
+					function updateOperation() {
 						var newOperation = wicketdnd.findOperation(link, copy, type, operations, location.operations);
 						if (newOperation.name != operation.name) {
 							operation.unmark();
@@ -141,7 +141,7 @@
 						}
 					};
 
-					var updateLocation = function(target, event) {
+					function updateLocation(target, event) {
 						var newLocation;
 						if (target === undefined) {
 							newLocation = wicketdnd.locationNone;
@@ -153,7 +153,7 @@
 						}
 					};
 
-					var setLocation = function(newLocation) {
+					function setLocation(newLocation) {
 						location.unmark();
 						location = newLocation;
 						location.mark();
@@ -439,12 +439,12 @@
 
 			findOperation: function(link, copy, type, sourceOperations, targetOperations) {
 
-				if (type != undefined) {
-					var allowed = function(operation) {
-						return $.inArray(operation, sourceOperations) != -1 && 
-						       $.inArray(operation, targetOperations) != -1;
-					};
+				function allowed(operation) {
+					return $.inArray(operation, sourceOperations) != -1 && 
+					       $.inArray(operation, targetOperations) != -1;
+				};
 
+				if (type != undefined) {
 					if (link) {
 						if (allowed('LINK')) {
 							return wicketdnd.operation('LINK');
