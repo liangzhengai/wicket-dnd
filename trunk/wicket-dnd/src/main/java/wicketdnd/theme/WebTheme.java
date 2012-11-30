@@ -15,17 +15,26 @@
  */
 package wicketdnd.theme;
 
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.request.resource.CssResourceReference;
+import org.apache.wicket.request.resource.ResourceReference;
 
 /**
  * @author Sven Meier
  */
-public class WebTheme extends CssResourceReference
+public class WebTheme extends Behavior
 {
 	private static final long serialVersionUID = 1L;
 
-	public WebTheme()
+	private static final ResourceReference CSS = new CssResourceReference(WindowsTheme.class,
+			"web/theme.css");
+
+	@Override
+	public void renderHead(Component component, IHeaderResponse response)
 	{
-		super(WebTheme.class, "web/theme.css");
+		response.render(CssHeaderItem.forReference(CSS));
 	}
 }
