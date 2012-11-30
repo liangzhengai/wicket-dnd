@@ -18,16 +18,16 @@ package wicketdnd.examples;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.wicket.markup.head.CssReferenceHeaderItem;
+import org.apache.wicket.Component;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
-import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.PropertyModel;
-import org.apache.wicket.request.resource.ResourceReference;
 
 import wicketdnd.IEBackgroundImageCacheFix;
 import wicketdnd.IECursorFix;
@@ -43,9 +43,9 @@ public class ExamplePage extends WebPage
 
 	private static final long serialVersionUID = 1L;
 
-	private List<ResourceReference> themes;
+	private List<Behavior> themes;
 
-	private ResourceReference theme;
+	private Behavior theme;
 
 	public ExamplePage()
 	{
@@ -53,15 +53,31 @@ public class ExamplePage extends WebPage
 		add(new IEBackgroundImageCacheFix());
 
 		// for a static theme use the following:
-		// form.add(CSSPackageResource.getHeaderContribution(new WebTheme()));
+		// add(new WebTheme()));
+		add(new Behavior()
+		{
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public void onComponentTag(Component component, ComponentTag tag)
+			{
+				theme.onComponentTag(component, tag);
+			}
+
+			@Override
+			public void renderHead(Component component, IHeaderResponse response)
+			{
+				theme.renderHead(component, response);
+			}
+		});
+		
 		// dynamic theme selection
 		Form<Void> form = new Form<Void>("form");
 		add(form);
 
-		form.add(new DropDownChoice<ResourceReference>("theme",
-				new PropertyModel<ResourceReference>(this, "theme"), initThemes(),
-				new ChoiceRenderer<ResourceReference>("class.simpleName"))
+		form.add(new DropDownChoice<Behavior>("theme",
+				new PropertyModel<Behavior>(this, "theme"), initThemes(),
+				new ChoiceRenderer<Behavior>("class.simpleName"))
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -80,17 +96,10 @@ public class ExamplePage extends WebPage
 		examples.add(new TableTreeExample(examples.newChildId()));
 		form.add(examples);
 	}
-	
-	@Override
-	public void renderHead(IHeaderResponse response)
+
+	private List<Behavior> initThemes()
 	{
-		super.renderHead(response);
-		response.render(CssReferenceHeaderItem.forReference(theme));
-	}
-	
-	private List<ResourceReference> initThemes()
-	{
-		themes = new ArrayList<ResourceReference>();
+		themes = new ArrayList<Behavior>();
 
 		themes.add(new WindowsTheme());
 		themes.add(new HumanTheme());
