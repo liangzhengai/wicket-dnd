@@ -53,7 +53,7 @@ public class FooDataProvider implements ISortableDataProvider<Foo, String>
 
 	public Iterator<? extends Foo> iterator(long first, long count)
 	{
-		return foos.iterator();
+		return foos.subList((int)first, (int)(first + count)).iterator();
 	}
 
 	public IModel<Foo> model(Foo foo)
