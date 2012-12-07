@@ -30,16 +30,15 @@ table.dnd-hover-table {
 	display: block;
 }
 
-.dnd-theme-windows .dnd-drag-source {
+.dnd-drop-target {
+	position: relative;
 }
+
 .dnd-theme-windows .dnd-drag  {
 	background-color: #0000ee !important;
 	color: #FFFFFF !important;
 }
 
-.dnd-theme-windows .dnd-drop-target {
-	position: relative;
-}
 .dnd-theme-windows .dnd-drop-center {
 	background-color: #0000ee !important;
 	color: #FFFFFF;

@@ -47,15 +47,14 @@ table.dnd-hover-table {
 	display: block;
 }
 
-.dnd-theme-web .dnd-drag-source {
+.dnd-drop-target {
+	position: relative;
 }
+
 .dnd-theme-web .dnd-drag {
 	background-color: #cccccc !important;
 }
 
-.dnd-theme-web .dnd-drop-target {
-	position: relative;
-}
 .dnd-theme-web .dnd-drop-center {
 	background-color: #cccccc !important;
 }
