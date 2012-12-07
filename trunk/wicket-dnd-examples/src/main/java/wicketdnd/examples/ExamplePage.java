@@ -52,9 +52,12 @@ public class ExamplePage extends WebPage
 		add(new IECursorFix());
 		add(new IEBackgroundImageCacheFix());
 
-		// for a static theme use the following:
-		// add(new WebTheme()));
-		add(new Behavior()
+		// for a static theme just add a theme like the following:
+		// form.add(new WebTheme()));
+		
+		// dynamic theme selection
+		Form<Void> form = new Form<Void>("form");
+		form.add(new Behavior()
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -70,9 +73,6 @@ public class ExamplePage extends WebPage
 				theme.renderHead(component, response);
 			}
 		});
-		
-		// dynamic theme selection
-		Form<Void> form = new Form<Void>("form");
 		add(form);
 
 		form.add(new DropDownChoice<Behavior>("theme",

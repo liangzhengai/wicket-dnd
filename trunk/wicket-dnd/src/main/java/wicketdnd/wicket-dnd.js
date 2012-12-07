@@ -18,7 +18,9 @@
 			COPY : 17,
 		
 			dragSource: function(id, componentPath, operations, types, selectors) {
-				$('#' + id).on('mousedown', selectors.initiate, function(event) {
+				var element = Wicket.$(id);
+
+				$(element).on('mousedown', selectors.initiate, function(event) {
 					if ($(event.target).is('input,select,option,button,textarea')) {
 						return;
 					}

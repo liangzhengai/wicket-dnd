@@ -17,6 +17,7 @@ package wicketdnd.theme;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.head.CssHeaderItem;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.request.resource.CssResourceReference;
@@ -36,5 +37,11 @@ public class WebTheme extends Behavior
 	public void renderHead(Component component, IHeaderResponse response)
 	{
 		response.render(CssHeaderItem.forReference(CSS));
+	}
+	
+	@Override
+	public void onComponentTag(Component component, ComponentTag tag)
+	{
+		tag.append("class", "dnd-theme-web", " ");
 	}
 }
