@@ -4,5 +4,6 @@ Following the changes in Wicket from 1.4 to 1.5 you have to adjust your code for
     * on a table without rows: target.dropCenter("table")
     * on a table without rows *and* on rows: target.dropCenter("table, tbody tr")
 
-Migration to wicket-dnd 0.6 for Wicket 6 requires no changes on your part:
-  * no more dependency to wicketstuff-jslibraries since built-in jQuery is used
+Migration to wicket-dnd 0.6 for Wicket 6 requires only small changes:
+  * groupId has changed to 'com.github.wicket-dnd'
+  * wicketstuff-jslibraries is no longer a dependency since built-in jQuery is used
